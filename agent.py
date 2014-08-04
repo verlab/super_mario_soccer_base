@@ -282,8 +282,8 @@ class Agent(object):
                 else:
                     # move towards ball
                     if self.wm.ball is not None:
-                        if (self.wm.ball.direction is not None and
-                                        -7 <= self.wm.ball.direction <= 7):
+                        if self.wm.ball.direction is not None \
+                                and -7 <= self.wm.ball.direction <= 7:
                             self.wm.ah.dash(50)
                         else:
                             self.wm.turn_body_to_point((0, 0))

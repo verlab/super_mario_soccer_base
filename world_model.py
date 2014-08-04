@@ -495,7 +495,7 @@ class WorldModel:
         dy = obj.distance * math.sin(obj.direction)
 
         # return the point the object is at relative to our current position
-        return (self.abs_coords[0] + dx, self.abs_coords[1] + dy)
+        return self.abs_coords[0] + dx, self.abs_coords[1] + dy
 
     def teleport_to_point(self, point):
         """
@@ -522,7 +522,7 @@ class WorldModel:
         # holds tuples of (player dist to point, player)
         distances = []
         for p in self.players:
-            # skip enemy and unknwon players
+            # skip enemy and unknown players
             if p.side != self.side:
                 continue
 
