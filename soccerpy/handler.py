@@ -2,9 +2,12 @@ import collections
 import Queue as queue
 
 import message_parser
-import sp_exceptions
+from soccerpy import sp_exceptions
 import game_object
 from world_model import WorldModel
+
+
+
 
 
 # should we print messages received from the server?

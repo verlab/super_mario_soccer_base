@@ -1,9 +1,8 @@
 import math
 import random
 
-import message_parser
-import sp_exceptions
 import game_object
+
 
 class WorldModel:
     """

@@ -1,6 +1,6 @@
 class GameObject:
     """
-    Root class for all percievable objects in the world model.
+    Root class for all perceivable objects in the world model.
     """
 
     def __init__(self, distance, direction):
