@@ -39,7 +39,7 @@ class WorldModel:
 
         def __init__(self):
             raise NotImplementedError("Don't instantiate a PlayModes class,"
-                    " access it statically through WorldModel instead.")
+                                      " access it statically through WorldModel instead.")
 
     class RefereeMessages:
         """
@@ -64,7 +64,7 @@ class WorldModel:
 
         def __init__(self):
             raise NotImplementedError("Don't instantiate a RefereeMessages class,"
-                    " access it statically through WorldModel instead.")
+                                      " access it statically through WorldModel instead.")
 
     def __init__(self, action_handler):
         """
@@ -176,7 +176,7 @@ class WorldModel:
 
                 # skip points with a coordinate outside the play boundaries
                 if (new_point[0] > 60 or new_point[0] < -60 or
-                        new_point[1] < -40 or new_point[1] > 40):
+                            new_point[1] < -40 or new_point[1] > 40):
                     continue
 
                 # add point to list of all points
@@ -222,7 +222,7 @@ class WorldModel:
             for p in points:
                 # get a list of (distance to center, center coords) tuples
                 c_dists = map(lambda c: (self.euclidean_distance(c, p), c),
-                             centers)
+                              centers)
 
                 # find the smallest tuple's c (second item)
                 nearest_center = min(c_dists)[1]
@@ -414,7 +414,7 @@ class WorldModel:
         # difference bewteen actual aceivable power and maxpower.
         required_power = dist_ratio * self.server_parameters.maxpower
         effective_power = self.get_effective_kick_power(self.ball,
-                required_power)
+                                                        required_power)
         required_power += 1 - (effective_power / required_power)
 
         # add more power!
@@ -437,7 +437,7 @@ class WorldModel:
         # first we get effective kick power:
         # limit kick_power to be between minpower and maxpower
         kick_power = max(min(power, self.server_parameters.maxpower),
-                self.server_parameters.minpower)
+                         self.server_parameters.minpower)
 
         # scale it by the kick_power rate
         kick_power *= self.server_parameters.kick_power_rate
@@ -555,6 +555,7 @@ class WorldModel:
 
         self.ah.turn(obj.direction)
 
+
 class ServerParameters:
     """
     A storage container for all the settings of the soccer server.
@@ -594,7 +595,7 @@ class ServerParameters:
         self.coach_w_referee = 0
         self.connect_wait = 300
         self.control_radius = 2
-        self.dash_power_rate =0.006
+        self.dash_power_rate = 0.006
         self.drop_ball_time = 200
         self.effort_dec = 0.005
         self.effort_dec_thr = 0.3

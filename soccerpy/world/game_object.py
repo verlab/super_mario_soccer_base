@@ -1,3 +1,4 @@
+
 class GameObject:
     """
     Root class for all perceivable objects in the world model.

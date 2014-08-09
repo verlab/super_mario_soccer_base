@@ -3,11 +3,14 @@
 import threading
 import time
 
-from soccerpy import sp_exceptions
+import actions
+from soccerpy.communication import sock
+from soccerpy.util import sp_exceptions
+from soccerpy.world.world_model import WorldModel
 
-import sock
-import handler
-from world_model import WorldModel
+
+BYE_MESSAGE = "(bye)"
+INIT_MESSAGE = "(init %s (version %d))"
 
 
 class Agent(object):
@@ -56,13 +59,13 @@ class Agent(object):
         self.__sock = sock.Socket(host, port)
 
         # our models of the world and our body
-        self.wm = WorldModel(handler.ActionHandler(self.__sock))
+        self.wm = WorldModel(actions.ActionHandler(self.__sock))
 
         # set the team name of the world model to the given name
         self.wm.teamname = teamname
 
         # handles all messages received from the server
-        self.msg_handler = handler.MessageHandler(self.wm)
+        self.msg_handler = actions.MessageHandler(self.wm)
 
         # set up our threaded message receiving system
         self.__parsing = True  # tell thread that we're currently running
@@ -77,7 +80,7 @@ class Agent(object):
         # send the init message and allow the message handler to handle further
         # responses.
         init_address = self.__sock.address
-        init_msg = "(init %s (version %d))"
+        init_msg = INIT_MESSAGE
         self.__sock.send(init_msg % (teamname, version))
 
         # wait until the socket receives a response from the server and gets its
@@ -145,7 +148,7 @@ class Agent(object):
         self.__thinking = False
 
         # tell the server that we're quitting
-        self.__sock.send("(bye)")
+        self.__sock.send(BYE_MESSAGE)
 
         # tell our threads to join, but only wait briefly for them to do so.
         # don't join them if they haven't been started (this can happen if
@@ -178,7 +181,7 @@ class Agent(object):
 
             # we send commands all at once every cycle, ie. whenever a
             # 'sense_body' command is received
-            if msg_type == handler.ActionHandler.CommandType.SENSE_BODY:
+            if msg_type == actions.ActionHandler.CommandType.SENSE_BODY:
                 self.__send_commands = True
 
             # flag new data as needing the think loop's attention

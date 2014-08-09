@@ -25,8 +25,6 @@ if __name__ == "__main__":
     a.connect(HOST, PORT, team_name)
     a.play()
 
-
-
     # wait until killed to terminate agent processes
     try:
         while 1:
