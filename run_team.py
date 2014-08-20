@@ -2,7 +2,7 @@
 
 import time
 
-from soccerpy.agent import Agent
+from smsoccer.agent import Agent
 
 """
 Run N players in different threads.

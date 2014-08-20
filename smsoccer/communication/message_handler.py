@@ -4,9 +4,9 @@ import message_parser
 
 
 # should we print messages received from the server?
-from soccerpy.util import sp_exceptions
-from soccerpy.world import game_object
-from soccerpy.world.world_model import WorldModel
+from smsoccer.util import sp_exceptions
+from smsoccer.world import game_object
+from smsoccer.world.world_model import WorldModel
 
 PRINT_SERVER_MESSAGES = False
 

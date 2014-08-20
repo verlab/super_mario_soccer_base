@@ -3,12 +3,12 @@
 import threading
 import time
 
-from soccerpy.communication.action import ActionCommunicator
-from soccerpy.communication import sock
-from soccerpy.communication.message_handler import MessageHandler
-from soccerpy.strategy.formation import player_position
-from soccerpy.util import sp_exceptions
-from soccerpy.world.world_model import WorldModel
+from smsoccer.communication.action import ActionCommunicator
+from smsoccer.communication import sock
+from smsoccer.communication.message_handler import MessageHandler
+from smsoccer.strategy.formation import player_position
+from smsoccer.util import sp_exceptions
+from smsoccer.world.world_model import WorldModel
 
 
 BYE_MESSAGE = "(bye)"

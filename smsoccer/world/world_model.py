@@ -2,8 +2,8 @@ import math
 import random
 
 import game_object
-from soccerpy.util.geometric import euclidean_distance, angle_between_points
-from soccerpy.world.parameters import ServerParameters
+from smsoccer.util.geometric import euclidean_distance, angle_between_points
+from smsoccer.world.parameters import ServerParameters
 
 
 class WorldModel:

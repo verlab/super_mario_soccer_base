@@ -3,7 +3,7 @@
 import time
 import sys
 
-from soccerpy.agent import Agent
+from smsoccer.agent import Agent
 
 PORT = 6000
 
