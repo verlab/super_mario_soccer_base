@@ -1,5 +1,5 @@
-soccerpy
-========
+Super Mario Soccer - Base
+=========================
 
 An agent for version 11 of the 2D Robot Soccer Simulator, written entirely in Python.
 
@@ -15,5 +15,5 @@ Instructions
 * Run only an agent
 
     ```bash
-    ./run_agent.py <team_name> <num_players>
+    ./run_agent.py <team_name>
     ```
