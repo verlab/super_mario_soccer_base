@@ -1,12 +1,11 @@
 import collections
 
 import message_parser
-import game_object
-# from world.world_model import WorldModel
 
 
 # should we print messages received from the server?
 from soccerpy.util import sp_exceptions
+from soccerpy.world import game_object
 from soccerpy.world.world_model import WorldModel
 
 PRINT_SERVER_MESSAGES = False
@@ -148,7 +147,7 @@ class MessageHandler:
                 side = None
                 if team_name is not None:
                     # if they're on our team, they're on our side
-                    if team_name == self.wm.teamname:
+                    if team_name == self.wm.team_name:
                         side = self.wm.side
                     # otherwise, set side to the other team's side
                     else:
