@@ -6,13 +6,12 @@ import time
 from smsoccer.communication.action import ActionCommunicator
 from smsoccer.communication import sock
 from smsoccer.communication.message_handler import MessageHandler
-from smsoccer.strategy.formation import player_position
 from smsoccer.util import sp_exceptions
 from smsoccer.world.world_model import WorldModel
 
 
 BYE_MESSAGE = "(bye)"
-INIT_MESSAGE = "(init %s (version %d))"
+INIT_MESSAGE = "(init %s (version %d)%s)"
 
 
 class Agent(object):
@@ -32,10 +31,10 @@ class Agent(object):
 
         # parse thread and control variable
         self.__parsing = False
-        self.__msg_thread = None
+        self._msg_thread = None
 
         self.__thinking = False  # think thread and control variable
-        self.__think_thread = None
+        self._think_thread = None
 
         # whether we should run the think method
         self.__should_think_on_data = False
@@ -43,7 +42,7 @@ class Agent(object):
         # whether we should send commands
         self.__send_commands = False
 
-    def connect(self, host, port, teamname, version=11):
+    def connect(self, host, port, teamname, version=11, goalie=False):
         """
         Gives us a connection to the server as one player on a team.  This
         immediately connects the agent to the server and starts receiving and
@@ -70,19 +69,21 @@ class Agent(object):
 
         # set up our threaded message receiving system
         self.__parsing = True  # tell thread that we're currently running
-        self.__msg_thread = threading.Thread(target=self.__message_loop,
+        self._msg_thread = threading.Thread(target=self.__message_loop,
                                              name="message_loop")
-        self.__msg_thread.daemon = True  # dies when parent thread dies
+        self._msg_thread.daemon = True  # dies when parent thread dies
 
         # start processing received messages. this will catch the initial server
         # response and all subsequent communication.
-        self.__msg_thread.start()
+        self._msg_thread.start()
 
         # send the init message and allow the message handler to handle further
         # responses.
         init_address = self.__sock.address
+
         init_msg = INIT_MESSAGE
-        self.__sock.send(init_msg % (teamname, version))
+        with_goalie = " (goalie)" if goalie else ""
+        self.__sock.send(init_msg % (teamname, version, with_goalie))
 
         # wait until the socket receives a response from the server and gets its
         # assigned port.
@@ -92,9 +93,9 @@ class Agent(object):
         # create our thinking thread.  this will perform the actions necessary
         # to play a game of robo-soccer.
         self.__thinking = False
-        self.__think_thread = threading.Thread(target=self.__think_loop,
+        self._think_thread = threading.Thread(target=self.__think_loop,
                                                name="think_loop")
-        self.__think_thread.daemon = True
+        self._think_thread.daemon = True
 
         # set connected state.  done last to prevent state inconsistency if
         # something goes wrong beforehand.
@@ -123,7 +124,7 @@ class Agent(object):
         # tell the thread that it should be running, then start it
         self.__thinking = True
         self.__should_think_on_data = True
-        self.__think_thread.start()
+        self._think_thread.start()
 
     def disconnect(self):
         """
@@ -154,11 +155,11 @@ class Agent(object):
         # tell our threads to join, but only wait briefly for them to do so.
         # don't join them if they haven't been started (this can happen if
         # disconnect is called very quickly after connect).
-        if self.__msg_thread.is_alive():
-            self.__msg_thread.join(0.01)
+        if self._msg_thread.is_alive():
+            self._msg_thread.join(0.01)
 
-        if self.__think_thread.is_alive():
-            self.__think_thread.join(0.01)
+        if self._think_thread.is_alive():
+            self._think_thread.join(0.01)
 
         # reset all standard variables in this object.  self.__connected gets
         # reset here, along with all other non-user defined internal variables.
@@ -225,75 +226,10 @@ class Agent(object):
         """
         self.in_kick_off_formation = False
 
+
     def think(self):
         """
-        Performs a single step of thinking for our agent.  Gets called on every
-        iteration of our think loop.
+        This method must be overwritten by the Player
+
         """
-
-        # DEBUG:  tells us if a thread dies
-        if not self.__think_thread.is_alive() or not self.__msg_thread.is_alive():
-            raise Exception("A thread died.")
-
-        # take places on the field by uniform number
-        if not self.in_kick_off_formation:
-            position_point = player_position(self.wm.uniform_number, self.wm.side == WorldModel.SIDE_R)
-            # Teleport to right position
-            self.wm.teleport_to_point(position_point)
-            # Player is ready in formation
-            self.in_kick_off_formation = True
-            return
-
-        # determine the enemy goal position
-        goal_pos = None
-        if self.wm.side == WorldModel.SIDE_R:
-            goal_pos = (-55, 0)
-        else:
-            goal_pos = (55, 0)
-
-        # kick off!
-        if self.wm.is_before_kick_off():
-            # player 9 takes the kick off
-            if self.wm.uniform_number == 9:
-                if self.wm.is_ball_kickable():
-                    # kick with 100% extra effort at enemy goal
-                    self.wm.kick_to(goal_pos, 1.0)
-                else:
-                    # move towards ball
-                    if self.wm.ball is not None:
-                        if self.wm.ball.direction is not None \
-                                and -7 <= self.wm.ball.direction <= 7:
-                            self.wm.ah.dash(50)
-                        else:
-                            self.wm.turn_body_to_point((0, 0))
-
-                # turn to ball if we can see it, else face the enemy goal
-                if self.wm.ball is not None:
-                    self.wm.turn_neck_to_object(self.wm.ball)
-
-                return
-
-        # attack!
-        else:
-            # find the ball
-            if self.wm.ball is None or self.wm.ball.direction is None:
-                self.wm.ah.turn(30)
-
-                return
-
-            # kick it at the enemy goal
-            if self.wm.is_ball_kickable():
-                self.wm.kick_to(goal_pos, 1.0)
-                return
-            else:
-                # move towards ball
-                if -7 <= self.wm.ball.direction <= 7:
-                    self.wm.ah.dash(65)
-                else:
-                    # face ball
-                    self.wm.ah.turn(self.wm.ball.direction / 2)
-
-                return
-
-
-
+        pass

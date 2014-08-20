@@ -23,6 +23,7 @@ import time
 import sys
 
 from smsoccer.agent import Agent
+from smsoccer.player import Player
 
 PORT = 6000
 
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     else:
         team_name = "default"
 
-    a = Agent()
+    a = Player()
     a.connect(HOST, PORT, team_name)
     a.play()
 

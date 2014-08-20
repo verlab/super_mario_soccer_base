@@ -53,7 +53,9 @@ class MessageHandler:
         # throw an exception if we don't know about the given message type
         else:
             m = "Can't handle message type '%s', function '%s' not found."
+            #FIXME raising will kill the agent.
             raise sp_exceptions.MessageTypeError(m % (parsed[0], msg_func))
+            # print sp_exceptions.MessageTypeError(m % (parsed[0], msg_func))
 
         # return the type of message received
         return parsed[0]
@@ -375,6 +377,7 @@ class MessageHandler:
         self.wm.side = side
         self.wm.uniform_number = uniform_number
         self.wm.play_mode = play_mode
+
 
     def _handle_error(self, msg):
         """
