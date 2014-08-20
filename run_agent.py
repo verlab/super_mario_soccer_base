@@ -14,8 +14,9 @@ Run an agent
 """
 if __name__ == "__main__":
     # enforce current number of arguments, print help otherwise
-    if len(sys.argv) == 3:
-        print "args: ./run_team.py <team_name> <num_players>"
+
+    if len(sys.argv) == 2:
+        print "args: ./run_team.py <team_name>"
         #Get team name from arguments
         team_name = sys.argv[1]
     else:

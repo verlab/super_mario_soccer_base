@@ -20,15 +20,18 @@ if __name__ == "__main__":
         """
         Used to run an agent in a separate physical process.
         """
+        try:
+            a = Agent()
+            a.connect("localhost", 6000, team_name)
+            a.play()
 
-        a = Agent()
-        a.connect("localhost", 6000, team_name)
-        a.play()
+            # we wait until we're killed
+            while 1:
+                # we sleep for a good while since we can only exit if terminated.
+                time.sleep(1)
 
-        # we wait until we're killed
-        while 1:
-            # we sleep for a good while since we can only exit if terminated.
-            time.sleep(1)
+        except:
+            print sys.exc_info()[0]
 
     # spawn all agents as separate processes for maximum processing efficiency
     agent_threads = []

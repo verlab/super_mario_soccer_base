@@ -3,8 +3,10 @@
 import threading
 import time
 
-import actions
+from soccerpy.communication.action import ActionCommunicator
 from soccerpy.communication import sock
+from soccerpy.communication.message_handler import MessageHandler
+from soccerpy.strategy.formation import player_position
 from soccerpy.util import sp_exceptions
 from soccerpy.world.world_model import WorldModel
 
@@ -14,7 +16,6 @@ INIT_MESSAGE = "(init %s (version %d))"
 
 
 class Agent(object):
-
     def __init__(self):
         # whether we're connected to a server yet or not
         self.__connected = False
@@ -59,13 +60,13 @@ class Agent(object):
         self.__sock = sock.Socket(host, port)
 
         # our models of the world and our body
-        self.wm = WorldModel(actions.ActionHandler(self.__sock))
+        self.wm = WorldModel(ActionCommunicator(self.__sock))
 
         # set the team name of the world model to the given name
-        self.wm.teamname = teamname
+        self.wm.team_name = teamname
 
         # handles all messages received from the server
-        self.msg_handler = actions.MessageHandler(self.wm)
+        self.msg_handler = MessageHandler(self.wm)
 
         # set up our threaded message receiving system
         self.__parsing = True  # tell thread that we're currently running
@@ -181,7 +182,7 @@ class Agent(object):
 
             # we send commands all at once every cycle, ie. whenever a
             # 'sense_body' command is received
-            if msg_type == actions.ActionHandler.CommandType.SENSE_BODY:
+            if msg_type == ActionCommunicator.CommandType.SENSE_BODY:
                 self.__send_commands = True
 
             # flag new data as needing the think loop's attention
@@ -197,7 +198,7 @@ class Agent(object):
         """
 
         while self.__thinking:
-            # tell the ActionHandler to send its enqueued messages if it is time
+            # tell the ActionHandler to send its enqueue messages if it is time
             if self.__send_commands:
                 self.__send_commands = False
                 self.wm.ah.send_commands()
@@ -222,7 +223,6 @@ class Agent(object):
         variables/objects they'll want access to across subsequent calls to the
         think method.
         """
-
         self.in_kick_off_formation = False
 
     def think(self):
@@ -237,37 +237,11 @@ class Agent(object):
 
         # take places on the field by uniform number
         if not self.in_kick_off_formation:
-
-            # used to flip x coords for other side
-            side_mod = 1
-            if self.wm.side == WorldModel.SIDE_R:
-                side_mod = -1
-
-            if self.wm.uniform_number == 1:
-                self.wm.teleport_to_point((-5 * side_mod, 30))
-            elif self.wm.uniform_number == 2:
-                self.wm.teleport_to_point((-40 * side_mod, 15))
-            elif self.wm.uniform_number == 3:
-                self.wm.teleport_to_point((-40 * side_mod, 00))
-            elif self.wm.uniform_number == 4:
-                self.wm.teleport_to_point((-40 * side_mod, -15))
-            elif self.wm.uniform_number == 5:
-                self.wm.teleport_to_point((-5 * side_mod, -30))
-            elif self.wm.uniform_number == 6:
-                self.wm.teleport_to_point((-20 * side_mod, 20))
-            elif self.wm.uniform_number == 7:
-                self.wm.teleport_to_point((-20 * side_mod, 0))
-            elif self.wm.uniform_number == 8:
-                self.wm.teleport_to_point((-20 * side_mod, -20))
-            elif self.wm.uniform_number == 9:
-                self.wm.teleport_to_point((-10 * side_mod, 0))
-            elif self.wm.uniform_number == 10:
-                self.wm.teleport_to_point((-10 * side_mod, 20))
-            elif self.wm.uniform_number == 11:
-                self.wm.teleport_to_point((-10 * side_mod, -20))
-
+            position_point = player_position(self.wm.uniform_number, self.wm.side == WorldModel.SIDE_R)
+            # Teleport to right position
+            self.wm.teleport_to_point(position_point)
+            # Player is ready in formation
             self.in_kick_off_formation = True
-
             return
 
         # determine the enemy goal position

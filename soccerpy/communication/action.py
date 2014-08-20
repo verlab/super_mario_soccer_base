@@ -15,7 +15,7 @@ KICK_MESSAGE = "(kick %.10f %.10f)"
 PRINT_SENT_COMMANDS = False
 
 
-class ActionHandler:
+class ActionCommunicator:
     """
     Provides facilities for sending commands to the soccer server.  Contains all
     possible commands that can be sent, as well as everything needed to send
@@ -77,7 +77,7 @@ class ActionHandler:
                 break
 
             # save the most recent primary command and send it at the very end
-            if cmd.cmd_type == ActionHandler.CommandType.TYPE_PRIMARY:
+            if cmd.cmd_type == ActionCommunicator.CommandType.TYPE_PRIMARY:
                 primary_cmd = cmd
             # send other commands immediately
             else:
@@ -107,8 +107,8 @@ class ActionHandler:
         msg = MOVE_MESSAGE % (x, y)
 
         # create the command object for insertion into the queue
-        cmd_type = ActionHandler.CommandType.TYPE_PRIMARY
-        cmd = ActionHandler.Command(cmd_type, msg)
+        cmd_type = ActionCommunicator.CommandType.TYPE_PRIMARY
+        cmd = ActionCommunicator.Command(cmd_type, msg)
 
         self.q.put(cmd)
 
@@ -124,8 +124,8 @@ class ActionHandler:
         msg = TURN_MESSAGE % relative_degrees
 
         # create the command object for insertion into the queue
-        cmd_type = ActionHandler.CommandType.TYPE_PRIMARY
-        cmd = ActionHandler.Command(cmd_type, msg)
+        cmd_type = ActionCommunicator.CommandType.TYPE_PRIMARY
+        cmd = ActionCommunicator.Command(cmd_type, msg)
 
         self.q.put(cmd)
 
@@ -137,8 +137,8 @@ class ActionHandler:
         msg = "(dash %.10f)" % power
 
         # create the command object for insertion into the queue
-        cmd_type = ActionHandler.CommandType.TYPE_PRIMARY
-        cmd = ActionHandler.Command(cmd_type, msg)
+        cmd_type = ActionCommunicator.CommandType.TYPE_PRIMARY
+        cmd = ActionCommunicator.Command(cmd_type, msg)
 
         self.q.put(cmd)
 
@@ -151,8 +151,8 @@ class ActionHandler:
         msg = KICK_MESSAGE % (power, relative_direction)
 
         # create the command object for insertion into the queue
-        cmd_type = ActionHandler.CommandType.TYPE_PRIMARY
-        cmd = ActionHandler.Command(cmd_type, msg)
+        cmd_type = ActionCommunicator.CommandType.TYPE_PRIMARY
+        cmd = ActionCommunicator.Command(cmd_type, msg)
 
         self.q.put(cmd)
 
@@ -165,8 +165,8 @@ class ActionHandler:
         msg = CATCH_MESSAGE % relative_direction
 
         # create the command object for insertion into the queue
-        cmd_type = ActionHandler.CommandType.TYPE_PRIMARY
-        cmd = ActionHandler.Command(cmd_type, msg)
+        cmd_type = ActionCommunicator.CommandType.TYPE_PRIMARY
+        cmd = ActionCommunicator.Command(cmd_type, msg)
 
         self.q.put(cmd)
 
@@ -179,8 +179,8 @@ class ActionHandler:
         msg = SAY_MESSAGE % message
 
         # create the command object for insertion into the queue
-        cmd_type = ActionHandler.CommandType.TYPE_SECONDARY
-        cmd = ActionHandler.Command(cmd_type, msg)
+        cmd_type = ActionCommunicator.CommandType.TYPE_SECONDARY
+        cmd = ActionCommunicator.Command(cmd_type, msg)
 
         self.q.put(cmd)
 
@@ -193,8 +193,8 @@ class ActionHandler:
         msg = TURN_NECK_MESSAGE % relative_direction
 
         # create the command object for insertion into the queue
-        cmd_type = ActionHandler.CommandType.TYPE_SECONDARY
-        cmd = ActionHandler.Command(cmd_type, msg)
+        cmd_type = ActionCommunicator.CommandType.TYPE_SECONDARY
+        cmd = ActionCommunicator.Command(cmd_type, msg)
 
         self.q.put(cmd)
 
