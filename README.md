@@ -1,9 +1,10 @@
-Super Mario Soccer - Base
-=========================
+Super Mario Soccer - An Open-Source Framework for Soccer 2D
+===========================================================
 
-An agent for version 11 of the 2D Robot Soccer Simulator, written entirely in Python.
+This is the Framework of the team **Super Mario Soccer** for the
+competition *RoboCup 2D Soccer Simulation League*.
 
-This is a fork of the version: https://github.com/jasontbradshaw/soccerpy
+This was initially a fork of the project: https://github.com/jasontbradshaw/soccerpy
 
 Instructions
 ------------
