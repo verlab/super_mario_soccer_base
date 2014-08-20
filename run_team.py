@@ -23,6 +23,7 @@
 import time
 
 from smsoccer.agent import Agent
+from smsoccer.player import Player
 
 """
 Run N players in different threads.
@@ -36,13 +37,13 @@ if __name__ == "__main__":
         print "args: ./run_team.py <team_name> <num_players>"
         sys.exit()
 
-    def spawn_agent(team_name):
+    def spawn_agent(team_name, goalie):
         """
         Used to run an agent in a separate physical process.
         """
         try:
-            a = Agent()
-            a.connect("localhost", 6000, team_name)
+            a = Player()
+            a.connect("localhost", 6000, team_name, goalie=goalie)
             a.play()
 
             # we wait until we're killed
@@ -55,10 +56,13 @@ if __name__ == "__main__":
 
     # spawn all agents as separate processes for maximum processing efficiency
     agent_threads = []
+    goalie = False
     for agent in xrange(min(11, int(sys.argv[2]))):
         print "  Spawning agent %d..." % agent
 
-        at = mp.Process(target=spawn_agent, args=(sys.argv[1],))
+        args_spawn = (sys.argv[1], True) if not goalie else (sys.argv[1], False)
+        goalie = True
+        at = mp.Process(target=spawn_agent, args=args_spawn)
         at.daemon = True
         at.start()
 
