@@ -1,4 +1,4 @@
-#fixme extends abstract agent
+
 from smsoccer.abstractagent import AbstractAgent
 from smsoccer.strategy.formation import player_position
 from smsoccer.world.world_model import WorldModel, PlayModes
