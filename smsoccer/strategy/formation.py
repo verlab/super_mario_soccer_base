@@ -1,3 +1,15 @@
+formation_442 = [None,
+                 (-50, 0),  # 1
+                 (-40, 10),  # 2
+                 (-40, -10),  # 3
+                 (-38, 30),
+                 (-38, -30),
+                 (-20, 10),  # 6
+                 (-20, -10),  # 3
+                 (-18, 20),
+                 (-18, -20),
+                 (-8, 10),
+                 (-8, -10)]
 
 
 def player_position(uniform_number, r_side):
@@ -7,32 +19,10 @@ def player_position(uniform_number, r_side):
     :param r_side: True if team is on right side.
     :return: position based on formation
     """
-    # used to flip x coords for other side
-    side_mod = 1
-    if r_side:
-        side_mod = -1
+    position = formation_442[uniform_number]
 
-    if uniform_number == 1:
-        position = (-5 * side_mod, 30)
-    elif uniform_number == 2:
-        position = (-40 * side_mod, 15)
-    elif uniform_number == 3:
-        position = (-40 * side_mod, 00)
-    elif uniform_number == 4:
-        position = (-40 * side_mod, -15)
-    elif uniform_number == 5:
-        position = (-5 * side_mod, -30)
-    elif uniform_number == 6:
-        position = (-20 * side_mod, 20)
-    elif uniform_number == 7:
-        position = (-20 * side_mod, 0)
-    elif uniform_number == 8:
-        position = (-20 * side_mod, -20)
-    elif uniform_number == 9:
-        position = (-10 * side_mod, 0)
-    elif uniform_number == 10:
-        position = (-10 * side_mod, 20)
-    elif uniform_number == 11:
-        position = (-10 * side_mod, -20)
+    if r_side:
+        # used to flip x coords for other side
+        position = (-position[0], position[1])
 
     return position

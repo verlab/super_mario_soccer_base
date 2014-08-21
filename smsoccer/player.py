@@ -1,27 +1,18 @@
-
-
 #fixme extends abstract agent
-from smsoccer.agent import Agent
+from smsoccer.abstractagent import AbstractAgent
 from smsoccer.strategy.formation import player_position
-from smsoccer.world.world_model import WorldModel
+from smsoccer.world.world_model import WorldModel, PlayModes
 
 
-class Player(Agent):
-
+class Player(AbstractAgent):
     def __init__(self):
-        Agent.__init__(self)
-
-
+        AbstractAgent.__init__(self)
 
     def think(self):
         """
         Performs a single step of thinking for our agent.  Gets called on every
         iteration of our think loop.
         """
-
-        # DEBUG:  tells us if a thread dies
-        if not self._think_thread.is_alive() or not self._msg_thread.is_alive():
-            raise Exception("A thread died.")
 
         # take places on the field by uniform number
         if not self.in_kick_off_formation:
@@ -32,20 +23,14 @@ class Player(Agent):
             self.in_kick_off_formation = True
             return
 
-        # determine the enemy goal position
-        goal_pos = None
-        if self.wm.side == WorldModel.SIDE_R:
-            goal_pos = (-55, 0)
-        else:
-            goal_pos = (55, 0)
 
         # kick off!
-        if self.wm.is_before_kick_off():
+        if self.wm.play_mode == PlayModes.BEFORE_KICK_OFF:
             # player 9 takes the kick off
             if self.wm.uniform_number == 9:
                 if self.wm.is_ball_kickable():
                     # kick with 100% extra effort at enemy goal
-                    self.wm.kick_to(goal_pos, 1.0)
+                    self.wm.kick_to(self.goal_pos, 1.0)
                 else:
                     # move towards ball
                     if self.wm.ball is not None:
@@ -71,7 +56,7 @@ class Player(Agent):
 
             # kick it at the enemy goal
             if self.wm.is_ball_kickable():
-                self.wm.kick_to(goal_pos, 1.0)
+                self.wm.kick_to(self.goal_pos, 1.0)
                 return
             else:
                 # move towards ball

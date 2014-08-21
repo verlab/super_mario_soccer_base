@@ -22,7 +22,7 @@
 
 import time
 
-from smsoccer.agent import Agent
+from smsoccer.abstractagent import AbstractAgent
 from smsoccer.player import Player
 
 """

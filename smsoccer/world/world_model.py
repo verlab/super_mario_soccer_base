@@ -16,58 +16,6 @@ class WorldModel:
     SIDE_L = "l"
     SIDE_R = "r"
 
-    class PlayModes:
-        """
-        Acts as a static class containing variables for all valid play modes.
-        The string values correspond to what the referee calls the game modes.
-        """
-
-        BEFORE_KICK_OFF = "before_kick_off"
-        PLAY_ON = "play_on"
-        TIME_OVER = "time_over"
-        KICK_OFF_L = "kick_off_l"
-        KICK_OFF_R = "kick_off_r"
-        KICK_IN_L = "kick_in_l"
-        KICK_IN_R = "kick_in_r"
-        FREE_KICK_L = "free_kick_l"
-        FREE_KICK_R = "free_kick_r"
-        CORNER_KICK_L = "corner_kick_l"
-        CORNER_KICK_R = "corner_kick_r"
-        GOAL_KICK_L = "goal_kick_l"
-        GOAL_KICK_R = "goal_kick_r"
-        DROP_BALL = "drop_ball"
-        OFFSIDE_L = "offside_l"
-        OFFSIDE_R = "offside_r"
-
-        def __init__(self):
-            raise NotImplementedError("Don't instantiate a PlayModes class,"
-                                      " access it statically through WorldModel instead.")
-
-    class RefereeMessages:
-        """
-        Static class containing possible non-mode messages sent by a referee.
-        """
-
-        # these are referee messages, not play modes
-        FOUL_L = "foul_l"
-        FOUL_R = "foul_r"
-        GOALIE_CATCH_BALL_L = "goalie_catch_ball_l"
-        GOALIE_CATCH_BALL_R = "goalie_catch_ball_r"
-        TIME_UP_WITHOUT_A_TEAM = "time_up_without_a_team"
-        TIME_UP = "time_up"
-        HALF_TIME = "half_time"
-        TIME_EXTENDED = "time_extended"
-
-        # these are special, as they are always followed by '_' and an int of
-        # the number of goals scored by that side so far.  these won't match
-        # anything specifically, but goals WILL start with these.
-        GOAL_L = "goal_l_"
-        GOAL_R = "goal_r_"
-
-        def __init__(self):
-            raise NotImplementedError("Don't instantiate a RefereeMessages class,"
-                                      " access it statically through WorldModel instead.")
-
     def __init__(self, action_handler):
         """
         Create the world model with default values and an ActionHandler class it
@@ -102,7 +50,7 @@ class WorldModel:
         self.last_message = None
 
         # the mode the game is currently in (default to not playing yet)
-        self.play_mode = WorldModel.PlayModes.BEFORE_KICK_OFF
+        self.play_mode = PlayModes.BEFORE_KICK_OFF
 
         # body state
         self.view_width = None
@@ -294,15 +242,15 @@ class WorldModel:
         Tells us whether the game is in a pre-kickoff state.
         """
 
-        return self.play_mode == WorldModel.PlayModes.BEFORE_KICK_OFF
+        return self.play_mode == PlayModes.BEFORE_KICK_OFF
 
     def is_kick_off_us(self):
         """
         Tells us whether it's our turn to kick off.
         """
 
-        ko_left = WorldModel.PlayModes.KICK_OFF_L
-        ko_right = WorldModel.PlayModes.KICK_OFF_R
+        ko_left = PlayModes.KICK_OFF_L
+        ko_right = PlayModes.KICK_OFF_R
 
         print self.play_mode
 
@@ -317,12 +265,12 @@ class WorldModel:
         """
 
         # shorthand for verbose constants
-        kil = WorldModel.PlayModes.KICK_IN_L
-        kir = WorldModel.PlayModes.KICK_IN_R
-        fkl = WorldModel.PlayModes.FREE_KICK_L
-        fkr = WorldModel.PlayModes.FREE_KICK_R
-        ckl = WorldModel.PlayModes.CORNER_KICK_L
-        ckr = WorldModel.PlayModes.CORNER_KICK_R
+        kil = PlayModes.KICK_IN_L
+        kir = PlayModes.KICK_IN_R
+        fkl = PlayModes.FREE_KICK_L
+        fkr = PlayModes.FREE_KICK_R
+        ckl = PlayModes.CORNER_KICK_L
+        ckr = PlayModes.CORNER_KICK_R
 
         # shorthand for whether left team or right team is free to act
         pm = self.play_mode
@@ -531,3 +479,54 @@ class WorldModel:
 
 
 
+class PlayModes:
+    """
+    Acts as a static class containing variables for all valid play modes.
+    The string values correspond to what the referee calls the game modes.
+    """
+
+    BEFORE_KICK_OFF = "before_kick_off"
+    PLAY_ON = "play_on"
+    TIME_OVER = "time_over"
+    KICK_OFF_L = "kick_off_l"
+    KICK_OFF_R = "kick_off_r"
+    KICK_IN_L = "kick_in_l"
+    KICK_IN_R = "kick_in_r"
+    FREE_KICK_L = "free_kick_l"
+    FREE_KICK_R = "free_kick_r"
+    CORNER_KICK_L = "corner_kick_l"
+    CORNER_KICK_R = "corner_kick_r"
+    GOAL_KICK_L = "goal_kick_l"
+    GOAL_KICK_R = "goal_kick_r"
+    DROP_BALL = "drop_ball"
+    OFFSIDE_L = "offside_l"
+    OFFSIDE_R = "offside_r"
+
+    def __init__(self):
+        raise NotImplementedError("Don't instantiate a PlayModes class,"
+                                  " access it statically through WorldModel instead.")
+
+class RefereeMessages:
+    """
+    Static class containing possible non-mode messages sent by a referee.
+    """
+
+    # these are referee messages, not play modes
+    FOUL_L = "foul_l"
+    FOUL_R = "foul_r"
+    GOALIE_CATCH_BALL_L = "goalie_catch_ball_l"
+    GOALIE_CATCH_BALL_R = "goalie_catch_ball_r"
+    TIME_UP_WITHOUT_A_TEAM = "time_up_without_a_team"
+    TIME_UP = "time_up"
+    HALF_TIME = "half_time"
+    TIME_EXTENDED = "time_extended"
+
+    # these are special, as they are always followed by '_' and an int of
+    # the number of goals scored by that side so far.  these won't match
+    # anything specifically, but goals WILL start with these.
+    GOAL_L = "goal_l_"
+    GOAL_R = "goal_r_"
+
+    def __init__(self):
+        raise NotImplementedError("Don't instantiate a RefereeMessages class,"
+                                  " access it statically through WorldModel instead.")

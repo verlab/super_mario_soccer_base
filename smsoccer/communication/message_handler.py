@@ -6,10 +6,9 @@ import message_parser
 # should we print messages received from the server?
 from smsoccer.util import sp_exceptions
 from smsoccer.world import game_object
-from smsoccer.world.world_model import WorldModel
+from smsoccer.world.world_model import WorldModel, RefereeMessages
 
 PRINT_SERVER_MESSAGES = False
-
 
 
 class MessageHandler:
@@ -211,7 +210,7 @@ class MessageHandler:
 
             # an unhandled object type
             else:
-                raise ObjectTypeError("Unknown object: '" + str(obj) + "'")
+                raise Exception("Unknown object: '" + str(obj) + "'")
 
         # tell the WorldModel to update any internal variables based on the
         # newly gleaned information.
@@ -240,23 +239,23 @@ class MessageHandler:
 
             # keep track of scores by setting them to the value reported.  this
             # precludes any possibility of getting out of sync with the server.
-            if mode.startswith(WorldModel.RefereeMessages.GOAL_L):
+            if mode.startswith(RefereeMessages.GOAL_L):
                 # split off the number, the part after the rightmost '_'
                 self.wm.score_l = int(mode.rsplit("_", 1)[1])
                 return
-            elif mode.startswith(WorldModel.RefereeMessages.GOAL_R):
+            elif mode.startswith(RefereeMessages.GOAL_R):
                 self.wm.score_r = int(mode.rsplit("_", 1)[1])
                 return
 
             # ignore these messages, but pass them on to the agent. these don't
             # change state but could still be useful.
-            elif (mode == WorldModel.RefereeMessages.FOUL_L or
-                          mode == WorldModel.RefereeMessages.FOUL_R or
-                          mode == WorldModel.RefereeMessages.GOALIE_CATCH_BALL_L or
-                          mode == WorldModel.RefereeMessages.GOALIE_CATCH_BALL_R or
-                          mode == WorldModel.RefereeMessages.TIME_UP_WITHOUT_A_TEAM or
-                          mode == WorldModel.RefereeMessages.HALF_TIME or
-                          mode == WorldModel.RefereeMessages.TIME_EXTENDED):
+            elif (mode == RefereeMessages.FOUL_L or
+                          mode == RefereeMessages.FOUL_R or
+                          mode == RefereeMessages.GOALIE_CATCH_BALL_L or
+                          mode == RefereeMessages.GOALIE_CATCH_BALL_R or
+                          mode == RefereeMessages.TIME_UP_WITHOUT_A_TEAM or
+                          mode == RefereeMessages.HALF_TIME or
+                          mode == RefereeMessages.TIME_EXTENDED):
 
                 # messages are named 3-tuples of (time, sender, message)
                 ref_msg = self.Message(time_recvd, sender, message)

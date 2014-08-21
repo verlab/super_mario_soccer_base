@@ -14,7 +14,11 @@ BYE_MESSAGE = "(bye)"
 INIT_MESSAGE = "(init %s (version %d)%s)"
 
 
-class Agent(object):
+class AbstractAgent(object):
+    """
+    Abstract agent to be extended by all the players.
+    """
+
     def __init__(self):
         # whether we're connected to a server yet or not
         self.__connected = False
@@ -41,6 +45,12 @@ class Agent(object):
 
         # whether we should send commands
         self.__send_commands = False
+
+        self.in_kick_off_formation = False
+
+        # Goal position depends on the side
+        self.goal_pos = None
+
 
     def connect(self, host, port, teamname, version=11, goalie=False):
         """
@@ -101,6 +111,9 @@ class Agent(object):
         # something goes wrong beforehand.
         self.__connected = True
 
+        # determine the enemy goal position
+        self.goal_pos = (-55, 0) if self.wm.side == WorldModel.SIDE_R else (55, 0)
+
     def play(self):
         """
         Kicks off the thread that does the agent's thinking, allowing it to play
@@ -117,9 +130,6 @@ class Agent(object):
         if self.__thinking:
             raise sp_exceptions.AgentAlreadyPlayingError(
                 "Agent is already playing.")
-
-        # run the method that sets up the agent's persistent variables
-        self.setup_environment()
 
         # tell the thread that it should be running, then start it
         self.__thinking = True
@@ -163,7 +173,7 @@ class Agent(object):
 
         # reset all standard variables in this object.  self.__connected gets
         # reset here, along with all other non-user defined internal variables.
-        Agent.__init__(self)
+        AbstractAgent.__init__(self)
 
     def __message_loop(self):
         """
@@ -212,20 +222,16 @@ class Agent(object):
                 # process data, so it doesn't make any difference.
                 self.__should_think_on_data = False
 
+
+                # DEBUG:  tells us if a thread dies
+                if not self._think_thread.is_alive() or not self._msg_thread.is_alive():
+                    raise Exception("A thread died.")
+
                 # performs the actions necessary for the agent to play soccer
                 self.think()
             else:
                 # prevent from burning up all the cpu time while waiting for data
                 time.sleep(0.0001)
-
-    def setup_environment(self):
-        """
-        Called before the think loop starts, this allows the user to store any
-        variables/objects they'll want access to across subsequent calls to the
-        think method.
-        """
-        self.in_kick_off_formation = False
-
 
     def think(self):
         """
@@ -233,3 +239,5 @@ class Agent(object):
 
         """
         pass
+
+

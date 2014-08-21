@@ -1,5 +1,5 @@
 
-class GameObject:
+class GameObject(object):
     """
     Root class for all perceivable objects in the world model.
     """
