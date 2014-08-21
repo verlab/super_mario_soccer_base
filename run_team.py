@@ -22,7 +22,6 @@
 
 import time
 
-from smsoccer.abstractagent import AbstractAgent
 from smsoccer.demoagent import DemoAgent
 
 """

@@ -28,7 +28,6 @@ class DemoAgent(AbstractAgent):
             self.in_kick_off_formation = True
             return
 
-
         # kick off!
         if self.wm.play_mode == PlayModes.BEFORE_KICK_OFF:
             # player 9 takes the kick off
