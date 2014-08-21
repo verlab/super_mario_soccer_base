@@ -23,7 +23,7 @@
 import time
 
 from smsoccer.abstractagent import AbstractAgent
-from smsoccer.player import Player
+from smsoccer.demoagent import DemoAgent
 
 """
 Run N players in different threads.
@@ -42,15 +42,14 @@ if __name__ == "__main__":
         Used to run an agent in a separate physical process.
         """
         try:
-            a = Player()
-            a.connect("localhost", 6000, team_name, goalie=goalie)
+            a = DemoAgent(goalie=goalie)
+            a.connect("localhost", 6000, team_name)
             a.play()
 
             # we wait until we're killed
             while 1:
                 # we sleep for a good while since we can only exit if terminated.
                 time.sleep(1)
-
         except:
             print sys.exc_info()[0]
 

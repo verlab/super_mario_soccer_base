@@ -23,7 +23,7 @@ import time
 import sys
 
 from smsoccer.abstractagent import AbstractAgent
-from smsoccer.player import Player
+from smsoccer.demoagent import DemoAgent
 
 PORT = 6000
 
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     else:
         team_name = "default"
 
-    a = Player()
+    a = DemoAgent()
     a.connect(HOST, PORT, team_name)
     a.play()
 

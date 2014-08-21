@@ -4,9 +4,14 @@ from smsoccer.strategy.formation import player_position
 from smsoccer.world.world_model import WorldModel, PlayModes
 
 
-class Player(AbstractAgent):
-    def __init__(self):
-        AbstractAgent.__init__(self)
+class DemoAgent(AbstractAgent):
+    """
+    This is a DEMO about how to extend the AbstractAgent and implement the
+    think method. For a new development is recommended to do the same.
+    """
+
+    def __init__(self, goalie=False):
+        AbstractAgent.__init__(self, goalie=goalie)
 
     def think(self):
         """

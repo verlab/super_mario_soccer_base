@@ -19,8 +19,9 @@ class AbstractAgent(object):
     Abstract agent to be extended by all the players.
     """
 
-    def __init__(self):
+    def __init__(self, goalie=False):
         # whether we're connected to a server yet or not
+        self.goalie = goalie
         self.__connected = False
 
         # set all variables and important objects to appropriate values for
@@ -52,7 +53,7 @@ class AbstractAgent(object):
         self.goal_pos = None
 
 
-    def connect(self, host, port, teamname, version=11, goalie=False):
+    def connect(self, host, port, teamname, version=11):
         """
         Gives us a connection to the server as one player on a team.  This
         immediately connects the agent to the server and starts receiving and
@@ -91,9 +92,9 @@ class AbstractAgent(object):
         # responses.
         init_address = self.__sock.address
 
-        init_msg = INIT_MESSAGE
-        with_goalie = " (goalie)" if goalie else ""
-        self.__sock.send(init_msg % (teamname, version, with_goalie))
+        with_goalie = " (goalie)" if self.goalie else ""
+        # Send init message
+        self.__sock.send(INIT_MESSAGE % (teamname, version, with_goalie))
 
         # wait until the socket receives a response from the server and gets its
         # assigned port.
