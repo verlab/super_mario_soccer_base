@@ -76,6 +76,9 @@ class WorldModel:
         self.abs_neck_dir = None
         self.abs_body_dir = None
 
+        # Simulation time
+        self.sim_time = None
+
         # create a new server parameter object for holding all server params
         self.server_parameters = ServerParameters()
 
