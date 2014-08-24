@@ -2,14 +2,21 @@ import collections
 import Queue as queue
 
 
+VIEW_QUALITY_LOW = "low"
+VIEW_QUALITY_HIGH = "high"
+VIEW_WIDTH_NARROW = "narrow"
+VIEW_WIDTH_NORMAL = "normal"
+VIEW_WIDTH_WIDE = "wide"
+
 ## Messages to server
+DASH_MESSAGE = "(dash %.10f)"
 TURN_MESSAGE = "(turn %.10f)"
 MOVE_MESSAGE = "(move %.10f %.10f)"
 TURN_NECK_MESSAGE = "(turn_neck %.10f)"
 SAY_MESSAGE = "(say %s)"
 CATCH_MESSAGE = "(catch %.10f)"
 KICK_MESSAGE = "(kick %.10f %.10f)"
-
+VIEW_QUALITY_MESSAGE = "(change_view %s %s)"
 
 # should we print commands sent to the server?
 PRINT_SENT_COMMANDS = False
@@ -134,7 +141,7 @@ class ActionCommunicator:
         Accelerate the player in the direction its body currently faces.
         """
 
-        msg = "(dash %.10f)" % power
+        msg = DASH_MESSAGE % power
 
         # create the command object for insertion into the queue
         cmd_type = ActionCommunicator.CommandType.TYPE_PRIMARY
@@ -198,3 +205,17 @@ class ActionCommunicator:
 
         self.q.put(cmd)
 
+
+    def change_view_quality(self, width, quality):
+        """
+        Change view quality. View frequency depends on these parameters,
+        look at equation (4.13) of the manual.
+        :param width: narrow or normal
+        :param quality: high or low
+        """
+        msg = VIEW_QUALITY_MESSAGE % (width, quality)
+
+        # create the command object for insertion into the queue
+        cmd_type = ActionCommunicator.CommandType.TYPE_SECONDARY
+        cmd = ActionCommunicator.Command(cmd_type, msg)
+        self.q.put(cmd)
