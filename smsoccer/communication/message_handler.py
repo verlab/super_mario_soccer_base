@@ -365,10 +365,16 @@ class MessageHandler:
         """
         Deals with initialization messages sent by the server.
         """
-
         # set the player's uniform number, side, and the play mode as returned
         # by the server directly after connecting.
         side = msg[1]
+
+
+        #if coach
+        if msg[2] == 'ok':
+            return
+
+
         uniform_number = msg[2]
         play_mode = msg[3]
 
@@ -392,3 +398,7 @@ class MessageHandler:
 
         m = "Server issued a warning: '%s'" % msg[1]
         print sp_exceptions.SoccerServerWarning(m)
+
+
+    # def _handle_init(self, msg):
+    #     print "coach created"
