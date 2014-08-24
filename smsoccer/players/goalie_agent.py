@@ -23,3 +23,9 @@ class GoalieAgent(AbstractAgent):
             # Player is ready in formation
             self.in_kick_off_formation = True
             return
+
+        if not self.wm.is_before_kick_off():
+            if self.wm.ball is None or self.wm.ball.direction is None:
+                self.wm.ah.turn(20)
+            else:
+                self.wm.ah.catch(0)
