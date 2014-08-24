@@ -71,8 +71,7 @@ class MessageHandler:
         """
 
         # the simulation cycle of the soccer server
-        # TODO: we should probably use this somewhere...
-        sim_time = msg[1]
+        self.wm.sim_time = msg[1]
 
         # store new values before changing those in the world model.  all new
         # values replace those in the world model at the end of parsing.
@@ -366,10 +365,16 @@ class MessageHandler:
         """
         Deals with initialization messages sent by the server.
         """
-
         # set the player's uniform number, side, and the play mode as returned
         # by the server directly after connecting.
         side = msg[1]
+
+
+        #if coach
+        if msg[2] == 'ok':
+            return
+
+
         uniform_number = msg[2]
         play_mode = msg[3]
 
@@ -393,3 +398,7 @@ class MessageHandler:
 
         m = "Server issued a warning: '%s'" % msg[1]
         print sp_exceptions.SoccerServerWarning(m)
+
+
+    # def _handle_init(self, msg):
+    #     print "coach created"
