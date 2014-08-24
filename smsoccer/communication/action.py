@@ -19,7 +19,7 @@ KICK_MESSAGE = "(kick %.10f %.10f)"
 VIEW_QUALITY_MESSAGE = "(change_view %s %s)"
 
 # should we print commands sent to the server?
-PRINT_SENT_COMMANDS = False
+PRINT_SENT_COMMANDS = True
 
 
 class ActionCommunicator:
@@ -124,6 +124,9 @@ class ActionCommunicator:
         Turns the player's body some number of degrees relative to its current
         angle.
         """
+
+        if relative_degrees < -180: relative_degrees = -180
+        if relative_degrees > 180: relative_degrees = 180
 
         # disallow unreasonable turning
         assert -180 <= relative_degrees <= 180
