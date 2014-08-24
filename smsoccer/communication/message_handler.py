@@ -71,8 +71,7 @@ class MessageHandler:
         """
 
         # the simulation cycle of the soccer server
-        # TODO: we should probably use this somewhere...
-        sim_time = msg[1]
+        self.wm.sim_time = msg[1]
 
         # store new values before changing those in the world model.  all new
         # values replace those in the world model at the end of parsing.
