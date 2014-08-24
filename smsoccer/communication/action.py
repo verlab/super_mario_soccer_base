@@ -125,6 +125,9 @@ class ActionCommunicator:
         angle.
         """
 
+        if relative_degrees < -180: relative_degrees = -180
+        if relative_degrees > 180: relative_degrees = 180
+
         # disallow unreasonable turning
         assert -180 <= relative_degrees <= 180
 
