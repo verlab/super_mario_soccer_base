@@ -135,6 +135,10 @@ class AbstractAgent(object):
         # tell the thread that it should be running, then start it
         self.__thinking = True
         self.__should_think_on_data = True
+
+        # initialization
+        self.initialization()
+        # start thinking
         self._think_thread.start()
 
     def disconnect(self):
@@ -241,4 +245,9 @@ class AbstractAgent(object):
         """
         pass
 
+    def initialization(self):
+        """
+        This method is called just once and before the think loop
 
+        """
+        pass
