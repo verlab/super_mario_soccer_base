@@ -1,5 +1,3 @@
-
-
 class ServerParameters:
     """
     A storage container for all the settings of the soccer server.
@@ -176,3 +174,25 @@ class ServerParameters:
         self.wind_none = 0
         self.wind_rand = 0
         self.wind_random = 0
+
+        # Parameters of version 15.1
+        self.back_dash_rate = None
+        self.dash_angle_step = None
+        self.extra_half_time = None
+        self.extra_stamina = None
+        self.foul_cycles = None
+        self.foul_detect_probability = None
+        self.foul_exponent = None
+        self.golden_goal = None
+        self.max_back_tackle_power = None
+        self.max_dash_angle = None
+        self.max_dash_power = None
+        self.max_tackle_power = None
+        self.min_dash_angle = None
+        self.min_dash_power = None
+        self.player_speed_max_min = None
+        self.red_card_probability = None
+        self.side_dash_rate = None
+        self.stamina_capacity = None
+        self.synch_see_offset = None
+        self.tackle_rand_factor = None

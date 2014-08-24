@@ -53,7 +53,7 @@ class AbstractAgent(object):
         self.goal_pos = None
 
 
-    def connect(self, host, port, teamname, version=11):
+    def connect(self, host, port, teamname, version=15.1):
         """
         Gives us a connection to the server as one player on a team.  This
         immediately connects the agent to the server and starts receiving and
