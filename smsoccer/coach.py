@@ -11,7 +11,7 @@ class Coach(AbstractAgent):
         AbstractAgent.__init__(self, False)
 
     def initialization(self):
-        # TODO eye on
+        self.wm.ah.eye_on(True)
         pass
 
     def think(self):
@@ -20,7 +20,8 @@ class Coach(AbstractAgent):
         iteration of our think loop.
         """
         ah = self.wm.ah
-        self.wm.ah.eye_on(True)
+        # print "look"
+        # self.wm.ah.look()
 
 
         # TODO choose the best players

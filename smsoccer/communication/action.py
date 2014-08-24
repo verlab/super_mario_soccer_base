@@ -1,6 +1,9 @@
 import collections
 import Queue as queue
 
+LOOK_MESSAGE = '(look)'
+
+EYE_MESSAGE = '(eye %s)'
 
 VIEW_QUALITY_LOW = "low"
 VIEW_QUALITY_HIGH = "high"
@@ -19,10 +22,10 @@ KICK_MESSAGE = "(kick %.10f %.10f)"
 VIEW_QUALITY_MESSAGE = "(change_view %s %s)"
 
 # should we print commands sent to the server?
-PRINT_SENT_COMMANDS = True
+PRINT_SENT_COMMANDS = False
 
 
-class ActionCommunicator:
+class ActionCommunicator(object):
     """
     Provides facilities for sending commands to the soccer server.  Contains all
     possible commands that can be sent, as well as everything needed to send
@@ -222,3 +225,26 @@ class ActionCommunicator:
         cmd_type = ActionCommunicator.CommandType.TYPE_SECONDARY
         cmd = ActionCommunicator.Command(cmd_type, msg)
         self.q.put(cmd)
+
+
+
+    ############# COACH ############
+    def eye_on(self, enable):
+        on_off = "on" if enable else "off"
+        msg = EYE_MESSAGE % on_off
+
+        # create the command object for insertion into the queue
+        cmd_type = ActionCommunicator.CommandType.TYPE_PRIMARY
+        cmd = ActionCommunicator.Command(cmd_type, msg)
+        # Send the message directly.
+        self.sock.send(cmd.text)
+
+    def look(self):
+        # create the command object for insertion into the queue
+        cmd_type = ActionCommunicator.CommandType.TYPE_PRIMARY
+        cmd = ActionCommunicator.Command(cmd_type, LOOK_MESSAGE)
+        self.q.put(cmd)
+
+        # self.sock.send(cmd.text)
+
+

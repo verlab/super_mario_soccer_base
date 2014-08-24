@@ -22,8 +22,9 @@
 import time
 import sys
 
-from smsoccer.abstractagent import AbstractAgent
 from smsoccer.demoagent import DemoAgent
+from smsoccer.players.doidao import Doidao
+
 
 PORT = 6000
 
@@ -42,7 +43,7 @@ if __name__ == "__main__":
     else:
         team_name = "default"
 
-    a = DemoAgent()
+    a = Doidao()
     a.connect(HOST, PORT, team_name)
     a.play()
 

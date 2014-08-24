@@ -38,7 +38,8 @@ class MessageHandler:
         parsed = message_parser.parse(msg)
 
         if PRINT_SERVER_MESSAGES:
-            print parsed[0] + ":", parsed[1:], "\n"
+            print msg
+            # print parsed[0] + ":", parsed[1:], "\n"
 
         # this is the name of the function that should be used to handle
         # this message type.  we pull it from this object dynamically to
@@ -369,11 +370,9 @@ class MessageHandler:
         # by the server directly after connecting.
         side = msg[1]
 
-
         #if coach
         if msg[2] == 'ok':
             return
-
 
         uniform_number = msg[2]
         play_mode = msg[3]
@@ -399,6 +398,17 @@ class MessageHandler:
         m = "Server issued a warning: '%s'" % msg[1]
         print sp_exceptions.SoccerServerWarning(m)
 
+    ######## Coach
+    def _handle_ok(self, msg):
+        """
+        Response of (look)
+        :param msg:
+        """
+        print msg
 
-    # def _handle_init(self, msg):
-    #     print "coach created"
+    def _handle_see_global(self, msg):
+        """
+        Automatic message after (eye on)
+        :param msg: (see_global 0 ((g r) 52.5 0) ((g l) -52.5 0) ((b) 0 0 0 0) ((p "default" 1) -50 0 0 0 0 0)) 
+        """
+        print msg
