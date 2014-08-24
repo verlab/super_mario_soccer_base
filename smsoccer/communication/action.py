@@ -12,7 +12,7 @@ KICK_MESSAGE = "(kick %.10f %.10f)"
 
 
 # should we print commands sent to the server?
-PRINT_SENT_COMMANDS = False
+PRINT_SENT_COMMANDS = True
 
 
 class ActionCommunicator:
