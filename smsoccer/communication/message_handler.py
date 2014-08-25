@@ -412,3 +412,4 @@ class MessageHandler:
         :param msg: (see_global 0 ((g r) 52.5 0) ((g l) -52.5 0) ((b) 0 0 0 0) ((p "default" 1) -50 0 0 0 0 0)) 
         """
         print msg
+        pass

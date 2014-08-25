@@ -113,7 +113,7 @@ class AbstractAgent(object):
         self.__connected = True
 
         # determine the enemy goal position
-        self.goal_pos = (-55, 0) if self.wm.side == WorldModel.SIDE_R else (55, 0)
+        self.goal_pos = (52.5, 0)
 
     def play(self):
         """

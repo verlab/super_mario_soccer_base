@@ -2,7 +2,6 @@ import math
 import random
 
 import game_object
-from smsoccer.util.fielddisplay import FieldDisplay
 from smsoccer.util.geometric import euclidean_distance, angle_between_points
 from smsoccer.world.parameters import ServerParameters
 
@@ -31,7 +30,7 @@ def computeNonColinear(f1, f2, flag_dict):
         lrcomp = (f1.distance ** 2 - lpcomp ** 2) ** 0.5  # norm of rotated component
     except:
         #print "Negative argument:\n  A:%s dA:%s\n  B:%s dB:%s" %(repr(a),repr(da),repr(b),repr(db))
-        return False
+        return None
     pcomp = (lpcomp * nb_a[0], lpcomp * nb_a[1])  #parallel component
     rcomp = (lrcomp * rndiff[0], lrcomp * rndiff[1])  #rotated component
     return (a[0] + pcomp[0] + rcomp[0], a[1] + pcomp[1] + rcomp[1])  #return the location
@@ -114,8 +113,6 @@ class WorldModel:
         # create a new server parameter object for holding all server params
         self.server_parameters = ServerParameters()
 
-        self.display = FieldDisplay()
-
 
     def triangulate_direction(self, flags, flag_dict):
         """
@@ -145,7 +142,6 @@ class WorldModel:
         increments between angles for projecting points onto the circle
         surrounding a flag.
         """
-        self.display.clear()
         points = []
 
         if len(flags) < 2:
@@ -153,11 +149,16 @@ class WorldModel:
 
         f1, f2 = flags[:2]
 
+        if f1.direction is None or f2.direction is None:
+            print "Flag with direction None"
+            return None
+
+
         if abs(f1.direction - f2.direction) == 180.0:
             #TODO Colinear 1
             return None
         elif f1.direction != f2.direction:
-            # TODO NonColinear
+            # NonColinear
             return computeNonColinear(f1, f2, flag_dict)
         elif f1.distance != f2.distance:
             # TODO Colinear
@@ -165,52 +166,6 @@ class WorldModel:
         else:
             return None
 
-            # for f in flags[:2]:
-            #     # skip flags without distance information or without a specific id
-            #     if f.distance is None or f.flag_id not in flag_dict:
-            #         continue
-            #
-            #     ## show
-            #     p = [f.distance * math.cos(math.radians(f.direction)), f.distance * math.sin(math.radians(f.direction))]
-            #     p[0] -= 50
-            #
-            #     self.display.draw_circle(p, 5)
-            #     self.display.draw_text(p, f.flag_id + " " + str(f.distance) + " " + str(f.direction))
-            #
-            #
-            #
-            #     # generate points every 'angle_step' degrees around each flag,
-            #     # discarding those off-field.
-            #     for i in xrange(0, 360, angle_step):
-            #         dy = f.distance * math.sin(math.radians(i))
-            #         dx = f.distance * math.cos(math.radians(i))
-            #
-            #         fcoords = flag_dict[f.flag_id]
-            #         new_point = (fcoords[0] + dx, fcoords[1] + dy)
-            #
-            #         # skip points with a coordinate outside the play boundaries
-            #         if (new_point[0] > 60 or new_point[0] < -60 or
-            #                     new_point[1] < -40 or new_point[1] > 40):
-            #             continue
-            #
-            #         # add point to list of all points
-            #         points.append(new_point)
-            #
-            #
-            #
-            # # get the dict of clusters mapped to centers
-            # clusters = self.cluster_points(points)
-            #
-            # # return the center that has the most points as an approximation to our
-            # # absolute position.
-            # center_with_most_points = (0, 0)
-            # max_points = 0
-            # for c in clusters:
-            #     if len(clusters[c]) > max_points:
-            #         center_with_most_points = c
-            #         max_points = len(clusters[c])
-            #
-            # return center_with_most_points
 
     def cluster_points(self, points, num_cluster_iterations=15):
         """
@@ -295,12 +250,9 @@ class WorldModel:
 
         self.abs_coords = self.triangulate_position(self.flags, flag_dict)
 
-        if self.abs_coords is not None:
-            self.display.draw_circle(self.abs_coords, 10)
-            self.display.show()
-        else:
+        if self.abs_coords is None:
             self.abs_coords = (0, 0)
-            print "NONE"
+            print "Cannot triangulate localization"
 
         # set the neck and body absolute directions based on flag directions
         self.abs_neck_dir = self.triangulate_direction(self.flags, flag_dict)

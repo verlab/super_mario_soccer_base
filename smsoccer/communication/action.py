@@ -245,6 +245,6 @@ class ActionCommunicator(object):
         cmd = ActionCommunicator.Command(cmd_type, LOOK_MESSAGE)
         self.q.put(cmd)
 
-        # self.sock.send(cmd.text)
+        self.sock.send(cmd.text)
 
 

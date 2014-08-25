@@ -21,8 +21,8 @@ def player_position(uniform_number, r_side):
     """
     position = formation_442[uniform_number]
 
-    if r_side:
-        # used to flip x coords for other side
-        position = (-position[0], position[1])
+    # if r_side:
+    #     # used to flip x coords for other side
+    #     position = (-position[0], position[1])
 
     return position

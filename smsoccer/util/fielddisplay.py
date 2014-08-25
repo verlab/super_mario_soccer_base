@@ -60,26 +60,20 @@ class FieldDisplay(object):
         # border
         self.draw_rect((ltx, lty), rbx - ltx, rby - lty, (0, 0, 0), 1)
         # Center
-        self.draw_circle([0, 0], 30, color=(0, 0, 0), stroke=2)
+        self.draw_circle([0, 0], 30, color=(0, 0, 0), stroke=1)
 
         self.draw_line([0, lty], [0, rby])
 
         # Area left
         plt_x, plt_y = Flag.FLAG_COORDS["plt"]
-        self.draw_rect([ltx, plt_y], rbx - ltx, rby - lty, (0, 0, 0), 1)
-
-
-        self.draw_line([ltx, plt_y], [plt_x, plt_y])
         plb_x, plb_y = Flag.FLAG_COORDS["plb"]
-        self.draw_line([plt_x, plt_y], [plb_x, plb_y])
-        self.draw_line([ltx, plb_y], [plt_x, plb_y])
+        self.draw_rect([ltx, plt_y], plb_x - ltx, plb_y - plt_y, (0, 0, 0), 1)
 
-        # Area
+
+        # Area right
         prt_x, prt_y = Flag.FLAG_COORDS["prt"]
-        self.draw_line([rbx, prt_y], [prt_x, prt_y])
         prb_x, prb_y = Flag.FLAG_COORDS["prb"]
-        self.draw_line([prt_x, prt_y], [prb_x, prb_y])
-        self.draw_line([rbx, prb_y], [prt_x, prb_y])
+        self.draw_rect([prt_x, prt_y], rbx - prt_x, prb_y - prt_y, (0, 0, 0), 1)
 
 
         # Show flags
