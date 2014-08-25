@@ -25,6 +25,12 @@ class DemoAgent(AbstractAgent):
             position_point = player_position(self.wm.uniform_number, self.wm.side == WorldModel.SIDE_R, self.formation)
             # Teleport to right position
             self.wm.teleport_to_point(position_point)
+
+            '''
+            #turns to attack field
+            if self.wm.side == WorldModel.SIDE_R:
+                self.wm.ah.turn(180)'''
+
             # Player is ready in formation
             self.in_kick_off_formation = True
             return
