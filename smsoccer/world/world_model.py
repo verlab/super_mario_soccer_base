@@ -2,8 +2,39 @@ import math
 import random
 
 import game_object
+from smsoccer.util.fielddisplay import FieldDisplay
 from smsoccer.util.geometric import euclidean_distance, angle_between_points
 from smsoccer.world.parameters import ServerParameters
+
+
+vDiff = lambda (bx, by), (ax, ay): (bx - ax, by - ay)
+normV = lambda (x, y), n: (x / (1.0 * n), y / (1.0 * n))
+Rot90R = lambda (x, y): (y, -x)
+
+
+def computeNonColinear(f1, f2, flag_dict):
+    if f1.direction < f2.direction:
+        f1, f2 = f2, f1
+
+    # da, db = objects[0].get('distance'), objects[1].get('distance')
+
+    a = flag_dict[f1.flag_id]
+    b = flag_dict[f2.flag_id]
+
+    b_a = vDiff(b, a)  # difference vector
+    lb_a = math.hypot(*b_a)  # norm of difference
+    nb_a = normV(b_a, lb_a)  # normalized difference
+    rndiff = Rot90R(nb_a)  # normalized -90o rotation
+    lpcomp = (lb_a ** 2 + f1.distance ** 2 - f2.distance ** 2) / (2 * lb_a)  #norm of parallel component
+
+    try:
+        lrcomp = (f1.distance ** 2 - lpcomp ** 2) ** 0.5  # norm of rotated component
+    except:
+        #print "Negative argument:\n  A:%s dA:%s\n  B:%s dB:%s" %(repr(a),repr(da),repr(b),repr(db))
+        return False
+    pcomp = (lpcomp * nb_a[0], lpcomp * nb_a[1])  #parallel component
+    rcomp = (lrcomp * rndiff[0], lrcomp * rndiff[1])  #rotated component
+    return (a[0] + pcomp[0] + rcomp[0], a[1] + pcomp[1] + rcomp[1])  #return the location
 
 
 class WorldModel:
@@ -15,6 +46,7 @@ class WorldModel:
     # constants for team sides
     SIDE_L = "l"
     SIDE_R = "r"
+
 
     def __init__(self, action_handler):
         """
@@ -82,13 +114,15 @@ class WorldModel:
         # create a new server parameter object for holding all server params
         self.server_parameters = ServerParameters()
 
+        self.display = FieldDisplay()
+
+
     def triangulate_direction(self, flags, flag_dict):
         """
         Determines absolute view angle for the player given a list of visible
         flags.  We find the absolute angle to each flag, then return the average
         of those angles.  Returns 'None' if no angle could be determined.
         """
-
         # average all flag angles together and save that as absolute angle
         abs_angles = []
         for f in self.flags:
@@ -104,50 +138,79 @@ class WorldModel:
 
         return None
 
-    def triangulate_position(self, flags, flag_dict, angle_step=36):
+    def triangulate_position(self, flags, flag_dict, angle_step=10):
         """
         Returns a best-guess position based on the triangulation via distances
         to all flags in the flag list given.  'angle_step' specifies the
         increments between angles for projecting points onto the circle
         surrounding a flag.
         """
-
+        self.display.clear()
         points = []
-        for f in flags:
-            # skip flags without distance information or without a specific id
-            if f.distance is None or f.flag_id not in flag_dict:
-                continue
 
-            # generate points every 'angle_step' degrees around each flag,
-            # discarding those off-field.
-            for i in xrange(0, 360, angle_step):
-                dy = f.distance * math.sin(math.radians(i))
-                dx = f.distance * math.cos(math.radians(i))
+        if len(flags) < 2:
+            return None
 
-                fcoords = flag_dict[f.flag_id]
-                new_point = (fcoords[0] + dx, fcoords[1] + dy)
+        f1, f2 = flags[:2]
 
-                # skip points with a coordinate outside the play boundaries
-                if (new_point[0] > 60 or new_point[0] < -60 or
-                            new_point[1] < -40 or new_point[1] > 40):
-                    continue
+        if abs(f1.direction - f2.direction) == 180.0:
+            #TODO Colinear 1
+            return None
+        elif f1.direction != f2.direction:
+            # TODO NonColinear
+            return computeNonColinear(f1, f2, flag_dict)
+        elif f1.distance != f2.distance:
+            # TODO Colinear
+            return None
+        else:
+            return None
 
-                # add point to list of all points
-                points.append(new_point)
-
-        # get the dict of clusters mapped to centers
-        clusters = self.cluster_points(points)
-
-        # return the center that has the most points as an approximation to our
-        # absolute position.
-        center_with_most_points = (0, 0)
-        max_points = 0
-        for c in clusters:
-            if len(clusters[c]) > max_points:
-                center_with_most_points = c
-                max_points = len(clusters[c])
-
-        return center_with_most_points
+            # for f in flags[:2]:
+            #     # skip flags without distance information or without a specific id
+            #     if f.distance is None or f.flag_id not in flag_dict:
+            #         continue
+            #
+            #     ## show
+            #     p = [f.distance * math.cos(math.radians(f.direction)), f.distance * math.sin(math.radians(f.direction))]
+            #     p[0] -= 50
+            #
+            #     self.display.draw_circle(p, 5)
+            #     self.display.draw_text(p, f.flag_id + " " + str(f.distance) + " " + str(f.direction))
+            #
+            #
+            #
+            #     # generate points every 'angle_step' degrees around each flag,
+            #     # discarding those off-field.
+            #     for i in xrange(0, 360, angle_step):
+            #         dy = f.distance * math.sin(math.radians(i))
+            #         dx = f.distance * math.cos(math.radians(i))
+            #
+            #         fcoords = flag_dict[f.flag_id]
+            #         new_point = (fcoords[0] + dx, fcoords[1] + dy)
+            #
+            #         # skip points with a coordinate outside the play boundaries
+            #         if (new_point[0] > 60 or new_point[0] < -60 or
+            #                     new_point[1] < -40 or new_point[1] > 40):
+            #             continue
+            #
+            #         # add point to list of all points
+            #         points.append(new_point)
+            #
+            #
+            #
+            # # get the dict of clusters mapped to centers
+            # clusters = self.cluster_points(points)
+            #
+            # # return the center that has the most points as an approximation to our
+            # # absolute position.
+            # center_with_most_points = (0, 0)
+            # max_points = 0
+            # for c in clusters:
+            #     if len(clusters[c]) > max_points:
+            #         center_with_most_points = c
+            #         max_points = len(clusters[c])
+            #
+            # return center_with_most_points
 
     def cluster_points(self, points, num_cluster_iterations=15):
         """
@@ -229,7 +292,15 @@ class WorldModel:
 
         # update the apparent coordinates of the player based on all flag pairs
         flag_dict = game_object.Flag.FLAG_COORDS
+
         self.abs_coords = self.triangulate_position(self.flags, flag_dict)
+
+        if self.abs_coords is not None:
+            self.display.draw_circle(self.abs_coords, 10)
+            self.display.show()
+        else:
+            self.abs_coords = (0, 0)
+            print "NONE"
 
         # set the neck and body absolute directions based on flag directions
         self.abs_neck_dir = self.triangulate_direction(self.flags, flag_dict)
@@ -341,7 +412,7 @@ class WorldModel:
         power = required_power * power_mod
 
         # do the kick, finally
-        self.ah.kick(rel_point_dir, power)
+        self.ah.kick(power, rel_point_dir)
 
     def get_effective_kick_power(self, ball, power):
         """
@@ -480,8 +551,6 @@ class WorldModel:
         self.ah.turn(obj.direction)
 
 
-
-
 class PlayModes:
     """
     Acts as a static class containing variables for all valid play modes.
@@ -508,6 +577,7 @@ class PlayModes:
     def __init__(self):
         raise NotImplementedError("Don't instantiate a PlayModes class,"
                                   " access it statically through WorldModel instead.")
+
 
 class RefereeMessages:
     """
