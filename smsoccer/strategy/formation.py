@@ -33,19 +33,7 @@ def player_position(uniform_number, r_side, formation='442'):
     :return: position based on formation
     """
 
-<<<<<<< .merge_file_DLsC7E
     formation_array = formation_442 if formation == '442' else formation_433
     position = formation_array[uniform_number]
-=======
-    # if r_side:
-    #     # used to flip x coords for other side
-    #     position = (-position[0], position[1])
->>>>>>> .merge_file_xhZQQK
 
-    '''
-    #BUGFIX: flipping is not needed
-    if r_side:
-        # used to flip coords for other side.
-        position = (position[0], position[1])
-    '''
     return position
