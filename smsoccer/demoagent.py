@@ -10,8 +10,9 @@ class DemoAgent(AbstractAgent):
     think method. For a new development is recommended to do the same.
     """
 
-    def __init__(self, goalie=False):
+    def __init__(self, formation='442', goalie=False):
         AbstractAgent.__init__(self, goalie=goalie)
+        self.formation = formation
 
     def think(self):
         """
@@ -21,7 +22,7 @@ class DemoAgent(AbstractAgent):
 
         # take places on the field by uniform number
         if not self.in_kick_off_formation:
-            position_point = player_position(self.wm.uniform_number, self.wm.side == WorldModel.SIDE_R)
+            position_point = player_position(self.wm.uniform_number, self.wm.side == WorldModel.SIDE_R, self.formation)
             # Teleport to right position
             self.wm.teleport_to_point(position_point)
             # Player is ready in formation

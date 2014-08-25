@@ -33,15 +33,15 @@ if __name__ == "__main__":
 
     # enforce current number of arguments, print help otherwise
     if len(sys.argv) < 3:
-        print "args: ./run_team.py <team_name> <num_players>"
+        print "args: ./run_team.py <team_name> <num_players> [optional: formation]"
         sys.exit()
 
-    def spawn_agent(team_name, goalie):
+    def spawn_agent(team_name, goalie, formation='442'):
         """
         Used to run an agent in a separate physical process.
         """
         try:
-            a = DemoAgent(goalie=goalie)
+            a = DemoAgent(formation, goalie=goalie)
             a.connect("localhost", 6000, team_name)
             a.play()
 
@@ -55,20 +55,24 @@ if __name__ == "__main__":
     # spawn all agents as separate processes for maximum processing efficiency
     agent_threads = []
     goalie = False
+    formation = '442' if len(sys.argv) < 4 else sys.argv[3]
+
+    print 'Formation is %s.' % formation
+
     for agent in xrange(min(11, int(sys.argv[2]))):
         print "  Spawning agent %d..." % agent
-
-        args_spawn = (sys.argv[1], True) if not goalie else (sys.argv[1], False)
+        args_spawn = (sys.argv[1], not goalie, formation) #if not goalie else (sys.argv[1], goalie, formation)
         goalie = True
         at = mp.Process(target=spawn_agent, args=args_spawn)
         at.daemon = True
         at.start()
 
+        time.sleep(0.1)
         agent_threads.append(at)
 
     print "Spawned %d agents." % len(agent_threads)
     print
-    print "Playing soccer..."
+    print "GO SUPER MARIO!"
 
     # wait until killed to terminate agent processes
     try:
