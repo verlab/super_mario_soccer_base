@@ -6,7 +6,7 @@ from numpy.linalg import inv
 def multivariate_normal(x, u, sigma):
     k = len(x)
 
-    a1 = 1.0 / ((2 * math.pi) ** (2 * k) * math.sqrt(np.linalg.det(sigma)))
+    a1 = 1.0 / (((2 * math.pi) ** (2 * k)) * math.sqrt(np.linalg.det(sigma)))
     d1 = np.dot((x - u).T, inv(sigma))
     d2 = np.dot(d1, (x - u))
     a2 = - 0.5 * d2

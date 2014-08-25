@@ -1,4 +1,3 @@
-import math
 from numpy.random import random
 
 from smsoccer.localization.distributions import multivariate_normal
@@ -8,15 +7,16 @@ __author__ = 'dav'
 import numpy as np
 
 # Number of particles
-N = 10
+N = 1000
 
-# Motion variance (theta is zero)
-VAR_X = 3
-VAR_Y = 0.0
-VAR_T = 0.0
+# Motion variance, Linear and angular
+VAR_L = 3
+VAR_T = 2
 
 # Update variance: x, y, theta.
-sigma = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.1]])
+sigma = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0], [0.0, 0.0, 45.0]])
+
+SHOW_PARTICLES = True
 
 
 def _update_estimated_position():
@@ -43,19 +43,20 @@ class ParticleFilter(object):
         theta = self.e_position[2]
         #TODO compute c
         c = 0.01  # convert dash to velocity
-        dx = dash * c * math.cos(math.radians(theta))
-        dy = dash * c * math.sin(math.radians(theta))
 
+        # displacement
+        #TODO this distribution is not normal. player does not go back.
+        dl = c * dash + np.random.randn(N) * VAR_L
+        dtheta = np.random.randn(N) * VAR_L
 
-        # random movement
-        rdx = VAR_X * np.random.randn(N) + dx
-        rdy = VAR_Y * np.random.randn(N) + dy
-        rdth = VAR_T * np.random.randn(N) + theta
+        dx = dl * np.cos(np.radians(theta))
+        dy = dl * np.sin(np.radians(theta))
+
 
         #movement in x,y
-        mov = np.vstack((rdx, rdy))
+        mov = np.vstack((dx, dy))
         #movement with theta=0
-        mov = np.vstack((mov, rdth))
+        mov = np.vstack((mov, dtheta))
 
         self.particles = self.particles + mov.T
 
@@ -69,7 +70,7 @@ class ParticleFilter(object):
         self.particles[:, 2] += angle
         self._update_estimated_position()
 
-    def resample(self, weights):
+    def _resample(self, weights):
 
         indices = []
         c = [0.] + [sum(weights[:i + 1]) for i in range(N)]
@@ -86,17 +87,36 @@ class ParticleFilter(object):
         # Weights.
         w = []
         for x in self.particles:
-            w1 = multivariate_normal(x, perception, sigma)
+            per = perception[:]
+            nx = x[:]
+
+            # gaussian is continuous in reals, but 180 degrees is far away from -179 in the real numbers.
+            # the solution is converting the values <90 in a possitive angle.
+            if per[2] * nx[2] < 0:
+                if per[2] < -90 and (nx[2] > 90):
+                    per[2] += 360
+                if per[2] > 90 and (nx[2] < 90):
+                    nx[2] += 360
+
+            # particle in the  map
+
+            if -55<x[0]<55 and -35<x[1]<35: # TODO put map limits as constants
+                w1 = multivariate_normal(nx, per, sigma)
+            else:
+                w1 = 0
+
             w.append(w1)
 
 
         # normalize the weights.
-        w = np.array(w) / sum(w)
-        print w
+        # w = np.array(w) / sum(w)
+        # w is zero, when the measure is very far, then, particles repeat.
+        w = np.array(w) / sum(w) if sum(w) > 0 else np.ones(N) / N
         # Resample
-        ids = self.resample(w)
-        print ids
+        ids = self._resample(w)
         self.particles = self.particles[ids]
+
+        self._update_estimated_position()
 
 
     def _update_estimated_position(self):
