@@ -1,16 +1,10 @@
-import pygame
-from pygame.locals import *
-
-
 # Window size
 from time import sleep
+
 from smsoccer.localization import particlefilter
 from smsoccer.localization.particlefilter import ParticleFilter
+from smsoccer.util.fielddisplay import FieldDisplay
 
-width, height = 750, 600
-# Window
-pygame.init()
-window = pygame.display.set_mode((width, height), HWSURFACE | DOUBLEBUF | RESIZABLE)
 
 data = [[1.9138558074183545, 31.32223130892581, 209.34178608545565],
         [1.9138558074183545, 31.32223130892581, 209.34178608545565],
@@ -143,20 +137,6 @@ data = [[1.9138558074183545, 31.32223130892581, 209.34178608545565],
         [-51.65907745649194, 3.764023857153414, 171.81648720245747],
         [-51.65907745649194, 3.764023857153414, 171.81648720245747]]
 
-hfield_width = 52.5
-hfield_heigh = 35.0
-
-
-def convert(x, y):
-    # center of the field
-    mult = 6.0
-    cx, cy = hfield_width * mult, hfield_heigh * mult
-    mx, my = 30 + cx, 20 + cy
-
-    x, y = mx + mult * x, my + mult * y
-    return x, y
-
-
 if __name__ == "__main__":
     # Ground through
     gt = [-50, 0, -173]
@@ -172,8 +152,7 @@ if __name__ == "__main__":
     # # pf.rotate_particles(30)
     # # print pf.particles, pf.e_position
 
-
-
+    display = FieldDisplay()
 
     for d in data[:]:
 
@@ -185,33 +164,16 @@ if __name__ == "__main__":
 
         rd = 5
 
-
-        # Draw the canvas
-        window.fill((255, 255, 255))
-
-        ox, oy = convert(-hfield_width, -hfield_heigh)
-        fx, fy = convert(hfield_width, hfield_heigh)
-        pygame.draw.rect(window, (55, 171, 84), (ox, oy, fx - ox, fy - oy))
-        pygame.draw.rect(window, (0, 0, 0), (ox, oy, fx - ox, fy - oy), 1)
-
+        display.clear()
 
         # draw particles
         for i in range(particlefilter.N):
-            px, py = convert(pf.particles[i][0], pf.particles[i][1])
+            center = pf.particles[i][0], pf.particles[i][1]
+            color = (200, 0, 0)
+            radio = 2
+            display.draw_circle(center, radio, color)
 
-            pygame.draw.circle(window, (200, 0, 0), (int(px), int(py)), int(2), 0)
+        display.draw_circle(pf.e_position, 5, (0, 0, 200))
 
-        ex, ey = convert(pf.e_position[0], pf.e_position[1])
-        # draw estimation
-        pygame.draw.circle(window, (0, 0, 200), (int(ex), int(ey)), int(5), 0)
-
-        pygame.display.flip()
+        display.show()
         sleep(1)
-
-        # window = pygame.display.set_mode(event.dict['size'],
-        #                                          HWSURFACE | DOUBLEBUF | RESIZABLE)
-
-
-
-        #
-        # print pf.particles, pf.e_position
