@@ -22,8 +22,8 @@
 import time
 import sys
 
-from smsoccer.abstractagent import AbstractAgent
 from smsoccer.demoagent import DemoAgent
+
 
 PORT = 6000
 

@@ -38,7 +38,8 @@ class MessageHandler:
         parsed = message_parser.parse(msg)
 
         if PRINT_SERVER_MESSAGES:
-            print parsed[0] + ":", parsed[1:], "\n"
+            print msg
+            # print parsed[0] + ":", parsed[1:], "\n"
 
         # this is the name of the function that should be used to handle
         # this message type.  we pull it from this object dynamically to
@@ -71,8 +72,7 @@ class MessageHandler:
         """
 
         # the simulation cycle of the soccer server
-        # TODO: we should probably use this somewhere...
-        sim_time = msg[1]
+        self.wm.sim_time = msg[1]
 
         # store new values before changing those in the world model.  all new
         # values replace those in the world model at the end of parsing.
@@ -366,10 +366,14 @@ class MessageHandler:
         """
         Deals with initialization messages sent by the server.
         """
-
         # set the player's uniform number, side, and the play mode as returned
         # by the server directly after connecting.
         side = msg[1]
+
+        #if coach
+        if msg[2] == 'ok':
+            return
+
         uniform_number = msg[2]
         play_mode = msg[3]
 
@@ -393,3 +397,19 @@ class MessageHandler:
 
         m = "Server issued a warning: '%s'" % msg[1]
         print sp_exceptions.SoccerServerWarning(m)
+
+    ######## Coach
+    def _handle_ok(self, msg):
+        """
+        Response of (look)
+        :param msg:
+        """
+        print msg
+
+    def _handle_see_global(self, msg):
+        """
+        Automatic message after (eye on)
+        :param msg: (see_global 0 ((g r) 52.5 0) ((g l) -52.5 0) ((b) 0 0 0 0) ((p "default" 1) -50 0 0 0 0 0)) 
+        """
+        print msg
+        pass

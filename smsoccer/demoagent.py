@@ -42,6 +42,7 @@ class DemoAgent(AbstractAgent):
                 if self.wm.is_ball_kickable():
                     # kick with 100% extra effort at enemy goal
                     self.wm.kick_to(self.goal_pos, 1.0)
+                    print self.goal_pos
                 else:
                     # move towards ball
                     if self.wm.ball is not None:
