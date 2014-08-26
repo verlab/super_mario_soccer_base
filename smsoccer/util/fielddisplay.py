@@ -96,8 +96,11 @@ class FieldDisplay(object):
         :param color:
         :param stroke:
         """
-        center = self._convert_coordinates(center[0], center[1])
-        pygame.draw.circle(window, color, (int(center[0]), int(center[1])), int(radio), stroke)
+        try:
+            center = self._convert_coordinates(center[0], center[1])
+            pygame.draw.circle(window, color, (int(center[0]), int(center[1])), int(radio), stroke)
+        except Exception:
+            print "error"
 
     def draw_text(self, point, text, color=(0, 0, 0)):
         point = self._convert_coordinates(*point)

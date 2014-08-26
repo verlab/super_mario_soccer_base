@@ -37,7 +37,7 @@ class DemoAgent(AbstractAgent):
             self.display.show()
 
         r_side = self.wm.side == WorldModel.SIDE_R
-        # print self.wm.abs_body_dir
+
         # take places on the field by uniform number
         if not self.in_kick_off_formation:
             position_point = player_position(self.wm.uniform_number)
@@ -98,7 +98,7 @@ class DemoAgent(AbstractAgent):
 
                 print angle, cut(angle_between_points(self.wm.abs_coords, self.goal_pos)), cut(self.wm.abs_body_dir)
 
-                self.wm.ah.kick(20, angle)
+                self.wm.ah.kick(100, angle)
                 return
             else:
                 # move towards ball
