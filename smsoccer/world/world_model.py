@@ -260,7 +260,6 @@ class WorldModel:
         Returns the linear distance to some point on the field from the current
         point.
         """
-
         return euclidean_distance(self.abs_coords, point)
 
     #todo Actuator

@@ -1,5 +1,4 @@
 import math
-from smsoccer.util.geometric import angle_between_points
 
 
 vDiff = lambda (bx, by), (ax, ay): (bx - ax, by - ay)
@@ -47,19 +46,26 @@ def triangulate_direction(abs_coords, flags, flag_dict):
     of those angles.  Returns 'None' if no angle could be determined.
     :param abs_coords: position of the robot
     """
-    # average all flag angles together and save that as absolute angle
-    abs_angles = []
+    f1 = None
     for f in flags:
-        # if the flag has useful data, consider it
-        if f.distance is not None and f.flag_id in flag_dict:
-            flag_point = flag_dict[f.flag_id]
-            abs_dir = angle_between_points(abs_coords, flag_point)
-            abs_angles.append(abs_dir)
+        if f.distance is None or f.direction is None:
+            continue
 
-    # return the average if available
-    if len(abs_angles) > 0:
-        return sum(abs_angles) / len(abs_angles)
-    return None
+        if f1 is None:
+            f1 = f
+            continue
+
+        if f.distance < f1.distance:
+            # f2 = f1
+            f1 = f
+
+    b = flag_dict[f1.flag_id]
+
+    v = (b[0] - abs_coords[0], b[1] - abs_coords[1])  #v =b - a
+    theta = math.degrees(math.atan2(v[1], v[0]))  #direction of v
+    dir = - f1.direction + theta
+
+    return dir
 
 
 def triangulate_position(flags, flag_dict):
