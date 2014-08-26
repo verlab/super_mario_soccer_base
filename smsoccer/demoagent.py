@@ -26,15 +26,15 @@ class DemoAgent(AbstractAgent):
         Performs a single step of thinking for our agent.  Gets called on every
         iteration of our think loop.
         """
-        # if self.visualization:
-        #     if self.wm.abs_coords[0] is None:
-        #         return
-        #
-        #     self.display.clear()
-        #     self.display.draw_robot(self.wm.abs_coords, self.wm.abs_body_dir)
-        #     if self.wm.ball is not None:
-        #         self.display.draw_circle(self.wm.get_object_absolute_coords(self.wm.ball), 4)
-        #     self.display.show()
+        if self.visualization:
+            if self.wm.abs_coords[0] is None:
+                return
+
+            self.display.clear()
+            self.display.draw_robot(self.wm.abs_coords, self.wm.abs_body_dir)
+            if self.wm.ball is not None:
+                self.display.draw_circle(self.wm.get_object_absolute_coords(self.wm.ball), 4)
+            self.display.show()
 
         r_side = self.wm.side == WorldModel.SIDE_R
         # print self.wm.abs_body_dir
