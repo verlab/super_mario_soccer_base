@@ -1,6 +1,6 @@
-
 from smsoccer.abstractagent import AbstractAgent
 from smsoccer.strategy.formation import player_position
+from smsoccer.util.fielddisplay import FieldDisplay
 from smsoccer.world.world_model import WorldModel, PlayModes
 
 
@@ -10,14 +10,24 @@ class DemoAgent(AbstractAgent):
     think method. For a new development is recommended to do the same.
     """
 
-    def __init__(self, goalie=False):
+    def __init__(self, goalie=False, debug=False):
         AbstractAgent.__init__(self, goalie=goalie)
+
+        self.display = FieldDisplay()
+        self.debug = debug
 
     def think(self):
         """
         Performs a single step of thinking for our agent.  Gets called on every
         iteration of our think loop.
         """
+        if self.debug:
+            if self.wm.abs_coords[0] is None:
+                return
+
+            self.display.clear()
+            self.display.draw_robot(self.wm.abs_coords, self.wm.abs_body_dir)
+            self.display.show()
 
         # take places on the field by uniform number
         if not self.in_kick_off_formation:
@@ -66,7 +76,7 @@ class DemoAgent(AbstractAgent):
             else:
                 # move towards ball
                 if -7 <= self.wm.ball.direction <= 7:
-                    self.wm.ah.dash(65)
+                    self.wm.ah.dash(8 * self.wm.ball.distance)
                 else:
                     # face ball
                     self.wm.ah.turn(self.wm.ball.direction / 2)

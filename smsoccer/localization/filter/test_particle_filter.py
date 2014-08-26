@@ -1,8 +1,8 @@
 # Window size
 from time import sleep
 
-from smsoccer.localization import particlefilter
-from smsoccer.localization.particlefilter import ParticleFilter
+from smsoccer.localization.filter.particlefilter import ParticleFilter
+from smsoccer.localization.filter import particlefilter
 from smsoccer.util.fielddisplay import FieldDisplay
 
 

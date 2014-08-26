@@ -1,6 +1,6 @@
 from numpy.random import random
 
-from smsoccer.localization.distributions import multivariate_normal
+from smsoccer.localization.filter.distributions import multivariate_normal
 
 
 __author__ = 'dav'
