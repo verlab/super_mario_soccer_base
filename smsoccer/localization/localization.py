@@ -8,15 +8,22 @@ Rot90R = lambda (x, y): (y, -x)
 
 
 def compute_non_colinear(f1, f2, flag_dict):
+    """
+    Compute robot localization based on two flags.
+    :param f1: flag 1
+    :param f2: flag 2
+    :param flag_dict: dictionary of flags and real positions.
+    :return:
+    """
+    # Order flags
     if f1.direction < f2.direction:
         f1, f2 = f2, f1
 
-    # da, db = objects[0].get('distance'), objects[1].get('distance')
+    # Real position of the flags
+    rf1 = flag_dict[f1.flag_id]
+    rf2 = flag_dict[f2.flag_id]
 
-    a = flag_dict[f1.flag_id]
-    b = flag_dict[f2.flag_id]
-
-    b_a = vDiff(b, a)  # difference vector
+    b_a = vDiff(rf2, rf1)  # difference vector
     lb_a = math.hypot(*b_a)  # norm of difference
     nb_a = normV(b_a, lb_a)  # normalized difference
     rndiff = Rot90R(nb_a)  # normalized -90o rotation
@@ -30,7 +37,7 @@ def compute_non_colinear(f1, f2, flag_dict):
     pcomp = (lpcomp * nb_a[0], lpcomp * nb_a[1])  # parallel component
     rcomp = (lrcomp * rndiff[0], lrcomp * rndiff[1])  # rotated component
     # return the location
-    return a[0] + pcomp[0] + rcomp[0], a[1] + pcomp[1] + rcomp[1]
+    return rf1[0] + pcomp[0] + rcomp[0], rf1[1] + pcomp[1] + rcomp[1]
 
 
 def triangulate_direction(abs_coords, flags, flag_dict):
@@ -38,6 +45,7 @@ def triangulate_direction(abs_coords, flags, flag_dict):
     Determines absolute view angle for the player given a list of visible
     flags.  We find the absolute angle to each flag, then return the average
     of those angles.  Returns 'None' if no angle could be determined.
+    :param abs_coords: position of the robot
     """
     # average all flag angles together and save that as absolute angle
     abs_angles = []
@@ -51,8 +59,27 @@ def triangulate_direction(abs_coords, flags, flag_dict):
     # return the average if available
     if len(abs_angles) > 0:
         return sum(abs_angles) / len(abs_angles)
-
     return None
+
+    # f1, f2 = flags[:2]
+    # if f1.direction < f2.direction:
+    #     f1, f2 = f2, f1
+    #
+    # a = abs_coords
+    # b = flag_dict[f1.flag_id]
+    #
+    #
+    # v = (b[0] - a[0], b[1] - a[1])  #v =b - a
+    # vd = math.degrees(math.atan2(v[1], v[0]))  #direction of v
+    # dir = f1.direction + vd
+    #
+    # dir +=45
+    #
+    #
+    # return dir
+
+
+
 
 def triangulate_position(flags, flag_dict):
     """
@@ -60,6 +87,8 @@ def triangulate_position(flags, flag_dict):
     to all flags in the flag list given.  'angle_step' specifies the
     increments between angles for projecting points onto the circle
     surrounding a flag.
+    :param flags: observed flags
+    :param flag_dict: real positions for flags
     """
 
     if len(flags) < 2:
