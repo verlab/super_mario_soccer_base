@@ -3,6 +3,7 @@ import random
 
 import game_object
 from smsoccer.util.geometric import euclidean_distance, angle_between_points
+from smsoccer.localization.localization import triangulate_position, triangulate_direction
 from smsoccer.world.parameters import ServerParameters
 
 
@@ -15,6 +16,7 @@ class WorldModel:
     # constants for team sides
     SIDE_L = "l"
     SIDE_R = "r"
+
 
     def __init__(self, action_handler):
         """
@@ -82,135 +84,6 @@ class WorldModel:
         # create a new server parameter object for holding all server params
         self.server_parameters = ServerParameters()
 
-    def triangulate_direction(self, flags, flag_dict):
-        """
-        Determines absolute view angle for the player given a list of visible
-        flags.  We find the absolute angle to each flag, then return the average
-        of those angles.  Returns 'None' if no angle could be determined.
-        """
-
-        # average all flag angles together and save that as absolute angle
-        abs_angles = []
-        for f in self.flags:
-            # if the flag has useful data, consider it
-            if f.distance is not None and f.flag_id in flag_dict:
-                flag_point = flag_dict[f.flag_id]
-                abs_dir = angle_between_points(self.abs_coords, flag_point)
-                abs_angles.append(abs_dir)
-
-        # return the average if available
-        if len(abs_angles) > 0:
-            return sum(abs_angles) / len(abs_angles)
-
-        return None
-
-    def triangulate_position(self, flags, flag_dict, angle_step=36):
-        """
-        Returns a best-guess position based on the triangulation via distances
-        to all flags in the flag list given.  'angle_step' specifies the
-        increments between angles for projecting points onto the circle
-        surrounding a flag.
-        """
-
-        points = []
-        for f in flags:
-            # skip flags without distance information or without a specific id
-            if f.distance is None or f.flag_id not in flag_dict:
-                continue
-
-            # generate points every 'angle_step' degrees around each flag,
-            # discarding those off-field.
-            for i in xrange(0, 360, angle_step):
-                dy = f.distance * math.sin(math.radians(i))
-                dx = f.distance * math.cos(math.radians(i))
-
-                fcoords = flag_dict[f.flag_id]
-                new_point = (fcoords[0] + dx, fcoords[1] + dy)
-
-                # skip points with a coordinate outside the play boundaries
-                if (new_point[0] > 60 or new_point[0] < -60 or
-                            new_point[1] < -40 or new_point[1] > 40):
-                    continue
-
-                # add point to list of all points
-                points.append(new_point)
-
-        # get the dict of clusters mapped to centers
-        clusters = self.cluster_points(points)
-
-        # return the center that has the most points as an approximation to our
-        # absolute position.
-        center_with_most_points = (0, 0)
-        max_points = 0
-        for c in clusters:
-            if len(clusters[c]) > max_points:
-                center_with_most_points = c
-                max_points = len(clusters[c])
-
-        return center_with_most_points
-
-    def cluster_points(self, points, num_cluster_iterations=15):
-        """
-        Cluster a set of points into a dict of centers mapped to point lists.
-        Uses the k-means clustering algorithm with random initial centers and a
-        fixed number of iterations to find clusters.
-        """
-
-        # generate initial random centers, ignoring identical ones
-        centers = set([])
-        for i in xrange(int(math.sqrt(len(points) / 2))):
-            # a random coordinate somewhere within the field boundaries
-            rand_center = (random.randint(-55, 55), random.randint(-35, 35))
-            centers.add(rand_center)
-
-        # cluster for some iterations before the latest result
-        latest = {}
-        cur = {}
-        for i in xrange(num_cluster_iterations):
-            # initialze cluster lists
-            for c in centers:
-                cur[c] = []
-
-            # put every point into the list of its nearest cluster center
-            for p in points:
-                # get a list of (distance to center, center coords) tuples
-                c_dists = map(lambda c: (euclidean_distance(c, p), c),
-                              centers)
-
-                # find the smallest tuple's c (second item)
-                nearest_center = min(c_dists)[1]
-
-                # add point to this center's cluster
-                cur[nearest_center].append(p)
-
-            # recompute centers
-            new_centers = set([])
-            for cluster in cur.values():
-                tot_x = 0
-                tot_y = 0
-
-                # remove empty clusters
-                if len(cluster) == 0:
-                    continue
-
-                # generate average center of cluster
-                for p in cluster:
-                    tot_x += p[0]
-                    tot_y += p[1]
-
-                # get average center and add to new centers set
-                ave_center = (tot_x / len(cluster), tot_y / len(cluster))
-                new_centers.add(ave_center)
-
-            # move on to next iteration
-            centers = new_centers
-            latest = cur
-            cur = {}
-
-        # return latest cluster iteration
-        return latest
-
-
     def process_new_info(self, ball, flags, goals, players, lines):
         """
         Update any internal variables based on the currently available
@@ -229,10 +102,15 @@ class WorldModel:
 
         # update the apparent coordinates of the player based on all flag pairs
         flag_dict = game_object.Flag.FLAG_COORDS
-        self.abs_coords = self.triangulate_position(self.flags, flag_dict)
+
+        self.abs_coords = triangulate_position(self.flags, flag_dict)
+
+        if self.abs_coords is None:
+            self.abs_coords = (0, 0)
+            print "Cannot triangulate localization"
 
         # set the neck and body absolute directions based on flag directions
-        self.abs_neck_dir = self.triangulate_direction(self.flags, flag_dict)
+        self.abs_neck_dir = triangulate_direction(self.abs_coords, self.flags, flag_dict)
 
         # set body dir only if we got a neck dir, else reset it
         if self.abs_neck_dir is not None and self.neck_direction is not None:
@@ -330,7 +208,7 @@ class WorldModel:
         dist_ratio = point_dist / max_kick_dist
 
         # find the required power given ideal conditions, then add scale up by
-        # difference between actual aceivable power and maximum power.
+        # difference between actual achievable power and maximum power.
         required_power = dist_ratio * self.server_parameters.maxpower
         effective_power = self.get_effective_kick_power(self.ball,
                                                         required_power)
@@ -341,7 +219,7 @@ class WorldModel:
         power = required_power * power_mod
 
         # do the kick, finally
-        self.ah.kick(rel_point_dir, power)
+        self.ah.kick(power, rel_point_dir)
 
     def get_effective_kick_power(self, ball, power):
         """
@@ -480,8 +358,6 @@ class WorldModel:
         self.ah.turn(obj.direction)
 
 
-
-
 class PlayModes:
     """
     Acts as a static class containing variables for all valid play modes.
@@ -508,6 +384,7 @@ class PlayModes:
     def __init__(self):
         raise NotImplementedError("Don't instantiate a PlayModes class,"
                                   " access it statically through WorldModel instead.")
+
 
 class RefereeMessages:
     """

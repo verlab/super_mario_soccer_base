@@ -53,7 +53,7 @@ class AbstractAgent(object):
         self.goal_pos = None
 
 
-    def connect(self, host, port, teamname, version=11):
+    def connect(self, host, port, teamname, version=15.1):
         """
         Gives us a connection to the server as one player on a team.  This
         immediately connects the agent to the server and starts receiving and
@@ -113,7 +113,7 @@ class AbstractAgent(object):
         self.__connected = True
 
         # determine the enemy goal position
-        self.goal_pos = (-55, 0) if self.wm.side == WorldModel.SIDE_R else (55, 0)
+        self.goal_pos = (52.5, 0)
 
     def play(self):
         """
@@ -135,6 +135,10 @@ class AbstractAgent(object):
         # tell the thread that it should be running, then start it
         self.__thinking = True
         self.__should_think_on_data = True
+
+        # initialization
+        self.initialization()
+        # start thinking
         self._think_thread.start()
 
     def disconnect(self):
@@ -241,4 +245,9 @@ class AbstractAgent(object):
         """
         pass
 
+    def initialization(self):
+        """
+        This method is called just once and before the think loop
 
+        """
+        pass

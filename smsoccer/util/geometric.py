@@ -21,7 +21,6 @@ def angle_between_points(point1, point2):
     and the positive y-axis is 90 degrees.  All returned angles are positive
     and relative to the positive x-axis.
     """
-
     x1 = point1[0]
     y1 = point1[1]
     x2 = point2[0]
