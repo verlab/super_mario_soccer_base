@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+import math
 
 from smsoccer.world.game_object import Flag
 
@@ -58,22 +59,22 @@ class FieldDisplay(object):
         # grass
         self.draw_rect((ltx, lty), rbx - ltx, rby - lty, (55, 171, 84))
         # border
-        self.draw_rect((ltx, lty), rbx - ltx, rby - lty, (0, 0, 0), 1)
+        self.draw_rect((ltx, lty), rbx - ltx, rby - lty, (0, 0, 0), 2)
         # Center
-        self.draw_circle([0, 0], 30, color=(0, 0, 0), stroke=1)
+        self.draw_circle([0, 0], 30, color=(0, 0, 0), stroke=2)
 
         self.draw_line([0, lty], [0, rby])
 
         # Area left
         plt_x, plt_y = Flag.FLAG_COORDS["plt"]
         plb_x, plb_y = Flag.FLAG_COORDS["plb"]
-        self.draw_rect([ltx, plt_y], plb_x - ltx, plb_y - plt_y, (0, 0, 0), 1)
+        self.draw_rect([ltx, plt_y], plb_x - ltx, plb_y - plt_y, (0, 0, 0), 2)
 
 
         # Area right
         prt_x, prt_y = Flag.FLAG_COORDS["prt"]
         prb_x, prb_y = Flag.FLAG_COORDS["prb"]
-        self.draw_rect([prt_x, prt_y], rbx - prt_x, prb_y - prt_y, (0, 0, 0), 1)
+        self.draw_rect([prt_x, prt_y], rbx - prt_x, prb_y - prt_y, (0, 0, 0), 2)
 
 
         # Show flags
@@ -103,6 +104,14 @@ class FieldDisplay(object):
         font = pygame.font.Font(None, 30)
         label = font.render(str(text), 1, color)
         window.blit(label, point)
+
+
+    def draw_robot(self, point, angle, color=(71, 135, 237)):
+        r = 20
+        self.draw_circle(point, r, color)
+        fx = point[0] + r * math.cos(math.radians(angle)) / SCALE
+        fy = point[1] + r * math.sin(math.radians(angle)) / SCALE
+        self.draw_line(point, (fx, fy))
 
 
     def draw_line(self, p1, p2, color=(0, 0, 0), stroke=2):
@@ -137,8 +146,9 @@ if __name__ == "__main__":
     for i in range(30):
         display.clear()
         p = [i, 0]
-        display.draw_circle(p, 10)
-        display.draw_text(p, str(i))
+        display.draw_circle((p[0], 30), 10)
+        display.draw_robot(p, i * 30)
+        display.draw_text((p[0], 30), str(i))
         display.show()
         time.sleep(1.1)
 

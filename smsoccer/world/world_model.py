@@ -3,37 +3,8 @@ import random
 
 import game_object
 from smsoccer.util.geometric import euclidean_distance, angle_between_points
+from smsoccer.localization.localization import triangulate_position, triangulate_direction
 from smsoccer.world.parameters import ServerParameters
-
-
-vDiff = lambda (bx, by), (ax, ay): (bx - ax, by - ay)
-normV = lambda (x, y), n: (x / (1.0 * n), y / (1.0 * n))
-Rot90R = lambda (x, y): (y, -x)
-
-
-def computeNonColinear(f1, f2, flag_dict):
-    if f1.direction < f2.direction:
-        f1, f2 = f2, f1
-
-    # da, db = objects[0].get('distance'), objects[1].get('distance')
-
-    a = flag_dict[f1.flag_id]
-    b = flag_dict[f2.flag_id]
-
-    b_a = vDiff(b, a)  # difference vector
-    lb_a = math.hypot(*b_a)  # norm of difference
-    nb_a = normV(b_a, lb_a)  # normalized difference
-    rndiff = Rot90R(nb_a)  # normalized -90o rotation
-    lpcomp = (lb_a ** 2 + f1.distance ** 2 - f2.distance ** 2) / (2 * lb_a)  #norm of parallel component
-
-    try:
-        lrcomp = (f1.distance ** 2 - lpcomp ** 2) ** 0.5  # norm of rotated component
-    except:
-        #print "Negative argument:\n  A:%s dA:%s\n  B:%s dB:%s" %(repr(a),repr(da),repr(b),repr(db))
-        return None
-    pcomp = (lpcomp * nb_a[0], lpcomp * nb_a[1])  #parallel component
-    rcomp = (lrcomp * rndiff[0], lrcomp * rndiff[1])  #rotated component
-    return (a[0] + pcomp[0] + rcomp[0], a[1] + pcomp[1] + rcomp[1])  #return the location
 
 
 class WorldModel:
@@ -113,122 +84,6 @@ class WorldModel:
         # create a new server parameter object for holding all server params
         self.server_parameters = ServerParameters()
 
-
-    def triangulate_direction(self, flags, flag_dict):
-        """
-        Determines absolute view angle for the player given a list of visible
-        flags.  We find the absolute angle to each flag, then return the average
-        of those angles.  Returns 'None' if no angle could be determined.
-        """
-        # average all flag angles together and save that as absolute angle
-        abs_angles = []
-        for f in self.flags:
-            # if the flag has useful data, consider it
-            if f.distance is not None and f.flag_id in flag_dict:
-                flag_point = flag_dict[f.flag_id]
-                abs_dir = angle_between_points(self.abs_coords, flag_point)
-                abs_angles.append(abs_dir)
-
-        # return the average if available
-        if len(abs_angles) > 0:
-            return sum(abs_angles) / len(abs_angles)
-
-        return None
-
-    def triangulate_position(self, flags, flag_dict, angle_step=10):
-        """
-        Returns a best-guess position based on the triangulation via distances
-        to all flags in the flag list given.  'angle_step' specifies the
-        increments between angles for projecting points onto the circle
-        surrounding a flag.
-        """
-        points = []
-
-        if len(flags) < 2:
-            return None
-
-        f1, f2 = flags[:2]
-
-        if f1.direction is None or f2.direction is None:
-            print "Flag with direction None"
-            return None
-
-
-        if abs(f1.direction - f2.direction) == 180.0:
-            #TODO Colinear 1
-            return None
-        elif f1.direction != f2.direction:
-            # NonColinear
-            return computeNonColinear(f1, f2, flag_dict)
-        elif f1.distance != f2.distance:
-            # TODO Colinear
-            return None
-        else:
-            return None
-
-
-    def cluster_points(self, points, num_cluster_iterations=15):
-        """
-        Cluster a set of points into a dict of centers mapped to point lists.
-        Uses the k-means clustering algorithm with random initial centers and a
-        fixed number of iterations to find clusters.
-        """
-
-        # generate initial random centers, ignoring identical ones
-        centers = set([])
-        for i in xrange(int(math.sqrt(len(points) / 2))):
-            # a random coordinate somewhere within the field boundaries
-            rand_center = (random.randint(-55, 55), random.randint(-35, 35))
-            centers.add(rand_center)
-
-        # cluster for some iterations before the latest result
-        latest = {}
-        cur = {}
-        for i in xrange(num_cluster_iterations):
-            # initialze cluster lists
-            for c in centers:
-                cur[c] = []
-
-            # put every point into the list of its nearest cluster center
-            for p in points:
-                # get a list of (distance to center, center coords) tuples
-                c_dists = map(lambda c: (euclidean_distance(c, p), c),
-                              centers)
-
-                # find the smallest tuple's c (second item)
-                nearest_center = min(c_dists)[1]
-
-                # add point to this center's cluster
-                cur[nearest_center].append(p)
-
-            # recompute centers
-            new_centers = set([])
-            for cluster in cur.values():
-                tot_x = 0
-                tot_y = 0
-
-                # remove empty clusters
-                if len(cluster) == 0:
-                    continue
-
-                # generate average center of cluster
-                for p in cluster:
-                    tot_x += p[0]
-                    tot_y += p[1]
-
-                # get average center and add to new centers set
-                ave_center = (tot_x / len(cluster), tot_y / len(cluster))
-                new_centers.add(ave_center)
-
-            # move on to next iteration
-            centers = new_centers
-            latest = cur
-            cur = {}
-
-        # return latest cluster iteration
-        return latest
-
-
     def process_new_info(self, ball, flags, goals, players, lines):
         """
         Update any internal variables based on the currently available
@@ -248,14 +103,14 @@ class WorldModel:
         # update the apparent coordinates of the player based on all flag pairs
         flag_dict = game_object.Flag.FLAG_COORDS
 
-        self.abs_coords = self.triangulate_position(self.flags, flag_dict)
+        self.abs_coords = triangulate_position(self.flags, flag_dict)
 
         if self.abs_coords is None:
             self.abs_coords = (0, 0)
             print "Cannot triangulate localization"
 
         # set the neck and body absolute directions based on flag directions
-        self.abs_neck_dir = self.triangulate_direction(self.flags, flag_dict)
+        self.abs_neck_dir = triangulate_direction(self.abs_coords, self.flags, flag_dict)
 
         # set body dir only if we got a neck dir, else reset it
         if self.abs_neck_dir is not None and self.neck_direction is not None:
