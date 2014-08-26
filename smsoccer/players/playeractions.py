@@ -34,7 +34,7 @@ class PlayerActions:
             "abs_point_dir:", int(abs_point_dir), "point_dist", int(point_dist), "abs_coords", self.wm.abs_coords
 
         if self.check is False:
-            self.wm.ah.turn(20)
+            self.wm.ah.turn(rel_point_dir)
             self.check = True
 
     '''

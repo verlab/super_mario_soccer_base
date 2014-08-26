@@ -96,6 +96,10 @@ class FieldDisplay(object):
         :param color:
         :param stroke:
         """
+        if not center:
+            print "fielddisplay no center point"
+            return
+
         center = self._convert_coordinates(center[0], center[1])
         pygame.draw.circle(window, color, (int(center[0]), int(center[1])), int(radio), stroke)
 

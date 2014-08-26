@@ -2,7 +2,8 @@ from smsoccer.abstractagent import AbstractAgent
 from smsoccer.strategy.formation import player_position
 from smsoccer.util.geometric import angle_between_points
 from smsoccer.world.world_model import WorldModel, PlayModes
-
+import smsoccer.players.playeractions
+from pprint import pprint
 
 class DemoAgent(AbstractAgent):
     """
@@ -11,9 +12,10 @@ class DemoAgent(AbstractAgent):
     """
 
 
-    def __init__(self, goalie=False, visualization=False):
+    def __init__(self, goalie=False, visualization=True):
 
         AbstractAgent.__init__(self, goalie=goalie)
+        self.player_actions = None
 
         self.visualization = visualization
         if visualization:
@@ -26,6 +28,14 @@ class DemoAgent(AbstractAgent):
         Performs a single step of thinking for our agent.  Gets called on every
         iteration of our think loop.
         """
+
+        if self.player_actions is None:
+            self.player_actions = smsoccer.players.playeractions.PlayerActions(self.wm)
+
+        if self.wm.ball is not None:
+            print "direction", self.wm.ball.direction, "pos", self.wm.get_object_absolute_coords(self.wm.ball)
+            pprint(vars(self.wm.ball))
+
         if self.visualization:
             if self.wm.abs_coords[0] is None:
                 return
@@ -77,6 +87,9 @@ class DemoAgent(AbstractAgent):
 
         # attack!
         else:
+
+            #self.player_actions.goto_position((1, 1), 20)
+
             # find the ball
             if self.wm.ball is None or self.wm.ball.direction is None:
                 self.wm.ah.turn(35)

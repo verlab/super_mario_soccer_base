@@ -72,6 +72,8 @@ def triangulate_position(flags, flag_dict):
     :param flag_dict: real positions for flags
     """
 
+    print "number of flags", len(flags)
+
     if len(flags) < 2:
         return None
 
