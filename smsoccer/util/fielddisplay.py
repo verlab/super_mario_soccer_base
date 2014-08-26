@@ -109,6 +109,10 @@ class FieldDisplay(object):
     def draw_robot(self, point, angle, color=(71, 135, 237)):
         r = 20
         self.draw_circle(point, r, color)
+
+        # angle increments in clockwise
+        # angle = angle
+
         fx = point[0] + r * math.cos(math.radians(angle)) / SCALE
         fy = point[1] + r * math.sin(math.radians(angle)) / SCALE
         self.draw_line(point, (fx, fy))

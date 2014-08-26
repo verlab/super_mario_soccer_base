@@ -208,7 +208,7 @@ class WorldModel:
         dist_ratio = point_dist / max_kick_dist
 
         # find the required power given ideal conditions, then add scale up by
-        # difference between actual aceivable power and maximum power.
+        # difference between actual achievable power and maximum power.
         required_power = dist_ratio * self.server_parameters.maxpower
         effective_power = self.get_effective_kick_power(self.ball,
                                                         required_power)

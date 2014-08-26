@@ -1,5 +1,5 @@
 import math
-from smsoccer.util.geometric import euclidean_distance, angle_between_points
+from smsoccer.util.geometric import angle_between_points
 
 
 vDiff = lambda (bx, by), (ax, ay): (bx - ax, by - ay)
@@ -60,25 +60,6 @@ def triangulate_direction(abs_coords, flags, flag_dict):
     if len(abs_angles) > 0:
         return sum(abs_angles) / len(abs_angles)
     return None
-
-    # f1, f2 = flags[:2]
-    # if f1.direction < f2.direction:
-    #     f1, f2 = f2, f1
-    #
-    # a = abs_coords
-    # b = flag_dict[f1.flag_id]
-    #
-    #
-    # v = (b[0] - a[0], b[1] - a[1])  #v =b - a
-    # vd = math.degrees(math.atan2(v[1], v[0]))  #direction of v
-    # dir = f1.direction + vd
-    #
-    # dir +=45
-    #
-    #
-    # return dir
-
-
 
 
 def triangulate_position(flags, flag_dict):
