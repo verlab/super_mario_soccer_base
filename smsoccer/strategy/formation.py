@@ -25,11 +25,11 @@ formation_433 = [None,
                  (-10, 15)]    # RW
 
 
-def player_position(uniform_number, r_side, formation='442'):
+def player_position(uniform_number, formation='442'):
     """
     Defines the formation of each player
+    :param formation:
     :param uniform_number: number of the player.
-    :param r_side: True if team is on right side.
     :return: position based on formation
     """
 
