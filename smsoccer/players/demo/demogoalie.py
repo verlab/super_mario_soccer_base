@@ -2,7 +2,7 @@ from smsoccer.players.abstractagent import AbstractAgent
 from smsoccer.players.abstractgoalie import AbstractGoalie
 from smsoccer.players.abstractplayer import AbstractPlayer
 from smsoccer.strategy.formation import player_position
-from smsoccer.util.geometric import angle_between_points
+from smsoccer.util.geometric import angle_between_points, cut_angle
 from smsoccer.world.world_model import WorldModel, PlayModes
 
 
@@ -37,6 +37,7 @@ class DemoGoalie(AbstractGoalie):
             self.display.draw_robot(self.wm.abs_coords, self.wm.abs_body_dir)
             if self.wm.ball is not None:
                 self.display.draw_circle(self.wm.get_object_absolute_coords(self.wm.ball), 4)
+                # print self.wm.ball.direction, self.wm.ball.distance
             self.display.show()
 
         # take places on the field by uniform number
@@ -87,10 +88,8 @@ class DemoGoalie(AbstractGoalie):
             if self.is_ball_kickable():
                 # self.wm.kick_to(self.goal_pos, 1.0)
 
-                cuts = lambda angle1: angle1 + 360 if angle1 < -180 else angle1
-                cut = lambda angle1: angle1 - 360 if angle1 > 180 else cuts(angle1)
 
-                angle = cut(angle_between_points(self.wm.abs_coords, self.goal_pos)) - cut(self.wm.abs_body_dir)
+                angle = cut_angle(angle_between_points(self.wm.abs_coords, self.goal_pos)) - cut_angle(self.wm.abs_body_dir)
 
                 self.wm.ah.kick(20, angle)
                 return
