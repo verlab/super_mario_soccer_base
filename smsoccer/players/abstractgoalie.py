@@ -12,4 +12,8 @@ class AbstractGoalie(AbstractPlayer):
         pass
 
 
+    def is_ball_catchable(self):
+        #TODO implement this
+        pass
+
 
