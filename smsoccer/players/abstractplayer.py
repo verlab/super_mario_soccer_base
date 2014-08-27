@@ -1,19 +1,14 @@
-
-
-
-
 from smsoccer.players.abstractagent import AbstractAgent
 from smsoccer.util.geometric import euclidean_distance, angle_between_points
 from smsoccer.world.world_model import PlayModes, WorldModel
-
 
 class AbstractPlayer(AbstractAgent):
     """
     This is a DEMO about how to extend the AbstractAgent and implement the
     think method. For a new development is recommended to do the same.
     """
-    def __init__(self):
-        pass
+    def __init__(self, goalie = False):
+        super(AbstractPlayer, self).__init__( goalie = goalie )
 
     def teleport_to_point(self, point):
         """
