@@ -24,7 +24,7 @@ import sys
 
 from smsoccer.players.demo.demoplayer import DemoPlayer
 
-# UPDATE TESTE
+# UPDATE TESTE 2
 
 PORT = 6000
 
