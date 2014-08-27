@@ -6,7 +6,7 @@ from smsoccer.world.game_object import Flag
 
 MARGIN_UP = 10
 MARGIN_LEFT = 10
-SCALE = 9.0
+SCALE = 10
 
 width, height = int( 108.33 * SCALE ), int( 71.66 * SCALE )
 # Window
@@ -131,6 +131,12 @@ class FieldDisplay(object):
                          p1,
                          p2, stroke)
 
+
+    def draw_point(self, point):
+        self.draw_circle(point, 2, color=(11, 63, 228), stroke=0)
+
+    def draw_points(self, points):
+        for point in points: self.draw_point(point)
 
     def show(self):
         """
