@@ -2,12 +2,13 @@ from smsoccer.players.abstractagent import AbstractAgent
 
 class AbstractCoach(AbstractAgent):
     """
-    This is a DEMO about how to extend the AbstractAgent and implement the
-    think method. For a new development is recommended to do the same.
+    AbstractCoach class
+
+    Has function to help a coach agent
     """
 
     def __init__(self):
-        AbstractAgent.__init__(self, False)
+        super(AbstractCoach, self).__init__()
 
     def initialization(self):
         self.wm.ah.eye_on(True)
