@@ -40,19 +40,20 @@ class DemoPlayer(AbstractPlayer):
                 # print self.wm.ball.direction, self.wm.ball.distance
             self.display.show()
 
-        # take places on the field by uniform number
-        if not self.in_kick_off_formation:
-            position_point = player_position(self.wm.uniform_number)
-            # Teleport to right position
-            self.teleport_to_point(position_point)
+        if self.wm.play_mode == PlayModes.KICK_OFF_L or self.wm.play_mode == PlayModes.KICK_OFF_R:
+            # take places on the field by uniform number
+            if not self.in_kick_off_formation:
+                position_point = player_position(self.wm.uniform_number)
+                # Teleport to right position
+                self.teleport_to_point(position_point)
 
-            #turns to attack field
-            if self.wm.side == WorldModel.SIDE_R:
-                self.wm.ah.turn(180)
+                #turns to attack field
+                if self.wm.side == WorldModel.SIDE_R:
+                    self.wm.ah.turn(180)
 
-            # Player is ready in formation
-            self.in_kick_off_formation = True
-            return
+                # Player is ready in formation
+                self.in_kick_off_formation = True
+                return
 
         # kick off!
         if self.wm.play_mode == PlayModes.BEFORE_KICK_OFF:
@@ -61,7 +62,7 @@ class DemoPlayer(AbstractPlayer):
                 if self.is_ball_kickable():
                     # kick with 100% extra effort at enemy goal
                     self.kick_to(self.goal_pos, 1.0)
-                    print self.goal_pos
+                    #print self.goal_pos
                 else:
                     # move towards ball
                     if self.wm.ball is not None:
