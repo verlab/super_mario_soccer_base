@@ -89,7 +89,7 @@ class DemoPlayer(AbstractPlayer):
                 # self.wm.kick_to(self.goal_pos, 1.0)
 
 
-                angle = cut_angle(angle_between_points(self.wm.abs_coords, self.goal_pos)) - cut(self.wm.abs_body_dir)
+                angle = cut_angle(angle_between_points(self.wm.abs_coords, self.goal_pos)) - cut_angle(self.wm.abs_body_dir)
 
                 self.wm.ah.kick(20, angle)
                 return
