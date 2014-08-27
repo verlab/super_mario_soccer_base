@@ -13,7 +13,6 @@ width, height = int( 108.33 * SCALE ), int( 71.66 * SCALE )
 pygame.init()
 window = pygame.display.set_mode((width, height), HWSURFACE | DOUBLEBUF | RESIZABLE)
 
-
 # left top
 ltx, lty = Flag.FLAG_COORDS["lt"]
 # right bottom
@@ -22,7 +21,6 @@ rbx, rby = Flag.FLAG_COORDS["rb"]
 hfield_width = (rbx - ltx) / 2.0
 hfield_heigh = (rby - lty) / 2.0
 
-
 class FieldDisplay(object):
     """
     Draw a soccer field for testings.
@@ -30,7 +28,6 @@ class FieldDisplay(object):
 
     def __init__(self, show_flags=False):
         self.show_flags = show_flags
-
 
     @staticmethod
     def _convert_coordinates(x, y):
@@ -47,7 +44,6 @@ class FieldDisplay(object):
 
         x, y = mx + SCALE * x, my + SCALE * y
         return x, y
-
 
     def clear(self):
         """
