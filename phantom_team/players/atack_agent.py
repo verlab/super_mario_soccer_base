@@ -1,16 +1,15 @@
 
-from smsoccer.abstractagent import AbstractAgent
+from smsoccer.players.abstractplayer import AbstractPlayer
 from smsoccer.strategy.formation import player_position
 from smsoccer.world.world_model import WorldModel, PlayModes
 
-
-class GoalieAgent(AbstractAgent):
+class AtackAgent(AbstractPlayer):
     """
     Goalie Agent for Robocup Soccer Team
     """
 
     def __init__(self):
-        AbstractAgent.__init__(self, goalie=True)
+        super(AtackAgent, self).__init__()
 
         self._back_to_goal = False
         self._my_goal_position = None
