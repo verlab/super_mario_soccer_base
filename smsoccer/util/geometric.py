@@ -1,6 +1,11 @@
 
 import math
 
+
+_cuts = lambda angle1: angle1 + 360 if angle1 < -180 else angle1
+cut_angle = lambda angle1: angle1 - 360 if angle1 > 180 else _cuts(angle1)
+
+
 def euclidean_distance(point1, point2):
     """
     Returns the Euclidean distance between two points on a plane.

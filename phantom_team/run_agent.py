@@ -22,9 +22,7 @@
 import time
 import sys
 
-from smsoccer.players.demo.demoplayer import DemoPlayer
-
-# UPDATE TESTE 2
+from players.goalie_agent import GoalieAgent
 
 PORT = 6000
 
@@ -43,9 +41,7 @@ if __name__ == "__main__":
     else:
         team_name = "default"
 
-    a = DemoPlayer()
-    a.connect(HOST, PORT, team_name)
-    a.play()
+    GoalieAgent().connect(HOST, PORT, team_name).play()
 
     # wait until killed to terminate agent processes
     try:
