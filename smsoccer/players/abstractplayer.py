@@ -4,9 +4,11 @@ from smsoccer.world.world_model import PlayModes, WorldModel
 
 class AbstractPlayer(AbstractAgent):
     """
-    This is a DEMO about how to extend the AbstractAgent and implement the
-    think method. For a new development is recommended to do the same.
+    AbstractPlayer class
+
+    Has function to help any kind of agent
     """
+
     def __init__(self, goalie = False):
         super(AbstractPlayer, self).__init__( goalie = goalie )
 
