@@ -22,8 +22,9 @@
 
 from time import sleep
 
-from smsoccer.coach import Coach
-from smsoccer.demoagent import DemoAgent
+from smsoccer.players.demo.democoach import DemoCoach
+from smsoccer.players.demo.demogoalie import DemoGoalie
+from smsoccer.players.demo.demoplayer import DemoPlayer
 
 
 PORT_PLAYERS = 6000
@@ -35,7 +36,7 @@ def spawn_coach(team_name):
     Used to run an agent in a separate physical process.
     """
     try:
-        a = Coach()
+        a = DemoCoach()
         a.connect("localhost", PORT_COACH, team_name)
         a.play()
 
@@ -52,7 +53,8 @@ def spawn_agent(team_name, goalie):
     Used to run an agent in a separate physical process.
     """
     try:
-        a = DemoAgent(goalie=goalie)
+
+        a = DemoGoalie() if goalie else DemoPlayer()
         a.connect("localhost", PORT_PLAYERS, team_name)
         a.play()
 
@@ -94,13 +96,13 @@ if __name__ == "__main__":
         at.daemon = True
         at.start()
         agent_threads.append(at)
-    #
-    # # Coach
-    # print "  Spawning coach"
-    # ac = mp.Process(target=spawn_coach, args=(sys.argv[1],))
-    # ac.daemon = True
-    # ac.start()
-    # agent_threads.append(ac)
+
+    # Coach
+    print "  Spawning coach"
+    ac = mp.Process(target=spawn_coach, args=(sys.argv[1],))
+    ac.daemon = True
+    ac.start()
+    agent_threads.append(ac)
 
     print "RUN SUPER MARIO!!"
 

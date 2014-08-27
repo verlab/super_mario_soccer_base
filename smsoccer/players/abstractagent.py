@@ -3,9 +3,9 @@
 import threading
 import time
 
-from smsoccer.communication.action import ActionCommunicator
+from smsoccer.communication.actioncommunicator import ActionCommunicator
 from smsoccer.communication import sock
-from smsoccer.communication.message_handler import MessageHandler
+from smsoccer.communication.messagehandler import MessageHandler
 from smsoccer.util import sp_exceptions
 from smsoccer.world.world_model import WorldModel
 
