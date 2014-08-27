@@ -1,5 +1,5 @@
 
-from smsoccer.abstractagent import AbstractAgent
+from smsoccer.players.abstractplayer import AbstractPlayer
 from smsoccer.strategy.formation import player_position
 from smsoccer.world.world_model import WorldModel, PlayModes
 from smsoccer.util.fielddisplay import FieldDisplay
@@ -8,7 +8,7 @@ from smsoccer.world.game_object import Flag
 import numpy as np
 import itertools
 
-class DefenseAgent(AbstractAgent):
+class DefenseAgent(AbstractPlayer):
     """
     Goalie Agent for Robocup Soccer Team
     """
