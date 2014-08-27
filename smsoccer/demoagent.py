@@ -32,9 +32,9 @@ class DemoAgent(AbstractAgent):
         if self.player_actions is None:
             self.player_actions = smsoccer.players.playeractions.PlayerActions(self.wm)
 
-        if self.wm.ball is not None:
-            print "direction", self.wm.ball.direction, "pos", self.wm.get_object_absolute_coords(self.wm.ball)
-            pprint(vars(self.wm.ball))
+        #if self.wm.ball is not None:
+        #    print "direction", self.wm.ball.direction, "pos", self.wm.get_object_absolute_coords(self.wm.ball)
+        #    pprint(vars(self.wm.ball))
 
         if self.visualization:
             if self.wm.abs_coords[0] is None:
@@ -66,6 +66,7 @@ class DemoAgent(AbstractAgent):
         if self.wm.play_mode == PlayModes.BEFORE_KICK_OFF:
             # player 9 takes the kick off
             if self.wm.uniform_number == 9:
+                print "im 9!!"
                 if self.wm.is_ball_kickable():
                     # kick with 100% extra effort at enemy goal
                     self.wm.kick_to(self.goal_pos, 1.0)
@@ -88,8 +89,9 @@ class DemoAgent(AbstractAgent):
         # attack!
         else:
 
-            #self.player_actions.goto_position((1, 1), 20)
+            self.player_actions.goto_position((1, 1), 45)
 
+        '''
             # find the ball
             if self.wm.ball is None or self.wm.ball.direction is None:
                 self.wm.ah.turn(35)
@@ -122,3 +124,4 @@ class DemoAgent(AbstractAgent):
                     self.wm.ah.turn(self.wm.ball.direction / 2)
 
                 return
+        '''
