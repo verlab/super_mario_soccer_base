@@ -24,8 +24,22 @@ formation_433 = [None,
                  (-8, 0),      # CF
                  (-10, 15)]    # RW
 
+formation_002 = [None,
+                 (-50, 0),      # 1 - GK
+                 (-8, 8),       # CF
+                 (-8, -8),      #CF -- below are just to avoid errors if rabbit is called with 11 players
+                 (-40, 10),     # 2 - CB (left)
+                 (-40, -10),    # 3 - CB (right)
+                 (-38, 30),     # LB
+                 (-38, -30),    # RB
+                 (-20, 10),     # CM(left)
+                 (-20, -10),    # CM(right)
+                 (-18, 20),     # RM
+                 (-18, -20)]    # LM
 
-def player_position(uniform_number, formation='442'):
+
+
+def player_position(uniform_number, formation='002'):
     """
     Defines the formation of each player
     :param formation:
@@ -33,7 +47,13 @@ def player_position(uniform_number, formation='442'):
     :return: position based on formation
     """
 
-    formation_array = formation_442 if formation == '442' else formation_433
+    if formation == '002':
+        formation_array = formation_002
+    elif formation == '442':
+        formation_array = formation_442
+    else:
+        formation_array = formation_433
+
     position = formation_array[uniform_number]
 
     return position

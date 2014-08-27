@@ -1,3 +1,5 @@
+import copy
+from collections import namedtuple
 from smsoccer.players.abstractagent import AbstractAgent
 from smsoccer.players.abstractplayer import AbstractPlayer
 from smsoccer.strategy.formation import player_position
@@ -11,11 +13,16 @@ class RabbitSpeeder(AbstractPlayer):
     """
 
 
-    def __init__(self, goalie=False, visualization=False):
+    def __init__(self, goalie=False, visualization=False, formation = '002'):
 
         AbstractAgent.__init__(self, goalie=goalie)
 
+        #tells if last time ball was seen it was at the left of the player (helps in turning)
+        self.last_seen_ball = namedtuple('ball', 'direction')
+        self.last_seen_ball.direction = 0
+        self.formation = formation
         self.visualization = visualization
+
         if visualization:
             from smsoccer.util.fielddisplay import FieldDisplay
 
@@ -28,16 +35,8 @@ class RabbitSpeeder(AbstractPlayer):
         Performs a single step of thinking for our agent.  Gets called on every
         iteration of our think loop.
         """
-        if self.visualization:
-            if self.wm.abs_coords[0] is None:
-                return
+        self.update_visualization()
 
-            self.display.clear()
-            self.display.draw_robot(self.wm.abs_coords, self.wm.abs_body_dir)
-            if self.wm.ball is not None:
-                self.display.draw_circle(self.wm.get_object_absolute_coords(self.wm.ball), 4)
-                # print self.wm.ball.direction, self.wm.ball.distance
-            self.display.show()
 
         # take places on the field by uniform number
         if not self.in_kick_off_formation:
@@ -51,8 +50,17 @@ class RabbitSpeeder(AbstractPlayer):
 
             # Player is ready in formation
             self.in_kick_off_formation = True
+            self.post_think()
             return
-
+        '''
+        #updates last seen ball direction
+        if self.wm.ball is not None and self.wm.ball.direction is not None:
+            print self.last_seen_ball.direction, self.wm.ball.direction
+            del self.last_seen_ball
+            self.last_seen_ball = copy.copy(self.wm.ball)
+            #self.last_ball_left = self.wm.ball.direction < 0
+                    #and -7 <= self.wm.ball.direction <= 7:
+        '''
         # kick off!
         if self.wm.play_mode == PlayModes.BEFORE_KICK_OFF:
             # player 9 takes the kick off
@@ -60,7 +68,7 @@ class RabbitSpeeder(AbstractPlayer):
                 if self.is_ball_kickable():
                     # kick with 100% extra effort at enemy goal
                     self.kick_to(self.goal_pos, 1.0)
-                    print self.goal_pos
+                    #print self.goal_pos
                 else:
                     # move towards ball
                     if self.wm.ball is not None:
@@ -72,15 +80,18 @@ class RabbitSpeeder(AbstractPlayer):
 
                 # turn to ball if we can see it, else face the enemy goal
                 if self.wm.ball is not None:
+                    print 'turning neck!'
                     self.turn_neck_to_object(self.wm.ball)
-
+                self.post_think()
                 return
 
         # attack!
         else:
             # find the ball
             if self.wm.ball is None or self.wm.ball.direction is None:
-                self.wm.ah.turn(35)
+                angle = 35 if self.last_seen_ball and self.last_seen_ball.direction < 0 else -35
+                self.wm.ah.turn(angle)
+                self.post_think()
                 return
 
             # kick it at the enemy goal
@@ -93,6 +104,7 @@ class RabbitSpeeder(AbstractPlayer):
                 angle = cut(angle_between_points(self.wm.abs_coords, self.goal_pos)) - cut(self.wm.abs_body_dir)
 
                 self.wm.ah.kick(20, angle)
+                self.post_think()
                 return
             else:
                 # move towards ball
@@ -101,5 +113,28 @@ class RabbitSpeeder(AbstractPlayer):
                 else:
                     # face ball
                     self.wm.ah.turn(self.wm.ball.direction / 2)
-
+                self.post_think()
                 return
+
+    def post_think(self):
+        #updates last seen ball direction
+        if self.wm.ball is not None and self.wm.ball.direction is not None:
+            #print self.last_seen_ball.direction, self.wm.ball.direction
+            del self.last_seen_ball
+            self.last_seen_ball = (self.wm.ball)
+            #self.last_ball_left = self.wm.ball.direction < 0
+                    #and -7 <= self.wm.ball.direction <= 7:
+
+
+
+    def update_visualization(self):
+        if self.visualization:
+            if self.wm.abs_coords[0] is None:
+                return
+
+            self.display.clear()
+            self.display.draw_robot(self.wm.abs_coords, self.wm.abs_body_dir)
+            if self.wm.ball is not None:
+                self.display.draw_circle(self.wm.get_object_absolute_coords(self.wm.ball), 4)
+                # print self.wm.ball.direction, self.wm.ball.distance
+            self.display.show()
