@@ -72,7 +72,7 @@ class WorldModel:
         self.change_view_count = None
 
         # apparent absolute player coordinates and neck/body directions
-        self.abs_coords = (None, None)
+        self.abs_coords = None
         self.abs_neck_dir = None
         self.abs_body_dir = None
 

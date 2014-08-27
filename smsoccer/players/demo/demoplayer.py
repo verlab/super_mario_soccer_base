@@ -12,7 +12,7 @@ class DemoPlayer(AbstractPlayer):
     """
 
 
-    def __init__(self, goalie=False, visualization=True):
+    def __init__(self, goalie=False, visualization=False):
 
         AbstractAgent.__init__(self, goalie=goalie)
 
