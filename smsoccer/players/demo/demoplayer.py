@@ -37,6 +37,7 @@ class DemoPlayer(AbstractPlayer):
             self.display.draw_robot(self.wm.abs_coords, self.wm.abs_body_dir)
             if self.wm.ball is not None:
                 self.display.draw_circle(self.wm.get_object_absolute_coords(self.wm.ball), 4)
+                # print self.wm.ball.direction, self.wm.ball.distance
             self.display.show()
 
         # take places on the field by uniform number
