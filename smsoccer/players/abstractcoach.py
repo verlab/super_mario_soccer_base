@@ -1,6 +1,5 @@
 from smsoccer.players.abstractagent import AbstractAgent
 
-
 class AbstractCoach(AbstractAgent):
     """
     This is a DEMO about how to extend the AbstractAgent and implement the
