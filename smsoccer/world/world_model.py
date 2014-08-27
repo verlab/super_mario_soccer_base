@@ -1,8 +1,6 @@
 import math
-import random
 
 import game_object
-from smsoccer.util.geometric import euclidean_distance, angle_between_points
 from smsoccer.localization.localization import triangulate_position, triangulate_direction
 from smsoccer.world.parameters import ServerParameters
 
@@ -80,6 +78,7 @@ class WorldModel:
 
         # Simulation time
         self.sim_time = None
+        self.old_abs_coords = (0, 0)
 
         # create a new server parameter object for holding all server params
         self.server_parameters = ServerParameters()
@@ -103,11 +102,13 @@ class WorldModel:
         # update the apparent coordinates of the player based on all flag pairs
         flag_dict = game_object.Flag.FLAG_COORDS
 
+        self.old_abs_coords = self.abs_coords[:] if self.abs_coords is not None else self.old_abs_coords
         self.abs_coords = triangulate_position(self.flags, flag_dict)
 
         if self.abs_coords is None:
-            self.abs_coords = (0, 0)
-            print "Cannot triangulate localization"
+            self.abs_coords = self.old_abs_coords
+
+            print "Cannot triangulate localization, taking the last one"
 
         # set the neck and body absolute directions based on flag directions
         self.abs_neck_dir = triangulate_direction(self.abs_coords, self.flags, flag_dict)
@@ -158,8 +159,9 @@ class WorldModel:
             return None
 
         # get the components of the vector to the object
-        dx = obj.distance * math.cos(obj.direction)
-        dy = obj.distance * math.sin(obj.direction)
+        dx = obj.distance * math.cos(math.radians(obj.direction))
+        dy = obj.distance * math.sin(math.radians(obj.direction))
+        print dx, dy
 
         # return the point the object is at relative to our current position
         return self.abs_coords[0] + dx, self.abs_coords[1] + dy

@@ -145,7 +145,7 @@ class AbstractPlayer(AbstractAgent):
         # find the required power given ideal conditions, then add scale up by
         # difference between actual achievable power and maximum power.
         required_power = dist_ratio * self.wm.server_parameters.maxpower
-        effective_power = self.wm.get_effective_kick_power(self.wm.ball,
+        effective_power = self.get_effective_kick_power(self.wm.ball,
                                                         required_power)
         required_power += 1 - (effective_power / required_power)
 
