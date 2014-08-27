@@ -1,7 +1,7 @@
 from smsoccer.players.abstractagent import AbstractAgent
 from smsoccer.players.abstractplayer import AbstractPlayer
 from smsoccer.strategy.formation import player_position
-from smsoccer.util.geometric import angle_between_points
+from smsoccer.util.geometric import angle_between_points, cut_angle
 from smsoccer.world.world_model import WorldModel, PlayModes
 
 
@@ -88,10 +88,8 @@ class DemoPlayer(AbstractPlayer):
             if self.is_ball_kickable():
                 # self.wm.kick_to(self.goal_pos, 1.0)
 
-                cuts = lambda angle1: angle1 + 360 if angle1 < -180 else angle1
-                cut = lambda angle1: angle1 - 360 if angle1 > 180 else cuts(angle1)
 
-                angle = cut(angle_between_points(self.wm.abs_coords, self.goal_pos)) - cut(self.wm.abs_body_dir)
+                angle = cut_angle(angle_between_points(self.wm.abs_coords, self.goal_pos)) - cut_angle(self.wm.abs_body_dir)
 
                 self.wm.ah.kick(20, angle)
                 return

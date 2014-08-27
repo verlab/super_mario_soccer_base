@@ -2,6 +2,7 @@ import math
 
 import game_object
 from smsoccer.localization.localization import triangulate_position, triangulate_direction
+from smsoccer.util.geometric import cut_angle
 from smsoccer.world.parameters import ServerParameters
 
 
@@ -112,6 +113,7 @@ class WorldModel:
 
         # set the neck and body absolute directions based on flag directions
         self.abs_neck_dir = triangulate_direction(self.abs_coords, self.flags, flag_dict)
+        self.abs_neck_dir = cut_angle(self.abs_neck_dir)
 
         # set body dir only if we got a neck dir, else reset it
         if self.abs_neck_dir is not None and self.neck_direction is not None:
