@@ -1,6 +1,6 @@
 import collections
 
-import message_parser
+import messageparser
 
 
 # should we print messages received from the server?
@@ -35,7 +35,7 @@ class MessageHandler:
         """
 
         # get all the expressions contained in the given message
-        parsed = message_parser.parse(msg)
+        parsed = messageparser.parse(msg)
 
         if PRINT_SERVER_MESSAGES:
             print msg

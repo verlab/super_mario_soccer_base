@@ -22,8 +22,7 @@
 import time
 import sys
 
-from smsoccer.doidao import Doidao
-from smsoccer.players.demoplayer import DemoPlayer
+from smsoccer.players.demo.demoplayer import DemoPlayer
 
 
 PORT = 6000

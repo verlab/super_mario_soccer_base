@@ -22,10 +22,9 @@
 
 from time import sleep
 
-from smsoccer.players.abstractcoach import AbstractCoach
-from smsoccer.players.democoach import DemoCoach
-from smsoccer.players.demogoalie import DemoGoalie
-from smsoccer.players.demoplayer import DemoPlayer
+from smsoccer.players.demo.democoach import DemoCoach
+from smsoccer.players.demo.demogoalie import DemoGoalie
+from smsoccer.players.demo.demoplayer import DemoPlayer
 
 
 PORT_PLAYERS = 6000
