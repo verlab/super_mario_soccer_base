@@ -2,6 +2,7 @@ from smsoccer.players.abstractagent import AbstractAgent
 from smsoccer.util.geometric import euclidean_distance, angle_between_points
 from smsoccer.world.world_model import PlayModes, WorldModel
 
+
 class AbstractPlayer(AbstractAgent):
     """
     AbstractPlayer class
@@ -9,8 +10,8 @@ class AbstractPlayer(AbstractAgent):
     Has function to help any kind of agent
     """
 
-    def __init__(self, goalie = False):
-        super(AbstractPlayer, self).__init__( goalie = goalie )
+    def __init__(self, goalie=False):
+        super(AbstractPlayer, self).__init__(goalie=goalie)
 
     def teleport_to_point(self, point):
         """
@@ -84,8 +85,9 @@ class AbstractPlayer(AbstractAgent):
         abs_point_dir = angle_between_points(self.wm.abs_coords, point)
 
         # subtract from absolute body direction to get relative angle
-        relative_dir = self.wm.abs_body_dir - abs_point_dir
+        relative_dir = abs_point_dir - self.wm.abs_body_dir
 
+        print abs_point_dir, relative_dir
         # turn to that angle
         self.wm.ah.turn(relative_dir)
 
