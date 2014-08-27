@@ -15,7 +15,7 @@ class DemoGoalie(AbstractGoalie):
 
     def __init__(self, visualization=False):
 
-        AbstractAgent.__init__(self, goalie=True)
+        AbstractGoalie.__init__(self, goalie=True)
 
         self.visualization = visualization
         if visualization:

@@ -80,6 +80,7 @@ class WorldModel:
         # Simulation time
         self.sim_time = None
         self.old_abs_coords = (0, 0)
+        self.old_direction = 0
 
         # create a new server parameter object for holding all server params
         self.server_parameters = ServerParameters()
@@ -104,16 +105,27 @@ class WorldModel:
         flag_dict = game_object.Flag.FLAG_COORDS
 
         self.old_abs_coords = self.abs_coords[:] if self.abs_coords is not None else self.old_abs_coords
-        self.abs_coords = triangulate_position(self.flags, flag_dict)
 
-        if self.abs_coords is None:
+        # Take only good flags
+        gflags = [f for f in flags if
+                  f.distance is not None and f.direction is not None and f.flag_id is not None]
+
+        if len(gflags) < 2:
+            # Error in triangulation
             self.abs_coords = self.old_abs_coords
+            self.abs_neck_dir = self.old_direction
+            print "Not enough flags for localization"
+        else:
+            self.abs_coords = triangulate_position(gflags, flag_dict)
 
-            print "Cannot triangulate localization, taking the last one"
+            # If triangulation does not work, takes the last measure.
+            if self.abs_coords is None:
+                self.abs_coords = self.old_abs_coords
+                print "Cannot triangulate localization, taking the last one"
 
-        # set the neck and body absolute directions based on flag directions
-        self.abs_neck_dir = triangulate_direction(self.abs_coords, self.flags, flag_dict)
-        self.abs_neck_dir = cut_angle(self.abs_neck_dir)
+            # set the neck and body absolute directions based on flag directions
+            self.abs_neck_dir = triangulate_direction(self.abs_coords, gflags, flag_dict)
+            self.abs_neck_dir = cut_angle(self.abs_neck_dir)
 
         # set body dir only if we got a neck dir, else reset it
         if self.abs_neck_dir is not None and self.neck_direction is not None:
