@@ -1,19 +1,18 @@
+
 import pygame
 from pygame.locals import *
 import math
-
 from smsoccer.world.game_object import Flag
 
+MARGIN_UP = 10
+MARGIN_LEFT = 10
+SCALE = 9.0
 
-MARGIN_UP = 50
-MARGIN_LEFT = 70
-
-width, height = 800, 600
+width, height = int( 108.33 * SCALE ), int( 71.66 * SCALE )
 # Window
 pygame.init()
 window = pygame.display.set_mode((width, height), HWSURFACE | DOUBLEBUF | RESIZABLE)
 
-SCALE = 6.0
 
 # left top
 ltx, lty = Flag.FLAG_COORDS["lt"]
