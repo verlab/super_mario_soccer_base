@@ -24,7 +24,8 @@ from time import sleep
 
 from smsoccer.coach import Coach
 from smsoccer.demoagent import DemoAgent
-
+from smsoccer.players.goalie_agent import GoalieAgent
+from smsoccer.players.line_player import LinePlayer
 
 PORT_PLAYERS = 6000
 PORT_COACH = 6002
@@ -52,7 +53,7 @@ def spawn_agent(team_name, goalie):
     Used to run an agent in a separate physical process.
     """
     try:
-        a = DemoAgent(goalie=goalie)
+        a = GoalieAgent() if goalie else LinePlayer()
         a.connect("localhost", PORT_PLAYERS, team_name)
         a.play()
 

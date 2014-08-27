@@ -4,16 +4,12 @@ from smsoccer.util.geometric import angle_between_points
 from smsoccer.world.world_model import WorldModel, PlayModes
 
 
-class GoalieAgent(AbstractAgent):
-    """
-    This is a DEMO about how to extend the AbstractAgent and implement the
-    think method. For a new development is recommended to do the same.
-    """
+class LinePlayer(AbstractAgent):
 
 
     def __init__(self, visualization=False):
 
-        AbstractAgent.__init__(self, goalie=True)
+        AbstractAgent.__init__(self, goalie=False)
 
         self.visualization = visualization
         if visualization:
@@ -54,8 +50,10 @@ class GoalieAgent(AbstractAgent):
 
         # kick off!
         if self.wm.play_mode == PlayModes.BEFORE_KICK_OFF:
-            # player 9 takes the kick off
-            '''if self.wm.uniform_number == 9:
+            print self.wm.players
+            # player with highest number takes the kick off
+            if self.wm.uniform_number == 9:
+
                 if self.wm.is_ball_kickable():
                     # kick with 100% extra effort at enemy goal
                     self.wm.kick_to(self.goal_pos, 1.0)
@@ -72,10 +70,11 @@ class GoalieAgent(AbstractAgent):
                 # turn to ball if we can see it, else face the enemy goal
                 if self.wm.ball is not None:
                     self.wm.turn_neck_to_object(self.wm.ball)
-            '''
-            return
+
+                return
 
         # attack!
+        #elif self.wm.play_mode == PlayModes.PLAY_ON:
         else:
             # find the ball
             if self.wm.ball is None or self.wm.ball.direction is None:
@@ -101,12 +100,11 @@ class GoalieAgent(AbstractAgent):
                 self.wm.ah.kick(100, angle)
                 return
             else:
-                '''
                 # move towards ball
                 if -7 <= self.wm.ball.direction <= 7:
                     self.wm.ah.dash(8 * self.wm.ball.distance)
                 else:
                     # face ball
                     self.wm.ah.turn(self.wm.ball.direction / 2)
-                '''
+
                 return
