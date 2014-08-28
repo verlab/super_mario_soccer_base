@@ -88,5 +88,4 @@ class GoalKeeper(AbstractGoalie):
 
 
         self.display.draw_circle(self.player_last_position, 4)
-
         self.display.show()
