@@ -4,12 +4,13 @@ import messageparser
 
 
 # should we print messages received from the server?
+from smsoccer.communication.teammessage import TeamMessage
 from smsoccer.util import sp_exceptions
 from smsoccer.world import game_object
 from smsoccer.world.world_model import WorldModel, RefereeMessages
 
 PRINT_SERVER_MESSAGES = False
-
+TEAM_QUEUE_MSG_CAPACITY = 5
 
 class MessageHandler:
     """
@@ -223,7 +224,7 @@ class MessageHandler:
         """
         Parses audible information and turns it into useful information.
         """
-
+        print msg
         time_recvd = msg[1]  # server cycle when message was heard
         sender = msg[2]  # name (or direction) of who sent the message
         message = msg[3]  # message string
@@ -272,12 +273,30 @@ class MessageHandler:
                 # set the mode to the referee reported mode string
                 self.wm.play_mode = mode
                 return
+        else:
+            # Opponents message
+            if msg[3] == 'opp':
+                # Opponents messages are not of interest
+                return
+
+            # print msg
+            time = msg[1]
+            who = msg[4]
+            content = msg[5]
+
+            team_msg = TeamMessage(time, who, content)
+            # Last message first in the queue.
+            self.wm.message_queue.insert(team_msg, 0)
+
+            if len(self.wm.message_queue) > TEAM_QUEUE_MSG_CAPACITY:
+                self.wm.message_queue = self.wm.message_queue[:TEAM_QUEUE_MSG_CAPACITY]
+
 
         # all other messages are treated equally
-        else:
-            # update the model's last heard message
-            new_msg = MessageHandler.Message(time_recvd, sender, message)
-            self.wm.prev_message = new_msg
+        # else:
+        #     # update the model's last heard message
+        #     new_msg = MessageHandler.Message(time_recvd, sender, message)
+        #     self.wm.prev_message = new_msg
 
     def _handle_sense_body(self, msg):
         """
