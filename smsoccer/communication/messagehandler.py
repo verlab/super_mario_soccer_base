@@ -4,11 +4,13 @@ import messageparser
 
 
 # should we print messages received from the server?
+from smsoccer.communication.teammessage import TeamMessage
 from smsoccer.util import sp_exceptions
 from smsoccer.world import game_object
 from smsoccer.world.world_model import WorldModel, RefereeMessages
 
 PRINT_SERVER_MESSAGES = False
+TEAM_QUEUE_MSG_CAPACITY = 5
 
 
 class MessageHandler:
@@ -53,7 +55,7 @@ class MessageHandler:
         # throw an exception if we don't know about the given message type
         else:
             m = "Can't handle message type '%s', function '%s' not found."
-            #FIXME raising will kill the agent.
+            # FIXME raising will kill the agent.
             raise sp_exceptions.MessageTypeError(m % (parsed[0], msg_func))
             # print sp_exceptions.MessageTypeError(m % (parsed[0], msg_func))
 
@@ -223,7 +225,6 @@ class MessageHandler:
         """
         Parses audible information and turns it into useful information.
         """
-
         time_recvd = msg[1]  # server cycle when message was heard
         sender = msg[2]  # name (or direction) of who sent the message
         message = msg[3]  # message string
@@ -272,12 +273,30 @@ class MessageHandler:
                 # set the mode to the referee reported mode string
                 self.wm.play_mode = mode
                 return
-
-        # all other messages are treated equally
         else:
-            # update the model's last heard message
-            new_msg = MessageHandler.Message(time_recvd, sender, message)
-            self.wm.prev_message = new_msg
+            # Opponents message
+            if msg[3] == 'opp':
+                # Opponents messages are not of interest
+                return
+
+            # print msg
+            time = msg[1]
+            who = msg[4]
+            content = msg[5]
+
+            team_msg = TeamMessage(time, who, content)
+            # Last message first in the queue.
+            self.wm.team_message_queue.insert(0, team_msg)
+
+            if len(self.wm.team_message_queue) > TEAM_QUEUE_MSG_CAPACITY:
+                self.wm.team_message_queue = self.wm.team_message_queue[:TEAM_QUEUE_MSG_CAPACITY]
+
+
+                # all other messages are treated equally
+                # else:
+                # # update the model's last heard message
+                #     new_msg = MessageHandler.Message(time_recvd, sender, message)
+                #     self.wm.prev_message = new_msg
 
     def _handle_sense_body(self, msg):
         """
@@ -372,7 +391,7 @@ class MessageHandler:
         # by the server directly after connecting.
         side = msg[1]
 
-        #if coach
+        # if coach
         if msg[2] == 'ok':
             return
 
@@ -400,7 +419,7 @@ class MessageHandler:
         m = "Server issued a warning: '%s'" % msg[1]
         print sp_exceptions.SoccerServerWarning(m)
 
-    ######## Coach
+    # ####### Coach
     def _handle_ok(self, msg):
         """
         Response of (look)
