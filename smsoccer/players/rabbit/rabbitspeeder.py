@@ -37,6 +37,8 @@ class RabbitSpeeder(AbstractPlayer):
 
         #no need to call 'perceive' actions, these are done in abstract agent
 
+        #print [str(p) for p in self.wm.players_persistent['foes'].values() if p.uniform_number is not None]
+
         self.act()
 
         self.post_process()

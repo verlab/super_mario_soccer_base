@@ -177,3 +177,11 @@ class Player(MobileObject):
         MobileObject.__init__(self, distance, direction, dist_change,
                               dir_change, speed)
 
+    def __str__(self):
+        """
+        Helps debugging player attributes
+        :return: str
+        """
+        return 'dist %s, theta %s, delta_d %s, delta_theta %s, spd %s, team %s, side %s, num %s, body_dir %s, neck_dir %s' % \
+        (self.distance, self.direction, self.dist_change, self.dir_change, self.speed,
+        self.team, self.side, self.uniform_number, self.body_direction, self.neck_direction)

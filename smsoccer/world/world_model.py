@@ -117,6 +117,23 @@ class WorldModel:
         self.players = players
         self.lines = lines
 
+        #updates available info in currently seen players
+        team = None
+        number = None
+        for player in self.players:
+            team = 'friends' if player.side and player.side == self.side else 'foes'
+
+            number = player.uniform_number if player.uniform_number else None
+
+            #discards if i don't know who this player is
+            if team is None or number is None:
+                continue
+
+            #updates persistent player with available information
+            self.players_persistent[team][number] = player
+            #print 'player updated!'
+
+
         x1, y1 = self.old_abs_coords[:]
         #updates available info in currently seen players
         team = None
