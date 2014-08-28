@@ -37,6 +37,8 @@ class RabbitSpeeder(AbstractPlayer):
         """
         self.update_visualization()
 
+        if self.wm.last_message:
+            print 'heard:', self.wm.last_message
 
         # take places on the field by uniform number
         if not self.in_kick_off_formation:
