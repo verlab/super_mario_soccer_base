@@ -57,12 +57,12 @@ class RabbitSpeeder(AbstractPlayer):
     Reacts to a kick off
     """
     def kick_off_action(self):
-        print 'kick_off_action'
+        #print 'kick_off_action'
         # take places on the field by uniform number
         if not self.in_kick_off_formation:
             position_point = formation.player_position(self.wm.uniform_number)
-
-            if self.am_i_kicker():
+            #print 'our KO?', self.wm.is_kick_off_us()
+            if self.wm.is_kick_off_us() and self.am_i_kicker():
                 position_point = (-0.3, 0)
 
             # Teleport to position

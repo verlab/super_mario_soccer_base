@@ -13,11 +13,6 @@ class RabbitMaster(AbstractCoach):
     def think(self):
         pass
 
-
-
-
-
-
 if __name__ == "__main__":
     import time
     import sys
