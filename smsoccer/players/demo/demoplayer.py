@@ -1,9 +1,8 @@
-from smsoccer.abstractagent import AbstractAgent
+from smsoccer.players.abstractagent import AbstractAgent
+from smsoccer.players.abstractplayer import AbstractPlayer
 from smsoccer.strategy.formation import player_position
-from smsoccer.util.geometric import angle_between_points
+from smsoccer.util.geometric import angle_between_points, cut_angle
 from smsoccer.world.world_model import WorldModel, PlayModes
-import smsoccer.players.playeractions
-from pprint import pprint
 
 class _GetchUnix:
     def __init__(self):
@@ -20,24 +19,26 @@ class _GetchUnix:
             termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         return ch
 
-class DemoAgent(AbstractAgent):
+class DemoPlayer(AbstractPlayer):
     """
     This is a DEMO about how to extend the AbstractAgent and implement the
     think method. For a new development is recommended to do the same.
     """
 
 
-    def __init__(self, goalie=False, visualization=True, is_manual=False):
+    def __init__(self, goalie=False, visualization=False, is_manual_control=True):
 
         AbstractAgent.__init__(self, goalie=goalie)
-        self.player_actions = None
-        self.getch = _GetchUnix()
-        self.is_manual = is_manual
 
         self.visualization = visualization
+        self.is_manual_control = is_manual_control
+        self.getch = _GetchUnix()
+
         if visualization:
             from smsoccer.util.fielddisplay import FieldDisplay
+
             self.display = FieldDisplay()
+
 
 
     def think(self):
@@ -45,14 +46,6 @@ class DemoAgent(AbstractAgent):
         Performs a single step of thinking for our agent.  Gets called on every
         iteration of our think loop.
         """
-
-        if self.player_actions is None:
-            self.player_actions = smsoccer.players.playeractions.PlayerActions(self.wm)
-
-        #if self.wm.ball is not None:
-        #    print "direction", self.wm.ball.direction, "pos", self.wm.get_object_absolute_coords(self.wm.ball)
-        #    pprint(vars(self.wm.ball))
-
         if self.visualization:
             if self.wm.abs_coords[0] is None:
                 return
@@ -61,49 +54,61 @@ class DemoAgent(AbstractAgent):
             self.display.draw_robot(self.wm.abs_coords, self.wm.abs_body_dir)
             if self.wm.ball is not None:
                 self.display.draw_circle(self.wm.get_object_absolute_coords(self.wm.ball), 4)
+                # print self.wm.ball.direction, self.wm.ball.distance
             self.display.show()
 
-        if self.is_manual:
-            keyPress = self.getch()
-            print "pressed", keyPress
-            print "\n"
-
-            if(keyPress == "a"):
-                self.wm.ah.turn(-2)
-                return
-            elif(keyPress == "d"):
-                self.wm.ah.turn(2)
-                return
-            elif(keyPress == "w"):
-                self.wm.ah.dash(45)
-                return
-            elif(keyPress == "s"):
-                self.wm.ah.dash(-45)
-                return
-
-        r_side = self.wm.side == WorldModel.SIDE_R
-        # print self.wm.abs_body_dir
         # take places on the field by uniform number
         if not self.in_kick_off_formation:
             position_point = player_position(self.wm.uniform_number)
             # Teleport to right position
-            self.wm.teleport_to_point(position_point)
+            self.teleport_to_point(position_point)
 
             #turns to attack field
-            # if self.wm.side == WorldModel.SIDE_R:
-            #     self.wm.ah.turn(180)
+            if self.wm.side == WorldModel.SIDE_R:
+                self.wm.ah.turn(180)
 
             # Player is ready in formation
             self.in_kick_off_formation = True
             return
 
+        if self.is_manual_control:
+            '''
+            For now getch() is blocking and only accepts letters, no direction pad (:
+            a = forward
+            s = backward
+            a = rotation counter clockwise
+            d = rotation clockwise
+            k = kick ball in current angle
+            '''
+            #TODO: get the key presses non-blocking
+
+            keyPress = self.getch()
+            print "pressed", keyPress
+
+            if(keyPress == "a"):
+                self.wm.ah.turn(-5)
+                return
+            elif(keyPress == "d"):
+                self.wm.ah.turn(5)
+                return
+            elif(keyPress == "w"):
+                self.wm.ah.dash(50)
+                return
+            elif(keyPress == "s"):
+                self.wm.ah.dash(-50)
+                return
+            elif(keyPress == "k"):
+                self.wm.ah.kick(50, 0)
+                return
+
+
         # kick off!
         if self.wm.play_mode == PlayModes.BEFORE_KICK_OFF:
             # player 9 takes the kick off
             if self.wm.uniform_number == 9:
-                if self.wm.is_ball_kickable():
+                if self.is_ball_kickable():
                     # kick with 100% extra effort at enemy goal
-                    self.wm.kick_to(self.goal_pos, 1.0)
+                    self.kick_to(self.goal_pos, 1.0)
                     print self.goal_pos
                 else:
                     # move towards ball
@@ -112,49 +117,35 @@ class DemoAgent(AbstractAgent):
                                 and -7 <= self.wm.ball.direction <= 7:
                             self.wm.ah.dash(50)
                         else:
-                            self.wm.turn_body_to_point((-5, -5))
+                            self.wm.turn_body_to_point((0, 0))
 
                 # turn to ball if we can see it, else face the enemy goal
                 if self.wm.ball is not None:
-                    self.wm.turn_neck_to_object(self.wm.ball)
+                    self.turn_neck_to_object(self.wm.ball)
 
                 return
 
         # attack!
         else:
-            self.player_actions.goto_position((22, 30), 45)
-
-        '''
             # find the ball
             if self.wm.ball is None or self.wm.ball.direction is None:
                 self.wm.ah.turn(35)
                 return
 
             # kick it at the enemy goal
-            if self.wm.is_ball_kickable():
-                # self.wm.kick_to(self.goal_pos, 1.0)
+            if self.is_ball_kickable():
 
-                cuts = lambda angle: angle + 360 if angle < -180 else angle
-                cut = lambda angle: angle - 360 if angle > 180 else cuts(angle)
+                angle = cut_angle(angle_between_points(self.wm.abs_coords, self.goal_pos)) - cut_angle(self.wm.abs_body_dir)
 
-                angle = cut(angle_between_points(self.wm.abs_coords, self.goal_pos)) - cut(self.wm.abs_body_dir)
-
-                # if angle > 180:
-                #     angle -= 360
-                # elif angle < -180:
-                #     angle += 360
-
-                print angle, cut(angle_between_points(self.wm.abs_coords, self.goal_pos)), cut(self.wm.abs_body_dir)
 
                 self.wm.ah.kick(20, angle)
                 return
             else:
                 # move towards ball
                 if -7 <= self.wm.ball.direction <= 7:
-                    self.wm.ah.dash(8 * self.wm.ball.distance)
+                    self.wm.ah.dash(5 * self.wm.ball.distance + 20)
                 else:
                     # face ball
                     self.wm.ah.turn(self.wm.ball.direction / 2)
 
                 return
-        '''

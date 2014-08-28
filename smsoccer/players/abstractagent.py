@@ -3,9 +3,9 @@
 import threading
 import time
 
-from smsoccer.communication.action import ActionCommunicator
+from smsoccer.communication.actioncommunicator import ActionCommunicator
 from smsoccer.communication import sock
-from smsoccer.communication.message_handler import MessageHandler
+from smsoccer.communication.messagehandler import MessageHandler
 from smsoccer.util import sp_exceptions
 from smsoccer.world.world_model import WorldModel
 
@@ -115,6 +115,8 @@ class AbstractAgent(object):
         # determine the enemy goal position
         self.goal_pos = (52.5, 0)
 
+        return self
+
     def play(self):
         """
         Kicks off the thread that does the agent's thinking, allowing it to play
@@ -140,6 +142,8 @@ class AbstractAgent(object):
         self.initialization()
         # start thinking
         self._think_thread.start()
+
+        return self
 
     def disconnect(self):
         """
@@ -179,6 +183,8 @@ class AbstractAgent(object):
         # reset all standard variables in this object.  self.__connected gets
         # reset here, along with all other non-user defined internal variables.
         AbstractAgent.__init__(self)
+
+        return self
 
     def __message_loop(self):
         """

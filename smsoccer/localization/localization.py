@@ -1,10 +1,30 @@
 import math
-from smsoccer.util.geometric import angle_between_points
 
 
 vDiff = lambda (bx, by), (ax, ay): (bx - ax, by - ay)
 normV = lambda (x, y), n: (x / (1.0 * n), y / (1.0 * n))
 Rot90R = lambda (x, y): (y, -x)
+
+
+def compute_colinear(f1, f2, flag_dict, mid=1):
+    if f1.distance > f2.distance:
+        f1, f2 = f2, f1
+
+    da, db = f1.distance, f2.distance
+    # Real position of the flags
+    rf1 = flag_dict[f1.flag_id]
+    rf2 = flag_dict[f2.flag_id]
+
+    b_a = vDiff(rf2, rf1)  # difference vector
+
+    lb_a = math.hypot(*b_a)
+    nb_a = normV(b_a, lb_a)
+
+    va = (mid * nb_a[0] * da, mid * nb_a[1] * da)
+    vb = (nb_a[0] * db, nb_a[1] * db)
+    ea = (rf1[0] + va[0], rf1[1] + va[1])
+    eb = (rf2[0] + vb[0], rf2[1] + vb[1])
+    return (ea[0] + eb[0]) / 2.0, (ea[1] + eb[1]) / 2.0
 
 
 def compute_non_colinear(f1, f2, flag_dict):
@@ -62,14 +82,11 @@ def triangulate_direction(abs_coords, flags, flag_dict):
 
     b = flag_dict[f1.flag_id]
 
-    v = (abs_coords[0] - b[0], abs_coords[1] - b[1])  #v =b - a
-    theta = math.degrees(math.atan2(-v[0], v[1]))  #direction of v
-    #theta = 180 + 180 / math.pi * math.atan2(v[0], v[1])
-    #print "dir\t", f1.direction, "theta\t", theta, "\n"
+    v = (b[0] - abs_coords[0], b[1] - abs_coords[1])  #v =b - a
+    theta = math.degrees(math.atan2(v[1], v[0]))  #direction of v
     dir = - f1.direction + theta
 
     return dir
-
 
 
 def triangulate_position(flags, flag_dict):
@@ -81,27 +98,17 @@ def triangulate_position(flags, flag_dict):
     :param flags: observed flags
     :param flag_dict: real positions for flags
     """
-
-    #print "number of flags", len(flags)
-
-    if len(flags) < 2:
-        return None
-
     # Take two flags
     f1, f2 = flags[:2]
 
-    if f1.direction is None or f2.direction is None:
-        print "Flag with direction None"
-        return None
-
     if abs(f1.direction - f2.direction) == 180.0:
-        #TODO Colinear 1
-        return None
+        return compute_colinear(f1, f2, flag_dict, -1)
+
     elif f1.direction != f2.direction:
-        # NonColinear
+        # Non colinear
         return compute_non_colinear(f1, f2, flag_dict)
+
     elif f1.distance != f2.distance:
-        # TODO Colinear
-        return None
+        return compute_colinear(f1, f2, flag_dict)
     else:
         return None
