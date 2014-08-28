@@ -33,6 +33,9 @@ class WorldModel:
         self.players = []
         self.lines = []
 
+        # Received message
+        self.prev_message = None
+
         # the default position of this player, its home position
         self.home_point = (None, None)
 
@@ -86,6 +89,8 @@ class WorldModel:
         self.vx, self.vy = 0, 0
         # create a new server parameter object for holding all server params
         self.server_parameters = ServerParameters()
+
+        self.team_message_queue = []
 
     def process_new_info(self, ball, flags, goals, players, lines, sim_time):
         """
