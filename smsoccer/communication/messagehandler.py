@@ -286,10 +286,10 @@ class MessageHandler:
 
             team_msg = TeamMessage(time, who, content)
             # Last message first in the queue.
-            self.wm.message_queue.insert(team_msg, 0)
+            self.wm.team_message_queue.insert(team_msg, 0)
 
             if len(self.wm.message_queue) > TEAM_QUEUE_MSG_CAPACITY:
-                self.wm.message_queue = self.wm.message_queue[:TEAM_QUEUE_MSG_CAPACITY]
+                self.wm.team_message_queue = self.wm.message_queue[:TEAM_QUEUE_MSG_CAPACITY]
 
 
         # all other messages are treated equally
