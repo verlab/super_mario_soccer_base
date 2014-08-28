@@ -82,10 +82,12 @@ class WorldModel:
         self.old_abs_coords = (0, 0)
         self.old_direction = 0
 
+        # Speed
+        self.vx, self.vy = 0, 0
         # create a new server parameter object for holding all server params
         self.server_parameters = ServerParameters()
 
-    def process_new_info(self, ball, flags, goals, players, lines):
+    def process_new_info(self, ball, flags, goals, players, lines, sim_time):
         """
         Update any internal variables based on the currently available
         information.  This also calculates information not available directly
@@ -99,8 +101,10 @@ class WorldModel:
         self.players = players
         self.lines = lines
 
-        # TODO: make all triangulate_* calculations more accurate
+        x1, y1 = self.old_abs_coords[:]
 
+        # ##################### Location #########
+        # TODO: make all triangulate_* calculations more accurate
         # update the apparent coordinates of the player based on all flag pairs
         flag_dict = game_object.Flag.FLAG_COORDS
 
@@ -132,6 +136,14 @@ class WorldModel:
             self.abs_body_dir = self.abs_neck_dir - self.neck_direction
         else:
             self.abs_body_dir = None
+
+        # ##################### Speed #########333
+        if sim_time > self.sim_time > 0:
+            x2, y2 = self.abs_coords[:]
+            # Velocity in x and y
+            self.vx, self.vy = x2 - x1, y2 - y1
+
+        self.sim_time = sim_time
 
     def is_before_kick_off(self):
         """
