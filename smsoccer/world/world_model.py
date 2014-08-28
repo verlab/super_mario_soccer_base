@@ -165,7 +165,7 @@ class WorldModel:
         # Take only good flags
         gflags = [f for f in flags if
                   f.distance is not None and f.direction is not None and f.flag_id is not None]
-
+        #gflags = sorted(gflags, key=lambda x: x.distance)
         if len(gflags) < 2:
             # Error in triangulation
             self.abs_coords = self.old_abs_coords

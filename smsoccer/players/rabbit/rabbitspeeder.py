@@ -78,16 +78,15 @@ class RabbitSpeeder(AbstractPlayer):
             return
 
         # kick off!
-        if self.wm.is_kick_off_us():#self.wm.play_mode == PlayModes.BEFORE_KICK_OFF:
-            print 'We will kick off.'
+        if self.wm.is_kick_off_us(): #self.wm.play_mode == PlayModes.BEFORE_KICK_OFF:
+            #print 'We will kick off.'
 
             # most forward player kicks off
             if self.am_i_kicker():#self.wm.uniform_number == 9:
-                print "I'm the kicker!"
-
+                #print "I'm the kicker!"
 
                 if self.is_ball_kickable():
-                    print 'kicking!'
+                    #print 'kicking!'
                     # kick with 100% extra effort at enemy goal
                     self.kick_to(self.goal_pos, 1.0)
                     #print self.goal_pos
@@ -157,7 +156,6 @@ class RabbitSpeeder(AbstractPlayer):
         """
         my_position = formation.player_position(self.wm.uniform_number)
         x_positions = [formation.player_position(i)[0] for i in range(1, 12)]  # range: [1,2,...,11]
-        print x_positions
         return my_position[0] == max([x_pos for x_pos in x_positions])
 
     def update_visualization(self):
