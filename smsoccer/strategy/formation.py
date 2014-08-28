@@ -26,7 +26,7 @@ formation_433 = [None,
 
 formation_002 = [None,
                  (-50, 0),      # 1 - GK
-                 (-10, 9),       # CF <<slightly more forwarded than the other player
+                 (-10, 9),       # CF <<slightly more forwarded than the other CF
                  (-11, -9),      #CF -- below are just to avoid errors if rabbit is called with 11 players
                  (-40, 10),     # 2 - CB (left)
                  (-40, -10),    # 3 - CB (right)

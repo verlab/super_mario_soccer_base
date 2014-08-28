@@ -30,6 +30,15 @@ class WorldModel:
         self.flags = []
         self.goals = []
         self.players = []
+
+        #dict of dicts, first level indexed with 'friends'/'foes', 2nd level with uniform number
+        self.players_persistent = {
+            #expands 10 None parameters with * [None]*10
+            # range: [1,2,...,11] (shirt numbers)
+            'friends': {num: game_object.Player(* [None]*10) for num in range(1, 12)},
+            'foes': {num: game_object.Player(* [None]*10) for num in range(1, 12)}
+        }
+
         self.lines = []
 
         # the default position of this player, its home position
@@ -96,6 +105,23 @@ class WorldModel:
         self.goals = goals
         self.players = players
         self.lines = lines
+
+        #updates available info in currently seen players
+        team = None
+        number = None
+        for player in self.players:
+            team = 'friends' if player.side and player.side == self.side else 'foes'
+
+            number = player.uniform_number if player.uniform_number else None
+
+            #discards if i don't know who this player is
+            if team is None or number is None:
+                continue
+
+            #updates persistent player with available information
+            self.players_persistent[team][number] = player
+            #print 'player updated!'
+
 
         # TODO: make all triangulate_* calculations more accurate
 

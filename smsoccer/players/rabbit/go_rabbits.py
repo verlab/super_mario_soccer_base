@@ -64,7 +64,7 @@ def spawn_agent(team_name, goalie):
             # we sleep for a good while since we can only exit if terminated.
             sleep(1)
     except:
-        print sys.exc_info()[0]
+        print sys.exc_info()
 
 
 """
