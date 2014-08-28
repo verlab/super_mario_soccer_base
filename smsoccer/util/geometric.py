@@ -30,9 +30,12 @@ def angle_between_points(point1, point2):
     dx = x2 - x1
     dy = y2 - y1
 
-    # return the angle in degrees
-    a = math.degrees(math.atan2(dy, dx))
-    if a < 0:
-        a += 360
+    return 180 + 180 / math.pi * math.atan2(-dx, dy)
+    #a = math.atan2(dx, -dy) * 180 / math.pi
 
-    return a
+    # return the angle in degrees
+    #a = math.degrees(math.atan2(dy, dx))
+    #if a < 0:
+    #    a += 360
+
+    #return a

@@ -5,6 +5,21 @@ from smsoccer.world.world_model import WorldModel, PlayModes
 import smsoccer.players.playeractions
 from pprint import pprint
 
+class _GetchUnix:
+    def __init__(self):
+        import tty, sys
+
+    def __call__(self):
+        import sys, tty, termios
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(sys.stdin.fileno())
+            ch = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        return ch
+
 class DemoAgent(AbstractAgent):
     """
     This is a DEMO about how to extend the AbstractAgent and implement the
@@ -12,10 +27,12 @@ class DemoAgent(AbstractAgent):
     """
 
 
-    def __init__(self, goalie=False, visualization=True):
+    def __init__(self, goalie=False, visualization=True, is_manual=False):
 
         AbstractAgent.__init__(self, goalie=goalie)
         self.player_actions = None
+        self.getch = _GetchUnix()
+        self.is_manual = is_manual
 
         self.visualization = visualization
         if visualization:
@@ -46,6 +63,24 @@ class DemoAgent(AbstractAgent):
                 self.display.draw_circle(self.wm.get_object_absolute_coords(self.wm.ball), 4)
             self.display.show()
 
+        if self.is_manual:
+            keyPress = self.getch()
+            print "pressed", keyPress
+            print "\n"
+
+            if(keyPress == "a"):
+                self.wm.ah.turn(-2)
+                return
+            elif(keyPress == "d"):
+                self.wm.ah.turn(2)
+                return
+            elif(keyPress == "w"):
+                self.wm.ah.dash(45)
+                return
+            elif(keyPress == "s"):
+                self.wm.ah.dash(-45)
+                return
+
         r_side = self.wm.side == WorldModel.SIDE_R
         # print self.wm.abs_body_dir
         # take places on the field by uniform number
@@ -66,7 +101,6 @@ class DemoAgent(AbstractAgent):
         if self.wm.play_mode == PlayModes.BEFORE_KICK_OFF:
             # player 9 takes the kick off
             if self.wm.uniform_number == 9:
-                print "im 9!!"
                 if self.wm.is_ball_kickable():
                     # kick with 100% extra effort at enemy goal
                     self.wm.kick_to(self.goal_pos, 1.0)
@@ -78,7 +112,7 @@ class DemoAgent(AbstractAgent):
                                 and -7 <= self.wm.ball.direction <= 7:
                             self.wm.ah.dash(50)
                         else:
-                            self.wm.turn_body_to_point((0, 0))
+                            self.wm.turn_body_to_point((-5, -5))
 
                 # turn to ball if we can see it, else face the enemy goal
                 if self.wm.ball is not None:
@@ -88,8 +122,7 @@ class DemoAgent(AbstractAgent):
 
         # attack!
         else:
-
-            self.player_actions.goto_position((1, 1), 45)
+            self.player_actions.goto_position((22, 30), 45)
 
         '''
             # find the ball

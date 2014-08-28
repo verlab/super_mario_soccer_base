@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="80f62723-f620-45e4-9d0c-45fa56d6c9b0" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/smsoccer/players/playeractions.py.back" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/smsoccer/demoagent.py" afterPath="$PROJECT_DIR$/smsoccer/demoagent.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/smsoccer/util/geometric.py" afterPath="$PROJECT_DIR$/smsoccer/util/geometric.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/smsoccer/localization/localization.py" afterPath="$PROJECT_DIR$/smsoccer/localization/localization.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/smsoccer/players/playeractions.py" afterPath="$PROJECT_DIR$/smsoccer/players/playeractions.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
@@ -31,18 +33,18 @@
       <file leaf-file-name="localization.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/smsoccer/localization/localization.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="423" max-vertical-offset="1635">
-              <caret line="68" column="14" selection-start-line="68" selection-start-column="14" selection-end-line="68" selection-end-column="14" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1665">
+              <caret line="26" column="49" selection-start-line="26" selection-start-column="49" selection-end-line="26" selection-end-column="49" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="demoagent.py" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="demoagent.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/smsoccer/demoagent.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1980">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.36679536" vertical-offset="0" max-vertical-offset="2475">
+              <caret line="19" column="38" selection-start-line="19" selection-start-column="38" selection-end-line="19" selection-end-column="38" />
               <folding>
                 <element signature="e#0#48#0" expanded="true" />
               </folding>
@@ -50,11 +52,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="playeractions.py" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="playeractions.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/smsoccer/players/playeractions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="1.2548263" vertical-offset="0" max-vertical-offset="1875">
-              <caret line="65" column="26" selection-start-line="65" selection-start-column="26" selection-end-line="65" selection-end-column="26" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="123" max-vertical-offset="1845">
+              <caret line="8" column="17" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -62,11 +64,21 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="geometric.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/smsoccer/util/geometric.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="690">
+              <caret line="20" column="34" selection-start-line="20" selection-start-column="34" selection-end-line="20" selection-end-column="34" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="world_model.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/smsoccer/world/world_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="6165">
-              <caret line="293" column="40" selection-start-line="293" selection-start-column="40" selection-end-line="293" selection-end-column="40" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="3851" max-vertical-offset="6165">
+              <caret line="280" column="34" selection-start-line="280" selection-start-column="8" selection-end-line="280" selection-end-column="34" />
               <folding />
             </state>
           </provider>
@@ -112,8 +124,9 @@
       <list>
         <option value="$PROJECT_DIR$/smsoccer/util/fielddisplay.py" />
         <option value="$PROJECT_DIR$/smsoccer/localization/localization.py" />
-        <option value="$PROJECT_DIR$/smsoccer/demoagent.py" />
+        <option value="$PROJECT_DIR$/smsoccer/util/geometric.py" />
         <option value="$PROJECT_DIR$/smsoccer/players/playeractions.py" />
+        <option value="$PROJECT_DIR$/smsoccer/demoagent.py" />
       </list>
     </option>
   </component>
@@ -306,6 +319,9 @@
     </option>
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/smsoccer/players" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/smsoccer/players" />
       <recent name="$PROJECT_DIR$/smsoccer" />
@@ -640,36 +656,52 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/smsoccer/world/world_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="4105" max-vertical-offset="6255">
-          <caret line="293" column="40" selection-start-line="293" selection-start-column="40" selection-end-line="293" selection-end-column="40" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="3851" max-vertical-offset="6165">
+          <caret line="280" column="34" selection-start-line="280" selection-start-column="8" selection-end-line="280" selection-end-column="34" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/smsoccer/players/playeractions.py.back">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3810">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/smsoccer/util/geometric.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="690">
+          <caret line="20" column="34" selection-start-line="20" selection-start-column="34" selection-end-line="20" selection-end-column="34" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/smsoccer/players/playeractions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="123" max-vertical-offset="1845">
+          <caret line="8" column="17" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/smsoccer/localization/localization.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="523" max-vertical-offset="1635">
-          <caret line="68" column="14" selection-start-line="68" selection-start-column="14" selection-end-line="68" selection-end-column="14" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1665">
+          <caret line="26" column="49" selection-start-line="26" selection-start-column="49" selection-end-line="26" selection-end-column="49" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/smsoccer/demoagent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1980">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.36679536" vertical-offset="0" max-vertical-offset="2475">
+          <caret line="19" column="38" selection-start-line="19" selection-start-column="38" selection-end-line="19" selection-end-column="38" />
           <folding>
             <element signature="e#0#48#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/smsoccer/players/playeractions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.2548263" vertical-offset="0" max-vertical-offset="1875">
-          <caret line="65" column="26" selection-start-line="65" selection-start-column="26" selection-end-line="65" selection-end-column="26" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>

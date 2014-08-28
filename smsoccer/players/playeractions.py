@@ -10,6 +10,10 @@ class PlayerActions:
     """
     def __init__(self, world_model):
         self.wm = world_model
+        self.previous_abs_point_dir = 999
+        self.is_manual_control = False
+        self.d_val = 0
+        self.d_last_move = "plus"
 
     def goto_position(self, point, desired_speed):
         """
@@ -17,35 +21,30 @@ class PlayerActions:
         """
         #TODO: create a PID controller for the player goto
 
-        #print "GOTO_POS called"
         # how far are we from the desired point?
         point_dist = euclidean_distance(self.wm.abs_coords, point)
 
         # get absolute direction to the point
         abs_point_dir = angle_between_points(self.wm.abs_coords, point)
 
-
+        # Put this direction in 360 degrees
         if self.wm.abs_body_dir:
             if self.wm.abs_body_dir < 0:
                 self.wm.abs_body_dir += 360
 
-        # get relative direction to point from body, since kicks are relative to
-        # body direction.
+        # get relative direction to point from body
         if self.wm.abs_body_dir is not None:
             rel_point_dir = self.wm.abs_body_dir - abs_point_dir
         else:
             rel_point_dir = None
 
-        #print "rel_point_dir:", int(rel_point_dir), "abs_body_dir", int(self.wm.abs_body_dir), \
-        #    "abs_point_dir:", int(abs_point_dir), "point_dist", int(point_dist), "abs_coords", self.wm.abs_coords
+        info_list = ["rel_point_dir:", int(rel_point_dir), "abs_body_dir",
+                     int(self.wm.abs_body_dir), "abs_point_dir:", int(abs_point_dir)]
+        print('\t'.join(map(str, info_list)))
 
-        mylist = ["rel_point_dir:", int(rel_point_dir), "abs_body_dir", int(self.wm.abs_body_dir), "abs_point_dir:", int(abs_point_dir)]
-        print('\t'.join(map(str,mylist)))
-
-
-        #self.wm.ah.turn(1)
-
-        if rel_point_dir is None or -10 <= rel_point_dir <= 10:
+        if rel_point_dir is None or -7 <= rel_point_dir <= 7 or \
+                rel_point_dir <= 360 and rel_point_dir >= 350 or \
+                rel_point_dir >= 0 and rel_point_dir <= 10:
             #calculate the force for the running
             difference_speed = math.fabs(desired_speed - self.wm.speed_amount)
 
@@ -53,11 +52,10 @@ class PlayerActions:
             #edp = self.wm.server_parameters.dash_power_rate*self.wm.effort*difference_speed
             self.wm.ah.dash(difference_speed)
         else:
-            # face the point
-            self.wm.ah.turn(5)
-
-            #self.wm.ah.turn(5)
-            #time.sleep(0.5)
+            if rel_point_dir > 0:
+                self.wm.ah.turn(-3)
+            else:
+                self.wm.ah.turn(3)
 
     '''
     def goalie_wait_in_penalty_area(self, ball):

@@ -62,8 +62,10 @@ def triangulate_direction(abs_coords, flags, flag_dict):
 
     b = flag_dict[f1.flag_id]
 
-    v = (b[0] - abs_coords[0], b[1] - abs_coords[1])  #v =b - a
-    theta = math.degrees(math.atan2(v[1], v[0]))  #direction of v
+    v = (abs_coords[0] - b[0], abs_coords[1] - b[1])  #v =b - a
+    theta = math.degrees(math.atan2(-v[0], v[1]))  #direction of v
+    #theta = 180 + 180 / math.pi * math.atan2(v[0], v[1])
+    #print "dir\t", f1.direction, "theta\t", theta, "\n"
     dir = - f1.direction + theta
 
     return dir
