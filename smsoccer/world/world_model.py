@@ -169,10 +169,11 @@ class WorldModel:
         ko_left = PlayModes.KICK_OFF_L
         ko_right = PlayModes.KICK_OFF_R
 
-        print self.play_mode
+        first_cycle = self.sim_time is None or self.sim_time == 0
 
-        # return whether we're on the side that's kicking off
-        return (self.side == WorldModel.SIDE_L and self.play_mode == ko_left or
+        # return whether we're on the side that's kicking off or if we are on the left side when game begins
+        return (first_cycle and self.side == WorldModel.SIDE_L) or \
+            (self.side == WorldModel.SIDE_L and self.play_mode == ko_left or
                 self.side == WorldModel.SIDE_R and self.play_mode == ko_right)
 
     def get_ball_speed_max(self):
