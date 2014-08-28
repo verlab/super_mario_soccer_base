@@ -23,6 +23,7 @@ import time
 import sys
 
 from smsoccer.players.demo.demoplayer import DemoPlayer
+from smsoccer.players.goalkeeper import GoalKeeper
 
 
 PORT = 6000
@@ -42,7 +43,7 @@ if __name__ == "__main__":
     else:
         team_name = "default"
 
-    a = DemoPlayer()
+    a = GoalKeeper()
     a.connect(HOST, PORT, team_name)
     a.play()
 

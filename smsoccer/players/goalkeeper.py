@@ -1,72 +1,86 @@
 
-from smsoccer.abstractagent import AbstractAgent
+from smsoccer.players.abstractgoalie import AbstractGoalie
 from smsoccer.strategy.formation import player_position
 from smsoccer.world.world_model import WorldModel, PlayModes
+from smsoccer.players.playeractions import PlayerActions
+from smsoccer.world.game_object import Flag
+from smsoccer.players.playeractions import PlayerActions
+from smsoccer.util.geometric import euclidean_distance, angle_between_points
 
-
-class GoalKeeper(AbstractAgent):
+class GoalKeeper(AbstractGoalie):
     """
     This file implements the goalkeeper
     """
 
-    def __init__(self, goalie=True):
-        AbstractAgent.__init__(self, goalie=goalie)
+    def __init__(self, visualization=True):
+
+        AbstractGoalie.__init__(self)
+        self.player_actions = None
+
+        self.visualization = visualization
+        if visualization:
+            from smsoccer.util.fielddisplay import FieldDisplay
+            self.display = FieldDisplay()
+        self.last_ball_direction = 0
+        self.player_last_position = (0, 0)
 
     def think(self):
         """
         Performs a single step of thinking for our agent.  Gets called on every
         iteration of our think loop.
         """
+        if self.player_actions is None:
+            self.player_actions = PlayerActions(self.wm)
+
+        if self.visualization:
+            if self.wm is None or self.wm.abs_coords is None:
+                return
+
+            self.display.clear()
+            self.display.draw_robot(self.wm.abs_coords, self.wm.abs_body_dir)
+            if self.wm.ball is not None:
+                self.display.draw_circle(self.wm.get_object_absolute_coords(self.wm.ball), 4)
+                # print self.wm.ball.direction, self.wm.ball.distance
+            self.display.show()
 
         # take places on the field by uniform number
         if not self.in_kick_off_formation:
-            position_point = player_position(self.wm.uniform_number, self.wm.side == WorldModel.SIDE_R)
+            position_point = Flag.FLAG_COORDS['gl']
             # Teleport to right position
-            self.wm.teleport_to_point(position_point)
+            self.teleport_to_point((position_point[0], position_point[1]))
             # Player is ready in formation
             self.in_kick_off_formation = True
             return
 
-        # kick off!
-        if self.wm.play_mode == PlayModes.BEFORE_KICK_OFF:
-            # player 9 takes the kick off
-            if self.wm.uniform_number == 9:
-                if self.wm.is_ball_kickable():
-                    # kick with 100% extra effort at enemy goal
-                    self.wm.kick_to(self.goal_pos, 1.0)
+        if self.wm.play_mode == PlayModes.KICK_OFF_L or self.wm.play_mode == PlayModes.PLAY_ON:
+            if self.wm.ball is not None:
+                player_pos = self.player_actions.goalie_wait_in_penalty_area(0, self.wm.ball.direction)
+                player_pos_distance = euclidean_distance(player_pos, self.wm.abs_coords)
+                self.player_last_position = player_pos
+                self.last_ball_direction = self.wm.ball.direction
+                if player_pos_distance > 3:
+                    self.player_actions.goto_position(player_pos, 60)
                 else:
-                    # move towards ball
-                    if self.wm.ball is not None:
-                        if self.wm.ball.direction is not None \
-                                and -7 <= self.wm.ball.direction <= 7:
-                            self.wm.ah.dash(50)
-                        else:
-                            self.wm.turn_body_to_point((0, 0))
-
-                # turn to ball if we can see it, else face the enemy goal
-                if self.wm.ball is not None:
-                    self.wm.turn_neck_to_object(self.wm.ball)
-
-                return
-
-        # attack!
-        else:
-            # find the ball
-            if self.wm.ball is None or self.wm.ball.direction is None:
-                self.wm.ah.turn(30)
-
-                return
-
-            # kick it at the enemy goal
-            if self.wm.is_ball_kickable():
-                self.wm.kick_to(self.goal_pos, 1.0)
-                return
+                    #olha pra bola
+                    if self.last_ball_direction < -5:
+                        self.wm.ah.turn(-5)
+                    if self.last_ball_direction > 5:
+                        self.wm.ah.turn(5)
             else:
-                # move towards ball
-                if -7 <= self.wm.ball.direction <= 7:
-                    self.wm.ah.dash(65)
-                else:
-                    # face ball
-                    self.wm.ah.turn(self.wm.ball.direction / 2)
 
-                return
+                player_pos_distance = euclidean_distance(self.player_last_position, self.wm.abs_coords)
+
+                if player_pos_distance > 4:
+                    self.player_actions.goto_position(self.player_last_position, 60)
+                else:
+                    #olha pra bola
+                    if self.last_ball_direction < -5:
+                        self.wm.ah.turn(-5)
+                    if self.last_ball_direction > 5:
+                        self.wm.ah.turn(5)
+
+
+
+        self.display.draw_circle(self.player_last_position, 4)
+
+        self.display.show()
