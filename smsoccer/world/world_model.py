@@ -126,6 +126,15 @@ class WorldModel:
 
         return self.play_mode == PlayModes.BEFORE_KICK_OFF
 
+    """
+    Returns whether it is a kick-off situation (for either side)
+    Also returns true for before_kick_off
+    """
+    def is_kick_off(self):
+        return self.play_mode == PlayModes.KICK_OFF_R or \
+               self.play_mode == PlayModes.KICK_OFF_L or \
+               self.is_before_kick_off()
+
     def is_kick_off_us(self):
         """
         Tells us whether it's our turn to kick off.
