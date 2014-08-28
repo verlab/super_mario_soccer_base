@@ -12,13 +12,13 @@ VIEW_WIDTH_NORMAL = "normal"
 VIEW_WIDTH_WIDE = "wide"
 
 ## Messages to server
-DASH_MESSAGE = "(dash %.10f)"
-TURN_MESSAGE = "(turn %.10f)"
-MOVE_MESSAGE = "(move %.10f %.10f)"
-TURN_NECK_MESSAGE = "(turn_neck %.10f)"
+DASH_MESSAGE = "(dash %.3f)"
+TURN_MESSAGE = "(turn %.3f)"
+MOVE_MESSAGE = "(move %.3f %.3f)"
+TURN_NECK_MESSAGE = "(turn_neck %.3f)"
 SAY_MESSAGE = "(say %s)"
-CATCH_MESSAGE = "(catch %.10f)"
-KICK_MESSAGE = "(kick %.10f %.10f)"
+CATCH_MESSAGE = "(catch %.3f)"
+KICK_MESSAGE = "(kick %.3f %.3f)"
 VIEW_QUALITY_MESSAGE = "(change_view %s %s)"
 
 # should we print commands sent to the server?

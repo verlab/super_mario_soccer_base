@@ -1,9 +1,23 @@
 from smsoccer.players.abstractagent import AbstractAgent
 from smsoccer.players.abstractplayer import AbstractPlayer
 from smsoccer.strategy.formation import player_position
-from smsoccer.util.geometric import angle_between_points
+from smsoccer.util.geometric import angle_between_points, cut_angle
 from smsoccer.world.world_model import WorldModel, PlayModes
 
+class _GetchUnix:
+    def __init__(self):
+        import tty, sys
+
+    def __call__(self):
+        import sys, tty, termios
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(sys.stdin.fileno())
+            ch = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        return ch
 
 class DemoPlayer(AbstractPlayer):
     """
@@ -12,11 +26,14 @@ class DemoPlayer(AbstractPlayer):
     """
 
 
-    def __init__(self, goalie=False, visualization=False):
+    def __init__(self, goalie=False, visualization=False, is_manual_control=True):
 
         AbstractAgent.__init__(self, goalie=goalie)
 
         self.visualization = visualization
+        self.is_manual_control = is_manual_control
+        self.getch = _GetchUnix()
+
         if visualization:
             from smsoccer.util.fielddisplay import FieldDisplay
 
@@ -55,6 +72,37 @@ class DemoPlayer(AbstractPlayer):
                 self.in_kick_off_formation = True
                 return
 
+        if self.is_manual_control:
+            '''
+            For now getch() is blocking and only accepts letters, no direction pad (:
+            a = forward
+            s = backward
+            a = rotation counter clockwise
+            d = rotation clockwise
+            k = kick ball in current angle
+            '''
+            #TODO: get the key presses non-blocking
+
+            keyPress = self.getch()
+            print "pressed", keyPress
+
+            if(keyPress == "a"):
+                self.wm.ah.turn(-5)
+                return
+            elif(keyPress == "d"):
+                self.wm.ah.turn(5)
+                return
+            elif(keyPress == "w"):
+                self.wm.ah.dash(50)
+                return
+            elif(keyPress == "s"):
+                self.wm.ah.dash(-50)
+                return
+            elif(keyPress == "k"):
+                self.wm.ah.kick(50, 0)
+                return
+
+
         # kick off!
         if self.wm.play_mode == PlayModes.BEFORE_KICK_OFF:
             # player 9 takes the kick off
@@ -87,12 +135,9 @@ class DemoPlayer(AbstractPlayer):
 
             # kick it at the enemy goal
             if self.is_ball_kickable():
-                # self.wm.kick_to(self.goal_pos, 1.0)
 
-                cuts = lambda angle1: angle1 + 360 if angle1 < -180 else angle1
-                cut = lambda angle1: angle1 - 360 if angle1 > 180 else cuts(angle1)
+                angle = cut_angle(angle_between_points(self.wm.abs_coords, self.goal_pos)) - cut_angle(self.wm.abs_body_dir)
 
-                angle = cut(angle_between_points(self.wm.abs_coords, self.goal_pos)) - cut(self.wm.abs_body_dir)
 
                 self.wm.ah.kick(20, angle)
                 return

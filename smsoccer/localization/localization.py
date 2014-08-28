@@ -98,30 +98,14 @@ def triangulate_position(flags, flag_dict):
     :param flags: observed flags
     :param flag_dict: real positions for flags
     """
-
-    if len(flags) < 2:
-        return None
-
     # Take two flags
     f1, f2 = flags[:2]
-
-    if f1.distance is None or f1.direction is None or f1.flag_id is None:
-        return triangulate_position(flags[1:], flag_dict)
-
-    if f2.distance is None or f2.direction is None or f2.flag_id is None:
-        flags2 = flags[:]
-        flags2.remove(f2)
-        return triangulate_position(flags2, flag_dict)
-
-    if f1.direction is None or f2.direction is None:
-        print "Flag with direction None"
-        return None
 
     if abs(f1.direction - f2.direction) == 180.0:
         return compute_colinear(f1, f2, flag_dict, -1)
 
     elif f1.direction != f2.direction:
-        # NonColinear
+        # Non colinear
         return compute_non_colinear(f1, f2, flag_dict)
 
     elif f1.distance != f2.distance:

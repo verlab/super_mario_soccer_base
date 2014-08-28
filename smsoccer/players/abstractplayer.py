@@ -1,7 +1,3 @@
-
-
-
-
 from smsoccer.players.abstractagent import AbstractAgent
 from smsoccer.util.geometric import euclidean_distance, angle_between_points
 from smsoccer.world.world_model import PlayModes, WorldModel
@@ -9,11 +5,13 @@ from smsoccer.world.world_model import PlayModes, WorldModel
 
 class AbstractPlayer(AbstractAgent):
     """
-    This is a DEMO about how to extend the AbstractAgent and implement the
-    think method. For a new development is recommended to do the same.
+    AbstractPlayer class
+
+    Has function to help any kind of agent
     """
-    def __init__(self):
-        pass
+
+    def __init__(self, goalie=False):
+        super(AbstractPlayer, self).__init__(goalie=goalie)
 
     def teleport_to_point(self, point):
         """
@@ -87,8 +85,9 @@ class AbstractPlayer(AbstractAgent):
         abs_point_dir = angle_between_points(self.wm.abs_coords, point)
 
         # subtract from absolute body direction to get relative angle
-        relative_dir = self.wm.abs_body_dir - abs_point_dir
+        relative_dir = abs_point_dir - self.wm.abs_body_dir
 
+        print abs_point_dir, relative_dir
         # turn to that angle
         self.wm.ah.turn(relative_dir)
 
@@ -133,7 +132,7 @@ class AbstractPlayer(AbstractAgent):
         # get relative direction to point from body, since kicks are relative to
         # body direction.
         if self.wm.abs_body_dir is not None:
-            rel_point_dir = self.wm.abs_body_dir - abs_point_dir
+            rel_point_dir = abs_point_dir - self.wm.abs_body_dir
 
         # we do a simple linear interpolation to calculate final kick speed,
         # assuming a kick of power 100 goes 45 units in the given direction.
@@ -145,8 +144,7 @@ class AbstractPlayer(AbstractAgent):
         # find the required power given ideal conditions, then add scale up by
         # difference between actual achievable power and maximum power.
         required_power = dist_ratio * self.wm.server_parameters.maxpower
-        effective_power = self.get_effective_kick_power(self.wm.ball,
-                                                        required_power)
+        effective_power = self.get_effective_kick_power(self.wm.ball, required_power)
         required_power += 1 - (effective_power / required_power)
 
         # add more power!
