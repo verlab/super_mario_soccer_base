@@ -54,14 +54,19 @@ class GoalKeeper(AbstractGoalie):
 
         if self.wm.play_mode == PlayModes.KICK_OFF_L or self.wm.play_mode == PlayModes.PLAY_ON:
             if self.wm.ball is not None:
+                #calculates the next position
                 player_pos = self.player_actions.goalie_wait_in_penalty_area(0, self.wm.ball.direction)
+                #calculate the distance to desired point
                 player_pos_distance = euclidean_distance(player_pos, self.wm.abs_coords)
+
+                #save current variables
                 self.player_last_position = player_pos
                 self.last_ball_direction = self.wm.ball.direction
                 if player_pos_distance > 3:
+                    #if the distance is higher than 3, go to position
                     self.player_actions.goto_position(player_pos, 60)
                 else:
-                    #olha pra bola
+                    #The player know will turn to ball direction
                     if self.last_ball_direction < -5:
                         self.wm.ah.turn(-5)
                     if self.last_ball_direction > 5:
@@ -69,11 +74,12 @@ class GoalKeeper(AbstractGoalie):
             else:
 
                 player_pos_distance = euclidean_distance(self.player_last_position, self.wm.abs_coords)
-
+                #
                 if player_pos_distance > 4:
+                     #if the distance is higher than 4, go to position
                     self.player_actions.goto_position(self.player_last_position, 60)
                 else:
-                    #olha pra bola
+                    #The player know will turn to ball direction
                     if self.last_ball_direction < -5:
                         self.wm.ah.turn(-5)
                     if self.last_ball_direction > 5:
