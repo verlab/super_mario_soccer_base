@@ -113,7 +113,7 @@ class AbstractAgent(object):
         self.__connected = True
 
         # determine the enemy goal position
-        self.goal_pos = (55.5, 0) #attempt to avoid miss clear goals
+        self.goal_pos = (55.5, 0) if self.wm.side == self.wm.SIDE_L else (-55.5, 0) #trying to cope with sides
 
         return self
 

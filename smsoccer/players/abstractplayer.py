@@ -122,7 +122,7 @@ class AbstractPlayer(AbstractAgent):
         extra_power=0.0 means the ball should stop at the given point, anything
         higher means it should have proportionately more speed.
         """
-
+        print 'will kick_to'
         # how far are we from the desired point?
         point_dist = euclidean_distance(self.wm.abs_coords, point)
 
