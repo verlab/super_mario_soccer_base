@@ -174,6 +174,22 @@ class WorldModel:
 
         self.sim_time = sim_time
 
+    def is_ball_in_defense(self):
+        """
+        Returns whether the ball is on the defensive field
+        :return: bool
+        """
+        #conservative behavior: assumes ball in defense if i can't see it
+        if self.ball is None:
+            return True
+
+        #returns True if ball.x is less than zero
+        else:
+            if self.get_object_absolute_coords(self.ball)[0] is None:
+                return True
+            else:
+                return self.get_object_absolute_coords(self.ball)[0] < 0
+
     def is_kick_in(self):
         return self.play_mode in [PlayModes.KICK_IN_L, PlayModes.KICK_IN_R]
 
@@ -267,7 +283,7 @@ class WorldModel:
         # get the components of the vector to the object
         dx = obj.distance * math.cos(math.radians(obj.direction))
         dy = obj.distance * math.sin(math.radians(obj.direction))
-        print dx, dy
+        #print dx, dy
 
         # return the point the object is at relative to our current position
         return self.abs_coords[0] + dx, self.abs_coords[1] + dy
