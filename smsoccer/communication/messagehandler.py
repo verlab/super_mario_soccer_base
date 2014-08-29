@@ -241,7 +241,7 @@ class MessageHandler:
             # messages are named 3-tuples of (time, sender, message)
             ref_msg = self.Message(time_recvd, sender, message)
 
-            # pass this message on to the player and return
+            # pass this message on to the player
             self.wm.last_message = ref_msg
 
             # deal first with messages that shouldn't be passed on to the agent

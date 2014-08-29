@@ -4,7 +4,7 @@ from collections import namedtuple
 from smsoccer.players.abstractagent import AbstractAgent
 from smsoccer.players.abstractplayer import AbstractPlayer
 from smsoccer.util.geometric import angle_between_points
-from smsoccer.world.world_model import WorldModel, PlayModes
+from smsoccer.world.world_model import WorldModel, PlayModes, RefereeMessages
 
 
 class RabbitSpeeder(AbstractPlayer):
@@ -45,13 +45,75 @@ class RabbitSpeeder(AbstractPlayer):
 
     def act(self):
 
-        if self.wm.is_kick_off():
+        #does nothing if a referee message says so
+        '''
+        if self.wm.last_message:
+            print self.wm.last_message
+            ref_msg = self.wm.last_message.message
+
+            if ref_msg.startswith(RefereeMessages.GOAL_L) or ref_msg.startswith(RefereeMessages.GOAL_R):
+                return
+        '''
+
+        if self.wm.play_mode == PlayModes.PLAY_ON:
+            self.play_on_action()
+            return
+
+        elif self.wm.is_kick_off():
             self.kick_off_action()
             return
 
-        elif self.wm.play_mode == PlayModes.PLAY_ON:
-            self.play_on_action()
+        elif self.wm.is_kick_in():
+            self.kick_in_action()
             return
+
+        elif self.wm.is_corner_kick():
+            self.corner_kick_action()
+            return
+
+        elif self.wm.is_goal_kick():
+            self.goal_kick_action()
+            return
+
+        elif self.wm.is_free_kick():
+            self.free_kick_action()
+            return
+
+    def kick_in_action(self):
+        if self.wm.is_kick_in_us():
+            if self.am_i_kicker():
+                self.play_on_action() #goes to ball and kicks it
+                return
+
+    def corner_kick_action(self):
+        if self.wm.is_corner_kick_us():
+            if self.am_i_kicker():
+                self.play_on_action() #goes to ball and kicks it
+                return
+
+    def goal_kick_action(self):
+        if self.wm.is_goal_kick_us():
+            if self.am_i_kicker():
+                self.play_on_action() #goes to ball and kicks it
+                return
+
+    def free_kick_action(self):
+        """
+        Reacts to a free kick
+        """
+        if self.wm.is_free_kick_us():
+            if self.am_i_kicker():
+                self.play_on_action() #goes to ball and kicks it
+                return
+
+            else:
+                #print 'i am not kicker'
+                #TODO: move ahead of ball
+                pass
+
+        else: #it is not a kick off for us
+            #TODO: goes to defense field
+            pass
 
     """
     Reacts to a kick off
@@ -60,7 +122,7 @@ class RabbitSpeeder(AbstractPlayer):
         #print 'kick_off_action'
         # take places on the field by uniform number
         if not self.in_kick_off_formation:
-            position_point = formation.player_position(self.wm.uniform_number)
+            position_point = (0, -20) #TEST formation.player_position(self.wm.uniform_number)
             #print 'our KO?', self.wm.is_kick_off_us()
             if self.wm.is_kick_off_us() and self.am_i_kicker():
                 position_point = (-0.3, 0)
@@ -71,7 +133,7 @@ class RabbitSpeeder(AbstractPlayer):
 
             #turns to attack field
             if self.wm.side == WorldModel.SIDE_R:
-                self.wm.ah.turn(180)
+                pass#self.wm.ah.turn(180)
 
             # Player is ready in formation
             self.in_kick_off_formation = True
@@ -91,14 +153,12 @@ class RabbitSpeeder(AbstractPlayer):
                     self.kick_to(self.goal_pos, 1.0)
                     #print self.goal_pos
                 else:
-                    #self.teleport_to_point((-1, 0))
-                    #print 'teleporting to ball!!'
-                    #return
                     # move towards ball
-                    if self.wm.ball is not None:
+                    if self.wm.ball is not None and not self.wm.is_kick_off_us():
                         if self.wm.ball.direction is not None \
                                 and -7 <= self.wm.ball.direction <= 7:
-                            self.wm.ah.dash(50)
+                            self.wm.ah.dash(5 * self.wm.ball.distance + 20) #goes faster to ball
+                            #self.wm.ah.dash(50)
                         else:
                             pass
                             #self.wm.turn_body_to_point((0, 0)) << ERROR
@@ -129,12 +189,13 @@ class RabbitSpeeder(AbstractPlayer):
 
             angle = cut(angle_between_points(self.wm.abs_coords, self.goal_pos)) - cut(self.wm.abs_body_dir)
 
-            self.wm.ah.kick(20, angle)
+            self.kick_to(self.goal_pos, 1.0)
+            #self.wm.ah.kick(20, angle)
             return
         else:
             # move towards ball
             if -7 <= self.wm.ball.direction <= 7:
-                self.wm.ah.dash(5 * self.wm.ball.distance + 20)
+                self.wm.ah.dash(5 * self.wm.ball.distance + 50) #increased constant from 20 to 50
             else:
                 # face ball
                 self.wm.ah.turn(self.wm.ball.direction / 2)
@@ -143,8 +204,8 @@ class RabbitSpeeder(AbstractPlayer):
     def post_process(self):
         #updates last seen ball direction
         if self.wm.ball is not None and self.wm.ball.direction is not None:
-            #print self.last_seen_ball.direction, self.wm.ball.direction
             del self.last_seen_ball
+
             self.last_seen_ball = self.wm.ball
             #self.last_ball_left = self.wm.ball.direction < 0
                     #and -7 <= self.wm.ball.direction <= 7:
@@ -167,5 +228,4 @@ class RabbitSpeeder(AbstractPlayer):
             self.display.draw_robot(self.wm.abs_coords, self.wm.abs_body_dir)
             if self.wm.ball is not None:
                 self.display.draw_circle(self.wm.get_object_absolute_coords(self.wm.ball), 4)
-                # print self.wm.ball.direction, self.wm.ball.distance
             self.display.show()

@@ -83,7 +83,7 @@ if __name__ == "__main__":
     agent_threads = []
 
     # Goalie
-    print "  Spawning the Legendary Rabbit Wall"
+    print "  Spawning the Legendary Rabbit Wall..."
     ag = mp.Process(target=spawn_agent, args=(sys.argv[1], True))
     ag.daemon = True
     ag.start()
@@ -99,7 +99,7 @@ if __name__ == "__main__":
         agent_threads.append(at)
 
     # Coach
-    print "  Spawning Rabbit Master"
+    print "  Spawning Rabbit Master..."
     ac = mp.Process(target=spawn_coach, args=(sys.argv[1],))
     ac.daemon = True
     ac.start()
