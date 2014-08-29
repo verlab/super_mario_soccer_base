@@ -185,7 +185,7 @@ class WorldModel:
 
         #returns True if ball.x is less than zero
         else:
-            if self.get_object_absolute_coords(self.ball)[0] is None:
+            if self.get_object_absolute_coords(self.ball) is None:
                 return True
             else:
                 return self.get_object_absolute_coords(self.ball)[0] < 0

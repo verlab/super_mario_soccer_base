@@ -101,6 +101,11 @@ class RabbitSpeeder(AbstractPlayer):
         """
         Reacts to a free kick
         """
+
+        if self.is_ball_kickable():
+            self.kick_to(self.goal_pos, 1.0)
+            return
+
         if self.wm.is_free_kick_us():
             if self.am_i_kicker():
                 self.play_on_action() #goes to ball and kicks it
@@ -125,6 +130,7 @@ class RabbitSpeeder(AbstractPlayer):
             #print 'kicking!'
             # kick with 100% extra effort at enemy goal
             self.kick_to(self.goal_pos, 1.0)
+            return
 
         #print 'kick_off_action'
         # take places on the field by uniform number
@@ -162,13 +168,12 @@ class RabbitSpeeder(AbstractPlayer):
 
             # most forward player kicks off
             if self.am_i_kicker():#self.wm.uniform_number == 9:
-                #print "I'm the kicker!"
+                #print self.wm.uniform_number, "I'm the kicker!"
 
                 if self.is_ball_kickable():
-                    #print 'kicking!'
-                    # kick with 100% extra effort at enemy goal
                     self.kick_to(self.goal_pos, 1.0)
-                    #print self.goal_pos
+                    return
+
                 else:
                     # move towards ball
                     if self.wm.ball is not None and not self.wm.is_kick_off_us():
@@ -185,6 +190,8 @@ class RabbitSpeeder(AbstractPlayer):
                     pass#print 'turning neck!'
                     #self.turn_neck_to_object(self.wm.ball)
                 return
+            #else:
+                #print self.wm.uniform_number, "not the kicker!"
 
     def play_on_action(self):
         #print 'play_on_action'
@@ -207,17 +214,18 @@ class RabbitSpeeder(AbstractPlayer):
         if self.wm.ball is None or self.wm.ball.direction is None:
             angle = 35 if self.last_seen_ball and self.last_seen_ball.direction < 0 else -35
             self.wm.ah.turn(angle)
+            #print 'looking for ball'
             return
 
         if self.wm.is_ball_in_defense():
 
             if not self.am_i_kicker(): #in this case, i'm the attacker, wait in mid field
-                print 'attacker defending'
+                #print 'attacker defending'
 
                 #waits right behind middle line
                 angle = math.radians(angle_between_points(self.wm.abs_coords, (-1, 0)))
-                print 'angle', angle
-                if abs(angle) < 30:
+                #print 'angle', angle
+                if abs(angle) < 7:
                     self.wm.ah.dash(5 * euclidean_distance(self.wm.abs_coords, (-1, 0)) + 50)
                     return
                 else:
@@ -229,12 +237,12 @@ class RabbitSpeeder(AbstractPlayer):
 
         else: #ball is in attack
             if not self.am_i_kicker(): #in this case, i'm the defender, wait in defense
-                print 'defender attacking'
+                #print 'defender attacking'
                 #waits right behind middle line
                 angle = math.radians(angle_between_points(self.wm.abs_coords, (-20, 0)))
 
-                if abs(angle) < 30:
-                    self.wm.ah.dash(5 * euclidean_distance(self.wm.abs_coords, (-1, 0)) + 50)
+                if abs(angle) < 7:
+                    self.wm.ah.dash(5 * euclidean_distance(self.wm.abs_coords, (-20, 0)) + 50)
                     return
                 else:
                     self.wm.ah.turn(30)    #looks for waiting point
@@ -243,6 +251,11 @@ class RabbitSpeeder(AbstractPlayer):
                 if euclidean_distance(self.wm.abs_coords, (-20, 0)) > 10: #if ball is close, goes to the rest of proc.
                     return
 
+        '''# find the ball
+        if self.wm.ball is None or self.wm.ball.direction is None:
+            angle = 35 if self.last_seen_ball and self.last_seen_ball.direction < 0 else -35
+            self.wm.ah.turn(angle)
+            return'''
 
         # kick it at the enemy goal
         if self.is_ball_kickable():
@@ -253,8 +266,8 @@ class RabbitSpeeder(AbstractPlayer):
 
             angle = cut(angle_between_points(self.wm.abs_coords, self.goal_pos)) - cut(self.wm.abs_body_dir)
 
-            self.kick_to(self.goal_pos, 1.0)
-            #self.wm.ah.kick(20, angle)
+            #self.kick_to(self.goal_pos, 1.0)
+            self.wm.ah.kick(20, angle)
             return
         else:
             # move towards ball
@@ -284,8 +297,16 @@ class RabbitSpeeder(AbstractPlayer):
         attacker = my_position[0] == max([x_pos for x_pos in x_positions])
 
         if self.wm.is_ball_in_defense():
+            '''if not attacker:
+                print self.wm.uniform_number, "not the kicker!"
+            else:
+                print self.wm.uniform_number, "the kicker!"'''
             return not attacker
         else:
+            '''if attacker:
+                print self.wm.uniform_number, "the kicker!"
+            else:
+                print self.wm.uniform_number, "not the kicker!"'''
             return attacker
 
 
