@@ -1,9 +1,9 @@
-import copy
-import  smsoccer.strategy.formation as formation
+import math
+import smsoccer.strategy.formation as formation
 from collections import namedtuple
 from smsoccer.players.abstractagent import AbstractAgent
 from smsoccer.players.abstractplayer import AbstractPlayer
-from smsoccer.util.geometric import angle_between_points
+from smsoccer.util.geometric import angle_between_points, euclidean_distance
 from smsoccer.world.world_model import WorldModel, PlayModes, RefereeMessages
 
 
@@ -119,13 +119,23 @@ class RabbitSpeeder(AbstractPlayer):
     Reacts to a kick off
     """
     def kick_off_action(self):
+
+        #always try to kick, man!
+        if self.is_ball_kickable():
+            #print 'kicking!'
+            # kick with 100% extra effort at enemy goal
+            self.kick_to(self.goal_pos, 1.0)
+
         #print 'kick_off_action'
         # take places on the field by uniform number
         if not self.in_kick_off_formation:
-            position_point = (0, -20) #TEST formation.player_position(self.wm.uniform_number)
+            position_point = formation.player_position(self.wm.uniform_number)
             #print 'our KO?', self.wm.is_kick_off_us()
-            if self.wm.is_kick_off_us() and self.am_i_kicker():
-                position_point = (-0.3, 0)
+            if self.wm.is_kick_off_us():
+                if self.am_i_kicker():
+                    position_point = (-0.3, 0)
+                else:
+                    position_point = (0, 15)
 
             # Teleport to position
             print 'Teleporting to:', position_point
@@ -138,6 +148,13 @@ class RabbitSpeeder(AbstractPlayer):
             # Player is ready in formation
             self.in_kick_off_formation = True
             return
+
+        #finds ball
+        if not self.wm.play_mode == PlayModes.BEFORE_KICK_OFF:
+
+            if self.wm.ball is None or self.wm.ball.direction is None:
+                self.wm.ah.turn(35)
+                return
 
         # kick off!
         if self.wm.is_kick_off_us(): #self.wm.play_mode == PlayModes.BEFORE_KICK_OFF:
@@ -174,11 +191,58 @@ class RabbitSpeeder(AbstractPlayer):
 
         self.in_kick_off_formation = False
 
+        if self.is_ball_kickable(): #always kick if u can!
+           # self.wm.kick_to(self.goal_pos, 1.0)
+
+           cuts = lambda angle1: angle1 + 360 if angle1 < -180 else angle1
+           cut = lambda angle1: angle1 - 360 if angle1 > 180 else cuts(angle1)
+
+           angle = cut(angle_between_points(self.wm.abs_coords, self.goal_pos)) - cut(self.wm.abs_body_dir)
+
+           #self.kick_to(self.goal_pos, 1.0)
+           self.wm.ah.kick(100, angle)
+           return
+
         # find the ball
         if self.wm.ball is None or self.wm.ball.direction is None:
             angle = 35 if self.last_seen_ball and self.last_seen_ball.direction < 0 else -35
             self.wm.ah.turn(angle)
             return
+
+        if self.wm.is_ball_in_defense():
+
+            if not self.am_i_kicker(): #in this case, i'm the attacker, wait in mid field
+                print 'attacker defending'
+
+                #waits right behind middle line
+                angle = math.radians(angle_between_points(self.wm.abs_coords, (-1, 0)))
+                print 'angle', angle
+                if abs(angle) < 30:
+                    self.wm.ah.dash(5 * euclidean_distance(self.wm.abs_coords, (-1, 0)) + 50)
+                    return
+                else:
+                    self.wm.ah.turn(30)    #looks for waiting point
+                    return
+
+                if euclidean_distance(self.wm.abs_coords, (-1, 0)) > 10: #if ball is close, goes to the rest of proc.
+                    return
+
+        else: #ball is in attack
+            if not self.am_i_kicker(): #in this case, i'm the defender, wait in defense
+                print 'defender attacking'
+                #waits right behind middle line
+                angle = math.radians(angle_between_points(self.wm.abs_coords, (-20, 0)))
+
+                if abs(angle) < 30:
+                    self.wm.ah.dash(5 * euclidean_distance(self.wm.abs_coords, (-1, 0)) + 50)
+                    return
+                else:
+                    self.wm.ah.turn(30)    #looks for waiting point
+                    return
+
+                if euclidean_distance(self.wm.abs_coords, (-20, 0)) > 10: #if ball is close, goes to the rest of proc.
+                    return
+
 
         # kick it at the enemy goal
         if self.is_ball_kickable():
@@ -217,7 +281,13 @@ class RabbitSpeeder(AbstractPlayer):
         """
         my_position = formation.player_position(self.wm.uniform_number)
         x_positions = [formation.player_position(i)[0] for i in range(1, 12)]  # range: [1,2,...,11]
-        return my_position[0] == max([x_pos for x_pos in x_positions])
+        attacker = my_position[0] == max([x_pos for x_pos in x_positions])
+
+        if self.wm.is_ball_in_defense():
+            return not attacker
+        else:
+            return attacker
+
 
     def update_visualization(self):
         if self.visualization:

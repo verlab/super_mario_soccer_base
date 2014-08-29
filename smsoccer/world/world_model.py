@@ -366,7 +366,7 @@ class WorldModel:
         # get the components of the vector to the object
         dx = obj.distance * math.cos(math.radians(obj.direction))
         dy = obj.distance * math.sin(math.radians(obj.direction))
-        print dx, dy
+        #print dx, dy
 
         # return the point the object is at relative to our current position
         return self.abs_coords[0] + dx, self.abs_coords[1] + dy
