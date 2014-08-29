@@ -174,11 +174,52 @@ class WorldModel:
 
         self.sim_time = sim_time
 
+    def is_kick_in(self):
+        return self.play_mode in [PlayModes.KICK_IN_L, PlayModes.KICK_IN_R]
+
+    def is_kick_in_us(self):
+        ki_l, ki_r = PlayModes.KICK_IN_L, PlayModes.KICK_IN_R  #just aliases
+
+        return (self.play_mode == ki_l and self.side == self.SIDE_L) or \
+               (self.play_mode == ki_r and self.side == self.SIDE_R)
+
+    def is_goal_kick(self):
+        return self.play_mode in [PlayModes.GOAL_KICK_L, PlayModes.GOAL_KICK_R]
+
+    def is_goal_kick_us(self):
+        gk_l, gk_r = PlayModes.GOAL_KICK_L, PlayModes.GOAL_KICK_R  #just aliases
+
+        return (self.play_mode == gk_l and self.side == self.SIDE_L) or \
+               (self.play_mode == gk_r and self.side == self.SIDE_R)
+
+    def is_corner_kick(self):
+        return self.play_mode in [PlayModes.CORNER_KICK_L, PlayModes.CORNER_KICK_R]
+
+    def is_corner_kick_us(self):
+        ck_l, ck_r = PlayModes.CORNER_KICK_L, PlayModes.CORNER_KICK_R  #just aliases
+
+        return (self.play_mode == ck_l and self.side == self.SIDE_L) or \
+               (self.play_mode == ck_r and self.side == self.SIDE_R)
+
+    def is_free_kick(self):
+        """
+        Returns whether it is a free kick or not (independent of side)
+        """
+        return self.play_mode in [PlayModes.FREE_KICK_L, PlayModes.FREE_KICK_R]
+
+    def is_free_kick_us(self):
+        """
+        Returns whether the free kick is for our team
+        """
+        fk_l, fk_r = PlayModes.FREE_KICK_L, PlayModes.FREE_KICK_R  #just aliases
+
+        return (self.play_mode == fk_l and self.side == self.SIDE_L) or \
+               (self.play_mode == fk_r and self.side == self.SIDE_R)
+
     def is_before_kick_off(self):
         """
         Tells us whether the game is in a pre-kickoff state.
         """
-
         return self.play_mode == PlayModes.BEFORE_KICK_OFF
 
     """
