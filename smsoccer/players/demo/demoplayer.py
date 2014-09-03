@@ -26,7 +26,7 @@ class DemoPlayer(AbstractPlayer):
     """
 
 
-    def __init__(self, goalie=False, visualization=False, is_manual_control=True):
+    def __init__(self, goalie=False, visualization=False, is_manual_control=False):
 
         AbstractAgent.__init__(self, goalie=goalie)
 

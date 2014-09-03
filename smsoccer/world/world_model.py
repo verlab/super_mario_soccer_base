@@ -82,8 +82,9 @@ class WorldModel:
 
         # Simulation time
         self.sim_time = None
-        self.old_abs_coords = (0, 0)
-        self.old_direction = 0
+        # self.old_abs_coords = (0, 0)
+        # self.old_direction = 0
+
 
         # Speed
         self.vx, self.vy = 0, 0
@@ -91,6 +92,9 @@ class WorldModel:
         self.server_parameters = ServerParameters()
 
         self.team_message_queue = []
+
+        # #
+        # self.pf = ParticleFilter()
 
     def process_new_info(self, ball, flags, goals, players, lines, sim_time):
         """
@@ -106,35 +110,34 @@ class WorldModel:
         self.players = players
         self.lines = lines
 
-        x1, y1 = self.old_abs_coords[:]
+        # x1, y1 = self.old_abs_coords[:]
 
         # ##################### Location #########
         # TODO: make all triangulate_* calculations more accurate
         # update the apparent coordinates of the player based on all flag pairs
         flag_dict = game_object.Flag.FLAG_COORDS
 
-        self.old_abs_coords = self.abs_coords[:] if self.abs_coords is not None else self.old_abs_coords
+        # self.old_abs_coords = self.abs_coords[:] if self.abs_coords is not None else self.old_abs_coords
 
         # Take only good flags
         gflags = [f for f in flags if
                   f.distance is not None and f.direction is not None and f.flag_id is not None]
 
+        #TODO organize the flags to take the nearest
         if len(gflags) < 2:
             # Error in triangulation
-            self.abs_coords = self.old_abs_coords
-            self.abs_neck_dir = self.old_direction
+            self.abs_coords = None
+            self.abs_neck_dir = None
             print "Not enough flags for localization"
         else:
             self.abs_coords = triangulate_position(gflags, flag_dict)
 
-            # If triangulation does not work, takes the last measure.
-            if self.abs_coords is None:
-                self.abs_coords = self.old_abs_coords
-                print "Cannot triangulate localization, taking the last one"
-
-            # set the neck and body absolute directions based on flag directions
-            self.abs_neck_dir = triangulate_direction(self.abs_coords, gflags, flag_dict)
-            self.abs_neck_dir = cut_angle(self.abs_neck_dir)
+            if self.abs_coords is not None:
+                # set the neck and body absolute directions based on flag directions
+                self.abs_neck_dir = triangulate_direction(self.abs_coords, gflags, flag_dict)
+                self.abs_neck_dir = cut_angle(self.abs_neck_dir)
+            else:
+                self.abs_neck_dir = None
 
         # set body dir only if we got a neck dir, else reset it
         if self.abs_neck_dir is not None and self.neck_direction is not None:
@@ -142,11 +145,11 @@ class WorldModel:
         else:
             self.abs_body_dir = None
 
-        # ##################### Speed #########333
-        if sim_time > self.sim_time > 0:
-            x2, y2 = self.abs_coords[:]
-            # Velocity in x and y
-            self.vx, self.vy = x2 - x1, y2 - y1
+        # TODO ##################### Speed #########333
+        # if sim_time > self.sim_time > 0:
+        #     x2, y2 = self.abs_coords[:]
+        #     # Velocity in x and y
+        #     self.vx, self.vy = x2 - x1, y2 - y1
 
         self.sim_time = sim_time
 
@@ -178,12 +181,14 @@ class WorldModel:
 
         return self.server_parameters.ball_speed_max
 
-    def get_object_absolute_coords(self, obj):
+    def get_object_absolute_coords(self, obj, reference=None):
         """
         Determines the absolute coordinates of the given object based on the
         agent's current position.  Returns None if the coordinates can't be
         calculated.
         """
+        if reference is None:
+            reference = self.abs_coords
 
         # we can't calculate this without a distance to the object
         if obj.distance is None:
@@ -195,7 +200,7 @@ class WorldModel:
         print dx, dy
 
         # return the point the object is at relative to our current position
-        return self.abs_coords[0] + dx, self.abs_coords[1] + dy
+        return reference[0] + dx, reference[1] + dy
 
     def get_stamina_max(self):
         """

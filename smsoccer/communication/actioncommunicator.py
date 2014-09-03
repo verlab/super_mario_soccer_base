@@ -21,6 +21,13 @@ CATCH_MESSAGE = "(catch %.3f)"
 KICK_MESSAGE = "(kick %.3f %.3f)"
 VIEW_QUALITY_MESSAGE = "(change_view %s %s)"
 
+#TODO without implementation
+TACKlE_MESSAGE = "(tackle)"
+POINT_TO_MESSAGE = "(pointto off)"
+ATTENTION_MESSSAGE = "(attentionto off)"
+EAR_MESSAGE = "(ear "
+COMPRESSION = "(compression"
+
 # should we print commands sent to the server?
 PRINT_SENT_COMMANDS = False
 

@@ -3,28 +3,31 @@ from numpy.random import random
 from smsoccer.localization.filter.distributions import multivariate_normal
 
 
+
 __author__ = 'dav'
 import numpy as np
 
 # Number of particles
-N = 1000
+N = 500
 
 # Motion variance, Linear and angular
-VAR_L = 3
-VAR_T = 2
+VAR_L = 0.5
+VAR_T = 15
+# Variance in rotation
+VAR_TURN = 12.0
 
 # Update variance: x, y, theta.
-sigma = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0], [0.0, 0.0, 45.0]])
+# sigma = np.array([[15.0, 0.0, 0.0], [0.0, 15.0, 0.0], [0.0, 0.0, 10.0]])
+sigma = np.array([[20.0, 0.0, 0.0], [0.0, 20.0, 0.0], [0.0, 0.0, 40.0]])
 
 SHOW_PARTICLES = True
 
 
-def _update_estimated_position():
-    pass
-
-
 class ParticleFilter(object):
-    def __init__(self, initial_position):
+    def __init__(self):
+        self.started = False
+
+    def start_position(self, initial_position):
         """
 
         :param initial_position: [x, y, theta]
@@ -34,26 +37,31 @@ class ParticleFilter(object):
         # Estimated position
         self.e_position = initial_position[:]
 
+        self.started = True
 
     def dash_particles(self, dash):
         """
         Move the particles forward
         :param dash: (vel_lin, vel_ang)
         """
+        if dash > 100:
+            dash = 100
+
         theta = self.e_position[2]
-        #TODO compute c
-        c = 0.01  # convert dash to velocity
+        # TODO compute c
+        c = 3.0 / 100.0  # convert dash to velocity
 
         # displacement
-        #TODO this distribution is not normal. player does not go back.
+        c = 1.0 / 100.0  # convert dash to velocity
         dl = c * dash + np.random.randn(N) * VAR_L
+
+        # this distribution is poisson
         dtheta = np.random.randn(N) * VAR_L
 
         dx = dl * np.cos(np.radians(theta))
         dy = dl * np.sin(np.radians(theta))
 
-
-        #movement in x,y
+        # movement in x,y
         mov = np.vstack((dx, dy))
         #movement with theta=0
         mov = np.vstack((mov, dtheta))
@@ -68,6 +76,8 @@ class ParticleFilter(object):
         :param angle: rotation angle
         """
         self.particles[:, 2] += angle
+
+        self.particles[:, 2] + np.random.randn(N) * VAR_TURN
         self._update_estimated_position()
 
     def _resample(self, weights):
@@ -100,7 +110,7 @@ class ParticleFilter(object):
 
             # particle in the  map
 
-            if -55<x[0]<55 and -35<x[1]<35: # TODO put map limits as constants
+            if -55 < x[0] < 55 and -35 < x[1] < 35:  # TODO put map limits as constants
                 w1 = multivariate_normal(nx, per, sigma)
             else:
                 w1 = 0

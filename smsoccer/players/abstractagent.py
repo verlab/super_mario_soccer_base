@@ -225,24 +225,27 @@ class AbstractAgent(object):
                 self.__send_commands = False
                 self.wm.ah.send_commands()
 
-            # only think if new data has arrived
-            if self.__should_think_on_data:
-                # flag that data has been processed.  this shouldn't be a race
-                # condition, since the only change would be to make it True
-                # before changing it to False again, and we're already going to
-                # process data, so it doesn't make any difference.
-                self.__should_think_on_data = False
 
-
-                # DEBUG:  tells us if a thread dies
-                if not self._think_thread.is_alive() or not self._msg_thread.is_alive():
-                    raise Exception("A thread died.")
-
-                # performs the actions necessary for the agent to play soccer
-                self.think()
-            else:
-                # prevent from burning up all the cpu time while waiting for data
-                time.sleep(0.0001)
+            self.think()
+            time.sleep(0.0001)
+            # # only think if new data has arrived
+            # if self.__should_think_on_data:
+            #     # flag that data has been processed.  this shouldn't be a race
+            #     # condition, since the only change would be to make it True
+            #     # before changing it to False again, and we're already going to
+            #     # process data, so it doesn't make any difference.
+            #     self.__should_think_on_data = False
+            #
+            #
+            #     # DEBUG:  tells us if a thread dies
+            #     if not self._think_thread.is_alive() or not self._msg_thread.is_alive():
+            #         raise Exception("A thread died.")
+            #
+            #     # performs the actions necessary for the agent to play soccer
+            #     self.think()
+            # else:
+            #     # prevent from burning up all the cpu time while waiting for data
+            #     time.sleep(0.0001)
 
     def think(self):
         """

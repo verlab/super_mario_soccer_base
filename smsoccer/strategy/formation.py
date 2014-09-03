@@ -36,4 +36,6 @@ def player_position(uniform_number, formation='442'):
     formation_array = formation_442 if formation == '442' else formation_433
     position = formation_array[uniform_number]
 
+
+
     return position

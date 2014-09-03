@@ -1,9 +1,7 @@
 # Window size
-from time import sleep
+import math
 
 from smsoccer.localization.filter.particlefilter import ParticleFilter
-from smsoccer.localization.filter import particlefilter
-from smsoccer.util.fielddisplay import FieldDisplay
 
 
 data = [[1.9138558074183545, 31.32223130892581, 209.34178608545565],
@@ -140,10 +138,17 @@ data = [[1.9138558074183545, 31.32223130892581, 209.34178608545565],
 if __name__ == "__main__":
     # Ground through
     gt = [-50, 0, -173]
-    pf = ParticleFilter(gt)
+    pf = ParticleFilter()
+    pf.start_position(gt)
     # print pf.particles
 
 
+
+    import timeit
+    def wrap_update():
+        return pf.update_particles(gt)
+
+    print "oh oh", timeit.timeit(wrap_update, number=10)
     # # dash
     # pf.dash_particles(10)
     # print pf.particles, pf.e_position
@@ -152,28 +157,28 @@ if __name__ == "__main__":
     # # pf.rotate_particles(30)
     # # print pf.particles, pf.e_position
 
-    display = FieldDisplay()
-
-    for d in data[:]:
-
-
-        pf.dash_particles(0)
-
-        pf.update_particles(d)
-        print pf.e_position, d
-
-        rd = 5
-
-        display.clear()
-
-        # draw particles
-        for i in range(particlefilter.N):
-            center = pf.particles[i][0], pf.particles[i][1]
-            color = (200, 0, 0)
-            radio = 2
-            display.draw_circle(center, radio, color)
-
-        display.draw_circle(pf.e_position, 5, (0, 0, 200))
-
-        display.show()
-        sleep(1)
+    # display = FieldDisplay()
+    #
+    # for d in data[:]:
+    #
+    #
+    # pf.dash_particles(0)
+    #
+    #     pf.update_particles(d)
+    #     print pf.e_position, d
+    #
+    #     rd = 5
+    #
+    #     display.clear()
+    #
+    #     # draw particles
+    #     for i in range(particlefilter.N):
+    #         center = pf.particles[i][0], pf.particles[i][1]
+    #         color = (200, 0, 0)
+    #         radio = 2
+    #         display.draw_circle(center, radio, color)
+    #
+    #     display.draw_circle(pf.e_position, 5, (0, 0, 200))
+    #
+    #     display.show()
+    #     sleep(1)
