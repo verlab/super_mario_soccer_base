@@ -3,6 +3,11 @@ import numpy as np
 from numpy.linalg import inv
 
 
+def normal(x, u, std):
+    variance = std ** 2
+    return math.exp(-((x - u) ** 2) / (2 * variance)) / (math.sqrt(variance * 2 * math.pi))
+
+
 def multivariate_normal(x, u, sigma):
     k = len(x)
 

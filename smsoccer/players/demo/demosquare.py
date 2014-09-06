@@ -26,7 +26,7 @@ class DemoSquare(AbstractPlayer):
             self.display = FieldDisplay()
 
         self.current_time = 0
-        self.aa_time = 0
+
 
     def think(self):
         """
@@ -73,16 +73,7 @@ class DemoSquare(AbstractPlayer):
 
             return
 
-        # new time
-        new_time = time.time()
-        self.new_cycle = new_time - self.current_time > 0.09
-        if self.new_cycle:
-            self.current_time = new_time
-            self.aa_time += 1
-        else:
-            return
-
-        # print "cycle", self.aa_time
+    def act_in_new_cycle(self):
 
         # kick off!
         if self.wm.play_mode == PlayModes.BEFORE_KICK_OFF:

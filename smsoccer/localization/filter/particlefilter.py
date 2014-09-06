@@ -2,10 +2,10 @@ from numpy.random import random
 import numpy as np
 import math
 
-from smsoccer.localization.filter.distributions import multivariate_normal
+from smsoccer.localization.filter.distributions import multivariate_normal, normal
 
 # Number of particles
-from smsoccer.util.geometric import euclidean_distance
+from smsoccer.util.geometric import euclidean_distance, angle_between_points
 
 N = 200
 
@@ -22,7 +22,8 @@ sigma = np.array([[20.0, 0.0, 0.0], [0.0, 20.0, 0.0], [0.0, 0.0, 140.0]])
 SHOW_PARTICLES = True
 
 # Distance visual sensor
-VAR_DISTANCE = 16
+STD_DISTANCE = 4
+STD_ANGLE = 2
 
 
 class ParticleFilter(object):
@@ -117,10 +118,14 @@ class ParticleFilter(object):
 
         for idx, p in enumerate(self.particles):
             dist_to_real = euclidean_distance(p[:2], real_f)
-            z = f.distance - dist_to_real
+            ang_to_real = angle_between_points(p[:2], real_f) - p[2]
+            # Normal error for distance
+            w_distance = normal(f.distance, dist_to_real, STD_DISTANCE)
 
-            # Normal error
-            w[idx] = math.exp(-(z ** 2) / (2 * VAR_DISTANCE)) / (math.sqrt(VAR_DISTANCE * 2 * math.pi))
+            w_theta = normal(f.direction, ang_to_real, STD_ANGLE)
+
+            w[idx] = w_distance + w_theta
+
 
 
         # Normalize weights
@@ -135,7 +140,7 @@ class ParticleFilter(object):
     # def update_particles(self, perception):
     #
     # """
-    #     DEPRECATED: update_based_flags is the new
+    # DEPRECATED: update_based_flags is the new
     #     Update the particles based on a perception of the localization.
     #     :param perception: [x,y,theta]
     #     """

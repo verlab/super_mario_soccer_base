@@ -52,6 +52,12 @@ class AbstractAgent(object):
         # Goal position depends on the side
         self.goal_pos = None
 
+        # Local time to identify new cycles
+        self.current_time=0
+        # count the number of cycles
+        self.local_time = 0
+
+
 
     def connect(self, host, port, teamname, version=15.1):
         """
@@ -225,8 +231,20 @@ class AbstractAgent(object):
                 self.__send_commands = False
                 self.wm.ah.send_commands()
 
-
+            # DEPRECATED
             self.think()
+
+            new_time = time.time()
+            self.new_cycle = new_time - self.current_time > 0.09
+            if self.new_cycle:
+                self.current_time = new_time
+                self.local_time += 1
+
+                self.act_in_new_cycle()
+
+
+
+
             time.sleep(0.001)
             # # only think if new data has arrived
             # if self.__should_think_on_data:
@@ -249,6 +267,7 @@ class AbstractAgent(object):
 
     def think(self):
         """
+        DEPRECATED
         This method must be overwritten by the Player
 
         """
@@ -258,5 +277,11 @@ class AbstractAgent(object):
         """
         This method is called just once and before the think loop
 
+        """
+        pass
+
+    def act_in_new_cycle(self):
+        """
+        This method is called each new cycle
         """
         pass
