@@ -7,7 +7,6 @@ from smsoccer.util.geometric import angle_between_points, cut_angle
 from smsoccer.world.world_model import WorldModel, PlayModes
 
 
-
 class DemoSquare(AbstractPlayer):
     """
     This is a DEMO about how to extend the AbstractAgent and implement the
@@ -26,7 +25,8 @@ class DemoSquare(AbstractPlayer):
 
             self.display = FieldDisplay()
 
-
+        self.current_time = 0
+        self.aa_time = 0
 
     def think(self):
         """
@@ -36,18 +36,24 @@ class DemoSquare(AbstractPlayer):
         if self.visualization:
             self.display.clear()
 
-             # draw particles
-            for p in self.wm.pf.particles:
-                center = p[:2]
-                angle = p[2]
-                color = (200, 0, 0)
-                self.display.draw_particle(center, angle, color)
+            # draw particles
+            if self.wm.filter_robot_loc:
+                for p in self.wm.pf.particles:
+                    center = p[:2]
+                    angle = p[2]
+                    color = (200, 0, 0)
+                    self.display.draw_particle(center, angle, color)
+                self.display.draw_robot(self.wm.pf.abs_coords, self.wm.pf.abs_body_dir, color=(100, 100, 100))
 
+            if self.wm.abs_coords is not None:
+                try:
+                    self.display.draw_robot(self.wm.abs_coords, self.wm.abs_body_dir)
+                except:
+                    pass
 
-            self.display.draw_robot(self.wm.pf.abs_coords, self.wm.pf.abs_body_dir)
-            # if self.wm.ball is not None:
-            #     self.display.draw_circle(self.wm.get_object_absolute_coords(self.wm.ball), 4)
-                # print self.wm.ball.direction, self.wm.ball.distance
+                    # if self.wm.ball is not None:
+                    # self.display.draw_circle(self.wm.get_object_absolute_coords(self.wm.ball), 4)
+                    # print self.wm.ball.direction, self.wm.ball.distance
             self.display.show()
 
         # take places on the field by uniform number
@@ -58,7 +64,7 @@ class DemoSquare(AbstractPlayer):
             time.sleep(0.1)
             self.teleport_to_point(position_point)
 
-            #turns to attack field
+            # turns to attack field
             if self.wm.side == WorldModel.SIDE_R:
                 self.turn(180)
 
@@ -67,6 +73,16 @@ class DemoSquare(AbstractPlayer):
 
             return
 
+        # new time
+        new_time = time.time()
+        self.new_cycle = new_time - self.current_time > 0.09
+        if self.new_cycle:
+            self.current_time = new_time
+            self.aa_time += 1
+        else:
+            return
+
+        # print "cycle", self.aa_time
 
         # kick off!
         if self.wm.play_mode == PlayModes.BEFORE_KICK_OFF:
@@ -100,11 +116,14 @@ class DemoSquare(AbstractPlayer):
 
             # kick it at the enemy goal
             if self.is_ball_kickable():
+                try:
+                    angle = cut_angle(angle_between_points(self.wm.abs_coords, self.goal_pos)) - cut_angle(
+                        self.wm.abs_body_dir)
+                    self.wm.ah.kick(20, angle)
+                except:
+                    print "error in angle to kick"
+                    self.wm.ah.kick(2, 0)
 
-                angle = cut_angle(angle_between_points(self.wm.abs_coords, self.goal_pos)) - cut_angle(self.wm.abs_body_dir)
-
-
-                self.wm.ah.kick(20, angle)
                 return
             else:
                 # move towards ball

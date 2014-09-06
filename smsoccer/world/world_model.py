@@ -147,7 +147,8 @@ class WorldModel:
                     # TODO neck dir
                     if self.moved:
                         self.pf.update_based_on_flags(gflags)
-                        self.moved = False
+                        # print "update"
+                        self.moved = True
             else:
                 self.abs_neck_dir = None
 

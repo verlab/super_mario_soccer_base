@@ -32,7 +32,8 @@ class AbstractPlayer(AbstractAgent):
         Teleport the player to a given (x, y) point using the 'move' command.
         """
         self.wm.ah.move(point[0], point[1])
-        self.wm.pf.start_position([point[0], point[1], 0])
+        if self.wm.filter_robot_loc:
+            self.wm.pf.start_position([point[0], point[1], 0])
 
     def align_neck_with_body(self):
         """

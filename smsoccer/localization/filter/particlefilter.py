@@ -7,13 +7,13 @@ from smsoccer.localization.filter.distributions import multivariate_normal
 # Number of particles
 from smsoccer.util.geometric import euclidean_distance
 
-N = 500
+N = 200
 
 # Motion variance, Linear and angular
 VAR_L = 0.5
 VAR_T = 5
 # Variance in rotation
-VAR_TURN = 10.0
+VAR_TURN = 4.0
 
 # Update variance: x, y, theta.
 # sigma = np.array([[15.0, 0.0, 0.0], [0.0, 15.0, 0.0], [0.0, 0.0, 10.0]])

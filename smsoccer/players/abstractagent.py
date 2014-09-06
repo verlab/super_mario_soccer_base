@@ -227,7 +227,7 @@ class AbstractAgent(object):
 
 
             self.think()
-            time.sleep(0.0001)
+            time.sleep(0.001)
             # # only think if new data has arrived
             # if self.__should_think_on_data:
             #     # flag that data has been processed.  this shouldn't be a race
