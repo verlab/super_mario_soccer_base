@@ -100,7 +100,6 @@ class WorldModel:
         if self.filter_robot_loc:
             # Particle filter for robot localization
             self.pf = ParticleFilter()
-            self.moved = False
 
 
     def process_new_info(self, ball, flags, goals, players, lines, sim_time):
@@ -129,6 +128,10 @@ class WorldModel:
         # organize the flags to take the nearest
         gflags.sort(key=lambda f: f.distance)
 
+        if len(gflags) > 0 and self.filter_robot_loc:
+            # TODO neck dir
+            self.pf.update_based_on_flags(gflags)
+
         # Use 2 flags to localize.
         if len(gflags) < 2:
             # Error in triangulation
@@ -136,19 +139,14 @@ class WorldModel:
             self.abs_neck_dir = None
             print "Not enough flags for localization"
         else:
+
+
             self.abs_coords = triangulate_position(gflags, flag_dict)
 
             if self.abs_coords is not None:
                 # set the neck and body absolute directions based on flag directions
                 self.abs_neck_dir = triangulate_direction(self.abs_coords, gflags, flag_dict)
                 self.abs_neck_dir = cut_angle(self.abs_neck_dir)
-
-                if self.filter_robot_loc:
-                    # TODO neck dir
-                    if self.moved:
-                        self.pf.update_based_on_flags(gflags)
-                        # print "update"
-                        self.moved = True
             else:
                 self.abs_neck_dir = None
 

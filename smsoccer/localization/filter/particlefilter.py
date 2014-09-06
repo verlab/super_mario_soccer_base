@@ -7,7 +7,7 @@ from smsoccer.localization.filter.distributions import multivariate_normal, norm
 # Number of particles
 from smsoccer.util.geometric import euclidean_distance, angle_between_points
 
-N = 200
+N = 100
 
 # Motion variance, Linear and angular
 VAR_L = 0.5
@@ -62,7 +62,7 @@ class ParticleFilter(object):
 
         theta = self.particles[:, 2]
         # TODO compute c
-        c = 3.0 / 100.0  # convert dash to velocity
+        # c = 3.0 / 100.0  # convert dash to velocity
 
         # displacement
         c = 1.0 / 100.0  # convert dash to velocity
@@ -87,13 +87,10 @@ class ParticleFilter(object):
         Rotate all the particles, it does not have uncertainty.
         :param angle: rotation angle
         """
-
         self.particles[:, 2] += angle + np.random.randn(N) * VAR_TURN
-
         self._update_estimated_position()
 
     def _resample(self, weights):
-
         indices = []
         c = [0.] + [sum(weights[:i + 1]) for i in range(N)]
         u0, j = random(), 0
