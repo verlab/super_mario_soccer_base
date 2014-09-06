@@ -1,3 +1,4 @@
+import sys
 from smsoccer.players.abstractagent import AbstractAgent
 from smsoccer.players.abstractplayer import AbstractPlayer
 from smsoccer.strategy.formation import player_position
@@ -26,7 +27,7 @@ class DemoPlayer(AbstractPlayer):
     """
 
 
-    def __init__(self, goalie=False, visualization=False, is_manual_control=False):
+    def __init__(self, goalie=False, visualization=True, is_manual_control=True):
 
         AbstractAgent.__init__(self, goalie=goalie)
 
@@ -47,11 +48,18 @@ class DemoPlayer(AbstractPlayer):
         iteration of our think loop.
         """
         if self.visualization:
-            if self.wm.abs_coords[0] is None:
-                return
-
             self.display.clear()
-            self.display.draw_robot(self.wm.abs_coords, self.wm.abs_body_dir)
+
+
+             # draw particles
+            for p in self.wm.pf.particles:
+                center = p[:2]
+                angle = p[2]
+                color = (200, 0, 0)
+                self.display.draw_particle(center, angle, color)
+
+
+            self.display.draw_robot(self.wm.pf.abs_coords, self.wm.pf.abs_body_dir)
             if self.wm.ball is not None:
                 self.display.draw_circle(self.wm.get_object_absolute_coords(self.wm.ball), 4)
                 # print self.wm.ball.direction, self.wm.ball.distance
@@ -65,7 +73,7 @@ class DemoPlayer(AbstractPlayer):
 
             #turns to attack field
             if self.wm.side == WorldModel.SIDE_R:
-                self.wm.ah.turn(180)
+                self.turn(180)
 
             # Player is ready in formation
             self.in_kick_off_formation = True
@@ -86,20 +94,24 @@ class DemoPlayer(AbstractPlayer):
             print "pressed", keyPress
 
             if(keyPress == "a"):
-                self.wm.ah.turn(-5)
+                self.turn(-5)
                 return
             elif(keyPress == "d"):
-                self.wm.ah.turn(5)
+                self.turn(5)
                 return
             elif(keyPress == "w"):
-                self.wm.ah.dash(50)
+                self.dash(50)
                 return
             elif(keyPress == "s"):
-                self.wm.ah.dash(-50)
+                self.dash(-50)
                 return
             elif(keyPress == "k"):
                 self.wm.ah.kick(50, 0)
                 return
+            elif(keyPress == "m"):
+                sys.exit(0)
+                return
+
 
 
         # kick off!
@@ -115,7 +127,7 @@ class DemoPlayer(AbstractPlayer):
                     if self.wm.ball is not None:
                         if self.wm.ball.direction is not None \
                                 and -7 <= self.wm.ball.direction <= 7:
-                            self.wm.ah.dash(50)
+                            self.dash(50)
                         else:
                             self.wm.turn_body_to_point((0, 0))
 
@@ -129,7 +141,7 @@ class DemoPlayer(AbstractPlayer):
         else:
             # find the ball
             if self.wm.ball is None or self.wm.ball.direction is None:
-                self.wm.ah.turn(35)
+                self.turn(35)
                 return
 
             # kick it at the enemy goal
@@ -143,9 +155,9 @@ class DemoPlayer(AbstractPlayer):
             else:
                 # move towards ball
                 if -7 <= self.wm.ball.direction <= 7:
-                    self.wm.ah.dash(5 * self.wm.ball.distance + 20)
+                    self.dash(5 * self.wm.ball.distance + 20)
                 else:
                     # face ball
-                    self.wm.ah.turn(self.wm.ball.direction / 2)
+                    self.turn(self.wm.ball.direction / 2)
 
                 return

@@ -1,4 +1,3 @@
-
 import pygame
 from pygame.locals import *
 import math
@@ -8,7 +7,7 @@ MARGIN_UP = 10
 MARGIN_LEFT = 10
 SCALE = 10
 
-width, height = int( 108.33 * SCALE ), int( 71.66 * SCALE )
+width, height = int(108.33 * SCALE), int(71.66 * SCALE)
 # Window
 pygame.init()
 window = pygame.display.set_mode((width, height), HWSURFACE | DOUBLEBUF | RESIZABLE)
@@ -20,6 +19,7 @@ rbx, rby = Flag.FLAG_COORDS["rb"]
 
 hfield_width = (rbx - ltx) / 2.0
 hfield_heigh = (rby - lty) / 2.0
+
 
 class FieldDisplay(object):
     """
@@ -108,13 +108,17 @@ class FieldDisplay(object):
         r = 10
         self.draw_circle(point, r, color)
 
-        # angle increments in clockwise
-        # angle = angle
-
         fx = point[0] + r * math.cos(math.radians(angle)) / SCALE
         fy = point[1] + r * math.sin(math.radians(angle)) / SCALE
         self.draw_line(point, (fx, fy))
 
+    def draw_particle(self, point, angle, color=(71, 135, 237)):
+        r = 4
+        self.draw_circle(point, r, color)
+
+        fx = point[0] + 1.5 * r * math.cos(math.radians(angle)) / SCALE
+        fy = point[1] + 1.5 * r * math.sin(math.radians(angle)) / SCALE
+        self.draw_line(point, (fx, fy))
 
     def draw_line(self, p1, p2, color=(0, 0, 0), stroke=2):
         """
@@ -145,7 +149,7 @@ class FieldDisplay(object):
         pygame.display.flip()
 
 
-## For testing this class
+# # For testing this class
 if __name__ == "__main__":
     import time
 

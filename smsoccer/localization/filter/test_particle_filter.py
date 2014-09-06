@@ -144,17 +144,17 @@ if __name__ == "__main__":
 
 
 
-    import timeit
-    def wrap_update():
-        return pf.update_particles(gt)
-
-    print "oh oh", timeit.timeit(wrap_update, number=10)
+    # import timeit
+    # def wrap_update():
+    #     return pf.update_particles(gt)
+    #
+    # print "oh oh", timeit.timeit(wrap_update, number=10)
     # # dash
     # pf.dash_particles(10)
     # print pf.particles, pf.e_position
     # #
     # # #rotate
-    # # pf.rotate_particles(30)
+    pf.rotate_particles(30)
     # # print pf.particles, pf.e_position
 
     # display = FieldDisplay()

@@ -1,6 +1,7 @@
 import math
 
 import game_object
+from smsoccer.localization.filter.particlefilter import ParticleFilter
 from smsoccer.localization.localization import triangulate_position, triangulate_direction
 from smsoccer.util.geometric import cut_angle
 from smsoccer.world.parameters import ServerParameters
@@ -17,13 +18,16 @@ class WorldModel:
     SIDE_R = "r"
 
 
-    def __init__(self, action_handler):
+    def __init__(self, action_handler, filter_robot_loc=True):
         """
         Create the world model with default values and an ActionHandler class it
         can use to complete requested actions.
+        :param action_handler:
+        :param filter_robot_loc: filter robot localization
         """
 
         # we use the action handler to complete complex commands
+        self.filter_robot_loc = filter_robot_loc
         self.ah = action_handler
 
         # these variables store all objects for any particular game step
@@ -93,8 +97,10 @@ class WorldModel:
 
         self.team_message_queue = []
 
-        # #
-        # self.pf = ParticleFilter()
+        if self.filter_robot_loc:
+            # Particle filter for robot localization
+            self.pf = ParticleFilter()
+
 
     def process_new_info(self, ball, flags, goals, players, lines, sim_time):
         """
@@ -110,20 +116,19 @@ class WorldModel:
         self.players = players
         self.lines = lines
 
-        # x1, y1 = self.old_abs_coords[:]
-
         # ##################### Location #########
         # TODO: make all triangulate_* calculations more accurate
         # update the apparent coordinates of the player based on all flag pairs
         flag_dict = game_object.Flag.FLAG_COORDS
 
-        # self.old_abs_coords = self.abs_coords[:] if self.abs_coords is not None else self.old_abs_coords
-
         # Take only good flags
         gflags = [f for f in flags if
                   f.distance is not None and f.direction is not None and f.flag_id is not None]
 
-        #TODO organize the flags to take the nearest
+        # organize the flags to take the nearest
+        gflags.sort(cmp=lambda f1, f2: f1.distance is None or f1.distance > f2.distance)
+
+        # Use 2 flags to localize.
         if len(gflags) < 2:
             # Error in triangulation
             self.abs_coords = None
@@ -136,6 +141,10 @@ class WorldModel:
                 # set the neck and body absolute directions based on flag directions
                 self.abs_neck_dir = triangulate_direction(self.abs_coords, gflags, flag_dict)
                 self.abs_neck_dir = cut_angle(self.abs_neck_dir)
+
+                if self.filter_robot_loc:
+                    # TODO neck dir
+                    self.pf.update_particles([self.abs_coords[0], self.abs_coords[1], self.abs_neck_dir])
             else:
                 self.abs_neck_dir = None
 
@@ -147,8 +156,8 @@ class WorldModel:
 
         # TODO ##################### Speed #########333
         # if sim_time > self.sim_time > 0:
-        #     x2, y2 = self.abs_coords[:]
-        #     # Velocity in x and y
+        # x2, y2 = self.abs_coords[:]
+        # # Velocity in x and y
         #     self.vx, self.vy = x2 - x1, y2 - y1
 
         self.sim_time = sim_time

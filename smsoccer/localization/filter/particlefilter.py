@@ -1,24 +1,21 @@
 from numpy.random import random
 
-from smsoccer.localization.filter.distributions import multivariate_normal
-
-
-
-__author__ = 'dav'
 import numpy as np
 
+from smsoccer.localization.filter.distributions import multivariate_normal
+
 # Number of particles
-N = 500
+N = 1500
 
 # Motion variance, Linear and angular
 VAR_L = 0.5
 VAR_T = 15
 # Variance in rotation
-VAR_TURN = 12.0
+VAR_TURN = 22.0
 
 # Update variance: x, y, theta.
 # sigma = np.array([[15.0, 0.0, 0.0], [0.0, 15.0, 0.0], [0.0, 0.0, 10.0]])
-sigma = np.array([[20.0, 0.0, 0.0], [0.0, 20.0, 0.0], [0.0, 0.0, 40.0]])
+sigma = np.array([[20.0, 0.0, 0.0], [0.0, 20.0, 0.0], [0.0, 0.0, 140.0]])
 
 SHOW_PARTICLES = True
 
@@ -26,6 +23,15 @@ SHOW_PARTICLES = True
 class ParticleFilter(object):
     def __init__(self):
         self.started = False
+
+        x = -55 + np.random.randn(N) * 110
+        y = -35 + np.random.randn(N) * 70
+        th = -180 + np.random.randn(N) * 180
+
+        xy = np.vstack((x, y))
+        self.particles = np.vstack((xy, th)).T
+        self._update_estimated_position()
+
 
     def start_position(self, initial_position):
         """
@@ -47,7 +53,7 @@ class ParticleFilter(object):
         if dash > 100:
             dash = 100
 
-        theta = self.e_position[2]
+        theta = self.particles[:, 2]
         # TODO compute c
         c = 3.0 / 100.0  # convert dash to velocity
 
@@ -55,7 +61,6 @@ class ParticleFilter(object):
         c = 1.0 / 100.0  # convert dash to velocity
         dl = c * dash + np.random.randn(N) * VAR_L
 
-        # this distribution is poisson
         dtheta = np.random.randn(N) * VAR_L
 
         dx = dl * np.cos(np.radians(theta))
@@ -63,7 +68,7 @@ class ParticleFilter(object):
 
         # movement in x,y
         mov = np.vstack((dx, dy))
-        #movement with theta=0
+        # movement with theta=0
         mov = np.vstack((mov, dtheta))
 
         self.particles = self.particles + mov.T
@@ -75,9 +80,9 @@ class ParticleFilter(object):
         Rotate all the particles, it does not have uncertainty.
         :param angle: rotation angle
         """
-        self.particles[:, 2] += angle
 
-        self.particles[:, 2] + np.random.randn(N) * VAR_TURN
+        self.particles[:, 2] += angle + np.random.randn(N) * VAR_TURN
+
         self._update_estimated_position()
 
     def _resample(self, weights):
@@ -93,7 +98,6 @@ class ParticleFilter(object):
 
 
     def update_particles(self, perception):
-
         # Weights.
         w = []
         for x in self.particles:
@@ -122,6 +126,7 @@ class ParticleFilter(object):
         # w = np.array(w) / sum(w)
         # w is zero, when the measure is very far, then, particles repeat.
         w = np.array(w) / sum(w) if sum(w) > 0 else np.ones(N) / N
+
         # Resample
         ids = self._resample(w)
         self.particles = self.particles[ids]
@@ -131,6 +136,8 @@ class ParticleFilter(object):
 
     def _update_estimated_position(self):
         self.e_position = np.mean(self.particles, axis=0)
+        self.abs_coords = self.e_position[:2]
+        self.abs_body_dir = self.e_position[2]
 
 
 if __name__ == "__main__":

@@ -189,3 +189,15 @@ class AbstractPlayer(AbstractAgent):
         return (self.wm.ball is not None and
                 self.wm.ball.distance is not None and
                 self.wm.ball.distance <= self.wm.server_parameters.kickable_margin)
+
+
+    # ##### actions with pff
+    def turn(self, angle):
+        self.wm.ah.turn(angle)
+        if self.wm.filter_robot_loc:
+            self.wm.pf.rotate_particles(angle)
+
+    def dash(self, val):
+        self.wm.ah.dash(val)
+        if self.wm.filter_robot_loc:
+            self.wm.pf.dash_particles(val)
