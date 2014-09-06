@@ -100,6 +100,7 @@ class WorldModel:
         if self.filter_robot_loc:
             # Particle filter for robot localization
             self.pf = ParticleFilter()
+            self.moved = False
 
 
     def process_new_info(self, ball, flags, goals, players, lines, sim_time):
@@ -126,7 +127,7 @@ class WorldModel:
                   f.distance is not None and f.direction is not None and f.flag_id is not None]
 
         # organize the flags to take the nearest
-        gflags.sort(cmp=lambda f1, f2: f1.distance is None or f1.distance > f2.distance)
+        gflags.sort(key=lambda f: f.distance)
 
         # Use 2 flags to localize.
         if len(gflags) < 2:
@@ -144,7 +145,9 @@ class WorldModel:
 
                 if self.filter_robot_loc:
                     # TODO neck dir
-                    self.pf.update_particles([self.abs_coords[0], self.abs_coords[1], self.abs_neck_dir])
+                    if self.moved:
+                        self.pf.update_based_on_flags(gflags)
+                        self.moved = False
             else:
                 self.abs_neck_dir = None
 
@@ -158,7 +161,7 @@ class WorldModel:
         # if sim_time > self.sim_time > 0:
         # x2, y2 = self.abs_coords[:]
         # # Velocity in x and y
-        #     self.vx, self.vy = x2 - x1, y2 - y1
+        # self.vx, self.vy = x2 - x1, y2 - y1
 
         self.sim_time = sim_time
 

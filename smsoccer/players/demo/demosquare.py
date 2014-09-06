@@ -6,37 +6,20 @@ from smsoccer.strategy.formation import player_position
 from smsoccer.util.geometric import angle_between_points, cut_angle
 from smsoccer.world.world_model import WorldModel, PlayModes
 
-class _GetchUnix:
-    def __init__(self):
-        import tty, sys
 
-    def __call__(self):
-        import sys, tty, termios
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        try:
-            tty.setraw(sys.stdin.fileno())
-            ch = sys.stdin.read(1)
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-        return ch
 
-class DemoPlayer(AbstractPlayer):
+class DemoSquare(AbstractPlayer):
     """
     This is a DEMO about how to extend the AbstractAgent and implement the
     think method. For a new development is recommended to do the same.
     """
 
 
-    def __init__(self, goalie=False, visualization=True, is_manual_control=True):
+    def __init__(self, goalie=False, visualization=True):
 
         AbstractAgent.__init__(self, goalie=goalie)
 
         self.visualization = visualization
-        self.is_manual_control = is_manual_control
-
-        if self.is_manual_control:
-                self.getch = _GetchUnix()
 
         if visualization:
             from smsoccer.util.fielddisplay import FieldDisplay
@@ -83,40 +66,6 @@ class DemoPlayer(AbstractPlayer):
             self.in_kick_off_formation = True
 
             return
-
-        if self.is_manual_control and self.in_kick_off_formation:
-            '''
-            For now getch() is blocking and only accepts letters, no direction pad (:
-            a = forward
-            s = backward
-            a = rotation counter clockwise
-            d = rotation clockwise
-            k = kick ball in current angle
-            '''
-            #TODO: get the key presses non-blocking
-
-            keyPress = self.getch()
-            print "pressed", keyPress
-
-            if(keyPress == "a"):
-                self.turn(-5)
-                return
-            elif(keyPress == "d"):
-                self.turn(5)
-                return
-            elif(keyPress == "w"):
-                self.dash(50)
-                return
-            elif(keyPress == "s"):
-                self.dash(-50)
-                return
-            elif(keyPress == "k"):
-                self.wm.ah.kick(50, 0)
-                return
-            elif(keyPress == "m"):
-                sys.exit(0)
-                return
-
 
 
         # kick off!

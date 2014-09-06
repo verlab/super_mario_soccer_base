@@ -13,11 +13,26 @@ class AbstractPlayer(AbstractAgent):
     def __init__(self, goalie=False):
         super(AbstractPlayer, self).__init__(goalie=goalie)
 
+    # ##### actions with pff
+    def turn(self, angle):
+        self.wm.ah.turn(angle)
+        if self.wm.filter_robot_loc:
+            self.wm.pf.rotate_particles(angle)
+            self.wm.moved = True
+
+    def dash(self, val):
+        self.wm.ah.dash(val)
+        if self.wm.filter_robot_loc:
+            self.wm.pf.dash_particles(val)
+            self.wm.moved = True
+
+
     def teleport_to_point(self, point):
         """
         Teleport the player to a given (x, y) point using the 'move' command.
         """
         self.wm.ah.move(point[0], point[1])
+        self.wm.pf.start_position([point[0], point[1], 0])
 
     def align_neck_with_body(self):
         """
@@ -191,13 +206,5 @@ class AbstractPlayer(AbstractAgent):
                 self.wm.ball.distance <= self.wm.server_parameters.kickable_margin)
 
 
-    # ##### actions with pff
-    def turn(self, angle):
-        self.wm.ah.turn(angle)
-        if self.wm.filter_robot_loc:
-            self.wm.pf.rotate_particles(angle)
 
-    def dash(self, val):
-        self.wm.ah.dash(val)
-        if self.wm.filter_robot_loc:
-            self.wm.pf.dash_particles(val)
+

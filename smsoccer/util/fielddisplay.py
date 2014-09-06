@@ -3,11 +3,11 @@ from pygame.locals import *
 import math
 from smsoccer.world.game_object import Flag
 
-MARGIN_UP = 10
-MARGIN_LEFT = 10
+MARGIN_UP = 50
+MARGIN_LEFT = 50
 SCALE = 10
 
-width, height = int(108.33 * SCALE), int(71.66 * SCALE)
+width, height = int(108.33 * SCALE) + 2 * MARGIN_LEFT, int(71.66 * SCALE) + 2 * MARGIN_UP
 # Window
 pygame.init()
 window = pygame.display.set_mode((width, height), HWSURFACE | DOUBLEBUF | RESIZABLE)

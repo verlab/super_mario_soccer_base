@@ -129,6 +129,9 @@ class Flag(GameObject):
 
         GameObject.__init__(self, distance, direction)
 
+    def real_position(self):
+        return self.FLAG_COORDS[self.flag_id]
+
 
 class MobileObject(GameObject):
     """
