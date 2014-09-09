@@ -10,6 +10,7 @@ def parse_message_see(msg, wm):
     new_goals = []
     new_lines = []
     new_players = []
+    sim_time = msg[1]
 
     # iterate over all the objects given to us in the last see message
     for obj in msg[2:]:
@@ -142,4 +143,4 @@ def parse_message_see(msg, wm):
             raise Exception("Unknown object: '" + str(obj) + "'")
 
 
-    return new_ball, new_flags, new_goals, new_players, new_lines
+    return new_ball, new_flags, new_goals, new_players, new_lines, sim_time

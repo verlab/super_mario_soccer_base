@@ -117,9 +117,7 @@ class WorldModel:
         self.lines = lines
 
         # ##################### Location #########
-        # TODO: make all triangulate_* calculations more accurate
         # update the apparent coordinates of the player based on all flag pairs
-        flag_dict = game_object.Flag.FLAG_COORDS
 
         # Take only good flags
         gflags = [f for f in flags if
@@ -139,13 +137,11 @@ class WorldModel:
             self.abs_neck_dir = None
             print "Not enough flags for localization"
         else:
-
-
-            self.abs_coords = triangulate_position(gflags, flag_dict)
+            self.abs_coords = triangulate_position(gflags)
 
             if self.abs_coords is not None:
                 # set the neck and body absolute directions based on flag directions
-                self.abs_neck_dir = triangulate_direction(self.abs_coords, gflags, flag_dict)
+                self.abs_neck_dir = triangulate_direction(self.abs_coords, gflags)
                 self.abs_neck_dir = cut_angle(self.abs_neck_dir)
             else:
                 self.abs_neck_dir = None
@@ -217,7 +213,6 @@ class WorldModel:
         """
         Returns the maximum amount of stamina a player can have.
         """
-
         return self.sm.server_parameters.stamina_max
 
 

@@ -75,10 +75,9 @@ class MessageHandler:
         """
 
         # the simulation cycle of the soccer server
-        sim_time = msg[1]
         self.wm.last_message = msg
 
-        new_ball, new_flags, new_goals, new_players, new_lines = parse_message_see(msg, self.wm)
+        new_ball, new_flags, new_goals, new_players, new_lines, sim_time = parse_message_see(msg, self.wm)
 
 
         # tell the WorldModel to update any internal variables based on the
@@ -297,5 +296,8 @@ class MessageHandler:
         Automatic message after (eye on)
         :param msg: (see_global 0 ((g r) 52.5 0) ((g l) -52.5 0) ((b) 0 0 0 0) ((p "default" 1) -50 0 0 0 0 0)) 
         """
-        print msg
-        pass
+        new_ball, new_flags, new_goals, new_players, new_lines, sim_time = parse_message_see(msg, self.wm)
+        # tell the WorldModel to update any internal variables based on the
+        # newly gleaned information.
+        self.wm.process_new_info(new_ball, new_flags, new_goals, new_players,
+                                 new_lines, sim_time)

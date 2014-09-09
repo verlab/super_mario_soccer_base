@@ -74,6 +74,8 @@ class DemoSquare(AbstractPlayer):
             return
 
     def act_in_new_cycle(self):
+        # self.wm.abs_coords = self.wm.pf.abs_coords
+        # self.wm.abs_body_dir = self.wm.pf.abs_body_dir
 
         # kick off!
         if self.wm.play_mode == PlayModes.BEFORE_KICK_OFF:

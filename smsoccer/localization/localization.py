@@ -6,14 +6,14 @@ normV = lambda (x, y), n: (x / (1.0 * n), y / (1.0 * n))
 Rot90R = lambda (x, y): (y, -x)
 
 
-def compute_colinear(f1, f2, flag_dict, mid=1):
+def compute_colinear(f1, f2, mid=1):
     if f1.distance > f2.distance:
         f1, f2 = f2, f1
 
     da, db = f1.distance, f2.distance
     # Real position of the flags
-    rf1 = flag_dict[f1.flag_id]
-    rf2 = flag_dict[f2.flag_id]
+    rf1 = f1.real_position()
+    rf2 = f2.real_position()
 
     b_a = vDiff(rf2, rf1)  # difference vector
 
@@ -27,7 +27,7 @@ def compute_colinear(f1, f2, flag_dict, mid=1):
     return (ea[0] + eb[0]) / 2.0, (ea[1] + eb[1]) / 2.0
 
 
-def compute_non_colinear(f1, f2, flag_dict):
+def compute_non_colinear(f1, f2):
     """
     Compute robot localization based on two flags.
     :param f1: flag 1
@@ -40,8 +40,8 @@ def compute_non_colinear(f1, f2, flag_dict):
         f1, f2 = f2, f1
 
     # Real position of the flags
-    rf1 = flag_dict[f1.flag_id]
-    rf2 = flag_dict[f2.flag_id]
+    rf1 = f1.real_position()
+    rf2 = f2.real_position()
 
     b_a = vDiff(rf2, rf1)  # difference vector
     lb_a = math.hypot(*b_a)  # norm of difference
@@ -60,7 +60,7 @@ def compute_non_colinear(f1, f2, flag_dict):
     return rf1[0] + pcomp[0] + rcomp[0], rf1[1] + pcomp[1] + rcomp[1]
 
 
-def triangulate_direction(abs_coords, flags, flag_dict):
+def triangulate_direction(abs_coords, flags):
     """
     Determines absolute view angle for the player given a list of visible
     flags.  We find the absolute angle to each flag, then return the average
@@ -80,7 +80,7 @@ def triangulate_direction(abs_coords, flags, flag_dict):
             # f2 = f1
             f1 = f
 
-    b = flag_dict[f1.flag_id]
+    b = f1.real_position()
 
     v = (b[0] - abs_coords[0], b[1] - abs_coords[1])  #v =b - a
     theta = math.degrees(math.atan2(v[1], v[0]))  #direction of v
@@ -89,7 +89,7 @@ def triangulate_direction(abs_coords, flags, flag_dict):
     return dir
 
 
-def triangulate_position(flags, flag_dict):
+def triangulate_position(flags):
     """
     Returns a best-guess position based on the triangulation via distances
     to all flags in the flag list given.  'angle_step' specifies the
@@ -102,13 +102,13 @@ def triangulate_position(flags, flag_dict):
     f1, f2 = flags[:2]
 
     if abs(f1.direction - f2.direction) == 180.0:
-        return compute_colinear(f1, f2, flag_dict, -1)
+        return compute_colinear(f1, f2, -1)
 
     elif f1.direction != f2.direction:
         # Non colinear
-        return compute_non_colinear(f1, f2, flag_dict)
+        return compute_non_colinear(f1, f2)
 
     elif f1.distance != f2.distance:
-        return compute_colinear(f1, f2, flag_dict)
+        return compute_colinear(f1, f2)
     else:
         return None
