@@ -191,27 +191,51 @@ class WorldModel:
                 return self.get_object_absolute_coords(self.ball)[0] < 0
 
     def is_kick_in(self):
+        """
+        Returns whether it is a kick-in situation (for either us or adversary)
+        :return:
+        """
         return self.play_mode in [PlayModes.KICK_IN_L, PlayModes.KICK_IN_R]
 
     def is_kick_in_us(self):
+        """
+        Returns whether it is a kick-in for us
+        :return:
+        """
         ki_l, ki_r = PlayModes.KICK_IN_L, PlayModes.KICK_IN_R  #just aliases
 
         return (self.play_mode == ki_l and self.side == self.SIDE_L) or \
                (self.play_mode == ki_r and self.side == self.SIDE_R)
 
     def is_goal_kick(self):
+        """
+        Returns whether it is a goal kick (for either us or adversary)
+        :return:
+        """
         return self.play_mode in [PlayModes.GOAL_KICK_L, PlayModes.GOAL_KICK_R]
 
     def is_goal_kick_us(self):
+        """
+        Returns whether it is a goal kick for us
+        :return:
+        """
         gk_l, gk_r = PlayModes.GOAL_KICK_L, PlayModes.GOAL_KICK_R  #just aliases
 
         return (self.play_mode == gk_l and self.side == self.SIDE_L) or \
                (self.play_mode == gk_r and self.side == self.SIDE_R)
 
     def is_corner_kick(self):
+        """
+        Returns whether it is a corner kick (for either us or adversary)
+        :return:
+        """
         return self.play_mode in [PlayModes.CORNER_KICK_L, PlayModes.CORNER_KICK_R]
 
     def is_corner_kick_us(self):
+        """
+        Returns whether it is a corner kick for us
+        :return:
+        """
         ck_l, ck_r = PlayModes.CORNER_KICK_L, PlayModes.CORNER_KICK_R  #just aliases
 
         return (self.play_mode == ck_l and self.side == self.SIDE_L) or \
@@ -219,13 +243,13 @@ class WorldModel:
 
     def is_free_kick(self):
         """
-        Returns whether it is a free kick or not (independent of side)
+        Returns whether it is a free kick or not (for either us or adversary)
         """
         return self.play_mode in [PlayModes.FREE_KICK_L, PlayModes.FREE_KICK_R]
 
     def is_free_kick_us(self):
         """
-        Returns whether the free kick is for our team
+        Returns whether it is a free kick for us
         """
         fk_l, fk_r = PlayModes.FREE_KICK_L, PlayModes.FREE_KICK_R  #just aliases
 
@@ -238,18 +262,19 @@ class WorldModel:
         """
         return self.play_mode == PlayModes.BEFORE_KICK_OFF
 
-    """
-    Returns whether it is a kick-off situation (for either side)
-    Also returns true for before_kick_off
-    """
     def is_kick_off(self):
+        """
+        Returns whether it is a kick-off situation (for either us or adversary)
+        Also returns true for before_kick_off
+        """
+
         return self.play_mode == PlayModes.KICK_OFF_R or \
                self.play_mode == PlayModes.KICK_OFF_L or \
                self.is_before_kick_off()
 
     def is_kick_off_us(self):
         """
-        Tells us whether it's our turn to kick off.
+        Tells us whether it is a kick off for us
         """
 
         ko_left = PlayModes.KICK_OFF_L
@@ -266,7 +291,6 @@ class WorldModel:
         """
         Returns the maximum speed the ball can be kicked at.
         """
-
         return self.server_parameters.ball_speed_max
 
     def get_object_absolute_coords(self, obj):
