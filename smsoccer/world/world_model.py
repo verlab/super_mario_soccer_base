@@ -349,7 +349,6 @@ class WorldModel:
         """
         Returns the maximum speed the ball can be kicked at.
         """
-
         return self.server_parameters.ball_speed_max
 
     def get_object_absolute_coords(self, obj):
