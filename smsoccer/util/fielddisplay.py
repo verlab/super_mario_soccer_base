@@ -1,19 +1,17 @@
+
 import pygame
 from pygame.locals import *
 import math
-
 from smsoccer.world.game_object import Flag
 
+MARGIN_UP = 10
+MARGIN_LEFT = 10
+SCALE = 10
 
-MARGIN_UP = 50
-MARGIN_LEFT = 70
-
-width, height = 800, 600
+width, height = int( 108.33 * SCALE ), int( 71.66 * SCALE )
 # Window
 pygame.init()
 window = pygame.display.set_mode((width, height), HWSURFACE | DOUBLEBUF | RESIZABLE)
-
-SCALE = 6.0
 
 # left top
 ltx, lty = Flag.FLAG_COORDS["lt"]
@@ -23,7 +21,6 @@ rbx, rby = Flag.FLAG_COORDS["rb"]
 hfield_width = (rbx - ltx) / 2.0
 hfield_heigh = (rby - lty) / 2.0
 
-
 class FieldDisplay(object):
     """
     Draw a soccer field for testings.
@@ -31,7 +28,6 @@ class FieldDisplay(object):
 
     def __init__(self, show_flags=False):
         self.show_flags = show_flags
-
 
     @staticmethod
     def _convert_coordinates(x, y):
@@ -48,7 +44,6 @@ class FieldDisplay(object):
 
         x, y = mx + SCALE * x, my + SCALE * y
         return x, y
-
 
     def clear(self):
         """
@@ -100,7 +95,7 @@ class FieldDisplay(object):
             center = self._convert_coordinates(center[0], center[1])
             pygame.draw.circle(window, color, (int(center[0]), int(center[1])), int(radio), stroke)
         except Exception:
-            print "error"
+            print "Error in FieldDisplay, drawing circle."
 
     def draw_text(self, point, text, color=(0, 0, 0)):
         point = self._convert_coordinates(*point)
@@ -110,7 +105,7 @@ class FieldDisplay(object):
 
 
     def draw_robot(self, point, angle, color=(71, 135, 237)):
-        r = 20
+        r = 10
         self.draw_circle(point, r, color)
 
         # angle increments in clockwise
@@ -136,6 +131,12 @@ class FieldDisplay(object):
                          p1,
                          p2, stroke)
 
+
+    def draw_point(self, point):
+        self.draw_circle(point, 2, color=(11, 63, 228), stroke=0)
+
+    def draw_points(self, points):
+        for point in points: self.draw_point(point)
 
     def show(self):
         """
