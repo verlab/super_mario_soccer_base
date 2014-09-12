@@ -18,3 +18,8 @@ Instructions
     ```bash
     ./run_agent.py <team_name>
     ```
+
+
+Dependencies
+____________
+* pygame

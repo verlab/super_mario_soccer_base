@@ -1,26 +1,27 @@
 
-tar zxf rcssserver-15.2.2.tar.gz
-./configure --with-boost-system=boost_system --with-boost-filesystem=boost_filesystem
 
-bison-2.7.tar.gz
+
+Install in Ubuntu 14.04
 
 
 Required libs
 sudo apt-get install g++ m4 libqt4-dev libqt4-core libqt4-gui libqt4-opengl libqt4-network flex libxt-dev libsm-dev libxi-dev libaudio-dev libglib2.0-dev libxt-dev libxrender-dev libfreetype6-dev libfontconfig1-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-program-options-dev
 
 
-./configure --with-boost-system=boost_system --with-boost-filesystem=boost_filesystem
+Download bison-2.7.tar.gz
+    $ ./configure
+    $ make
+    $ sudo make install
 
-
-
-
-
-
-
-
+Server
+    tar zxf rcssserver-15.2.2.tar.gz
+    ./configure --with-boost-system=boost_system --with-boost-filesystem=boost_filesystem
+    make
+    sudo make install
 
 
 
 Monitor
-
-./configure --with-boost-system=boost_system --with-boost-program-options=boost_program_options
+    ./configure --with-boost-system=boost_system --with-boost-program-options=boost_program_options
+    make
+    sudo make install

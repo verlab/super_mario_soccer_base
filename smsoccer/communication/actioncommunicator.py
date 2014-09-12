@@ -194,6 +194,7 @@ class ActionCommunicator(object):
         """
         Says something to other players on the field.  Messages are restricted
         in length, but that isn't enforced here.
+        WARNING: DON'T SEND MESSAGES WITH SPACES INSIDE.
         """
 
         msg = SAY_MESSAGE % message

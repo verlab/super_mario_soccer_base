@@ -143,24 +143,29 @@ class MessageHandler:
                 # Opponents messages are not of interest
                 return
 
-            # print msg
             time = msg[1]
-            who = msg[4]
-            content = msg[5]
+            ### For player
+            if len(msg)>4:
+
+                who = msg[4]
+                content = msg[5]
+            else: # Coach
+                who = msg[2]
+                content = msg[3]
 
             team_msg = TeamMessage(time, who, content)
             # Last message first in the queue.
             self.wm.team_message_queue.insert(0, team_msg)
 
             if len(self.wm.team_message_queue) > TEAM_QUEUE_MSG_CAPACITY:
-                self.wm.team_message_queue = self.wm.team_message_queue[:TEAM_QUEUE_MSG_CAPACITY]
+                    self.wm.team_message_queue = self.wm.team_message_queue[:TEAM_QUEUE_MSG_CAPACITY]
 
 
-                # all other messages are treated equally
-                # else:
-                # # update the model's last heard message
-                # new_msg = MessageHandler.Message(time_recvd, sender, message)
-                #     self.wm.prev_message = new_msg
+        # all other messages are treated equally
+        # else:
+        # # update the model's last heard message
+        # new_msg = MessageHandler.Message(time_recvd, sender, message)
+        #     self.wm.prev_message = new_msg
 
     def _handle_sense_body(self, msg):
         """

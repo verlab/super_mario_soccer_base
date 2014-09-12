@@ -82,12 +82,12 @@ if __name__ == "__main__":
     agent_threads = []
 
     # Goalie
-    print "  Spawning goalie"
-    ag = mp.Process(target=spawn_agent, args=(sys.argv[1], True))
-    ag.daemon = True
-    ag.start()
-    agent_threads.append(ag)
-    sleep(0.1)
+    # print "  Spawning goalie"
+    # ag = mp.Process(target=spawn_agent, args=(sys.argv[1], True))
+    # ag.daemon = True
+    # ag.start()
+    # agent_threads.append(ag)
+    # sleep(0.1)
 
     # # Spawn players
     for agent in xrange(min(10, int(sys.argv[2]) - 1)):
@@ -97,6 +97,7 @@ if __name__ == "__main__":
         at.start()
         agent_threads.append(at)
 
+    sleep(0.3)
     # Coach
     print "  Spawning coach"
     ac = mp.Process(target=spawn_coach, args=(sys.argv[1],))

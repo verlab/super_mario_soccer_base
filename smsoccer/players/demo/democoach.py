@@ -12,6 +12,7 @@ class DemoCoach(AbstractCoach):
         AbstractCoach.__init__(self)
 
     def think(self):
+        print self.wm.team_message_queue
         pass
 
     def act_in_new_cycle(self):
@@ -21,17 +22,17 @@ class DemoCoach(AbstractCoach):
 
     def _send_world_message(self):
         # Header: coach world message
-        msg = "{i:c"
         # ball
-        msg += ",b:" + str([self.wm.ball.distance, self.wm.ball.direction])
-        # Player
+        msg = str([self.wm.ball.distance, self.wm.ball.direction])
+        # Team players
         team = [[p.distance, p.direction] for p in self.wm.players if p.team == self.wm.team_name]
-        msg += ",t=" + str(team)
+        msg += "," + str(team)
         opponents = [[p.distance, p.direction] for p in self.wm.players if p.team != self.wm.team_name]
-        msg += ",t=" + str(opponents)
-        msg += "}"
+        msg += "," + str(opponents)
         msg = msg.replace(' ', '')
         print msg
+
+        self.wm.ah.say(msg)
 
 
 if __name__ == "__main__":

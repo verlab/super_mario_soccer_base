@@ -73,6 +73,9 @@ class DemoSquare(AbstractPlayer):
 
             return
 
+        self.wm.ah.say("hi_hi")
+        print self.wm.team_message_queue
+
     def act_in_new_cycle(self):
         # self.wm.abs_coords = self.wm.pf.abs_coords
         # self.wm.abs_body_dir = self.wm.pf.abs_body_dir
