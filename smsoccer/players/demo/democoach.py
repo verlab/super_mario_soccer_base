@@ -9,21 +9,36 @@ class DemoCoach(AbstractCoach):
     """
 
     def __init__(self):
-        AbstractAgent.__init__(self, False)
+        AbstractCoach.__init__(self)
 
     def think(self):
         pass
 
+    def act_in_new_cycle(self):
+        if self.wm.ball is not None:
+            self._send_world_message()
 
 
-
+    def _send_world_message(self):
+        # Header: coach world message
+        msg = "{i:c"
+        # ball
+        msg += ",b:" + str([self.wm.ball.distance, self.wm.ball.direction])
+        # Player
+        team = [[p.distance, p.direction] for p in self.wm.players if p.team == self.wm.team_name]
+        msg += ",t=" + str(team)
+        opponents = [[p.distance, p.direction] for p in self.wm.players if p.team != self.wm.team_name]
+        msg += ",t=" + str(opponents)
+        msg += "}"
+        msg = msg.replace(' ', '')
+        print msg
 
 
 if __name__ == "__main__":
     import time
     import sys
 
-    a = AbstractCoach()
+    a = DemoCoach()
     a.connect('localhost', 6002, 'default')
     a.play()
 

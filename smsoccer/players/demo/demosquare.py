@@ -16,7 +16,7 @@ class DemoSquare(AbstractPlayer):
 
     def __init__(self, goalie=False, visualization=True):
 
-        AbstractAgent.__init__(self, goalie=goalie)
+        AbstractPlayer.__init__(self, goalie=goalie)
 
         self.visualization = visualization
 

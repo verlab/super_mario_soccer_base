@@ -135,7 +135,7 @@ class WorldModel:
             # Error in triangulation
             self.abs_coords = None
             self.abs_neck_dir = None
-            print "Not enough flags for localization"
+            # print "Not enough flags for localization"
         else:
             self.abs_coords = triangulate_position(gflags)
 

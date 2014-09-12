@@ -20,3 +20,6 @@ class AbstractCoach(AbstractAgent):
         iteration of our think loop.
         """
         pass
+
+    def act_in_new_cycle(self):
+        pass
