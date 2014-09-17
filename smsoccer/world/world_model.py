@@ -35,6 +35,15 @@ class WorldModel:
         self.flags = []
         self.goals = []
         self.players = []
+
+        #dict of dicts, first level indexed with 'friends'/'foes', 2nd level with uniform number
+        self.players_persistent = {
+            #expands 10 None parameters with * [None]*10
+            # range: [1,2,...,11] (shirt numbers)
+            'friends': {num: game_object.Player(* [None]*10) for num in range(1, 12)},
+            'foes': {num: game_object.Player(* [None]*10) for num in range(1, 12)}
+        }
+
         self.lines = []
 
         # Received message
@@ -89,7 +98,6 @@ class WorldModel:
         # self.old_abs_coords = (0, 0)
         # self.old_direction = 0
 
-
         # Speed
         self.vx, self.vy = 0, 0
         # create a new server parameter object for holding all server params
@@ -115,10 +123,28 @@ class WorldModel:
         self.goals = goals
         self.players = players
         self.lines = lines
+        
+        #updates available info in currently seen players
+        team = None
+        number = None
+        for player in self.players:
+            team = 'friends' if player.side and player.side == self.side else 'foes'
+
+            number = player.uniform_number if player.uniform_number else None
+
+            #discards if i don't know who this player is
+            if team is None or number is None:
+                continue
+
+            #updates persistent player with available information
+            self.players_persistent[team][number] = player
+            #print 'player updated!'
+
 
         # ##################### Location #########
         # update the apparent coordinates of the player based on all flag pairs
-
+        
+        
         # Take only good flags
         gflags = [f for f in flags if
                   f.distance is not None and f.direction is not None and f.flag_id is not None]
@@ -160,6 +186,88 @@ class WorldModel:
 
         self.sim_time = sim_time
 
+    def is_ball_in_defense(self):
+        """
+        Returns whether the ball is on the defensive field
+        :return: bool
+        """
+        #conservative behavior: assumes ball in defense if i can't see it
+        if self.ball is None:
+            return True
+
+        #returns True if ball.x is less than zero
+        else:
+            if self.get_object_absolute_coords(self.ball) is None:
+                return True
+            else:
+                return self.get_object_absolute_coords(self.ball)[0] < 0
+
+    def is_kick_in(self):
+        """
+        Returns whether it is a kick-in situation (for either us or adversary)
+        :return:
+        """
+        return self.play_mode in [PlayModes.KICK_IN_L, PlayModes.KICK_IN_R]
+
+    def is_kick_in_us(self):
+        """
+        Returns whether it is a kick-in for us
+        :return:
+        """
+        ki_l, ki_r = PlayModes.KICK_IN_L, PlayModes.KICK_IN_R  #just aliases
+
+        return (self.play_mode == ki_l and self.side == self.SIDE_L) or \
+               (self.play_mode == ki_r and self.side == self.SIDE_R)
+
+    def is_goal_kick(self):
+        """
+        Returns whether it is a goal kick (for either us or adversary)
+        :return:
+        """
+        return self.play_mode in [PlayModes.GOAL_KICK_L, PlayModes.GOAL_KICK_R]
+
+    def is_goal_kick_us(self):
+        """
+        Returns whether it is a goal kick for us
+        :return:
+        """
+        gk_l, gk_r = PlayModes.GOAL_KICK_L, PlayModes.GOAL_KICK_R  #just aliases
+
+        return (self.play_mode == gk_l and self.side == self.SIDE_L) or \
+               (self.play_mode == gk_r and self.side == self.SIDE_R)
+
+    def is_corner_kick(self):
+        """
+        Returns whether it is a corner kick (for either us or adversary)
+        :return:
+        """
+        return self.play_mode in [PlayModes.CORNER_KICK_L, PlayModes.CORNER_KICK_R]
+
+    def is_corner_kick_us(self):
+        """
+        Returns whether it is a corner kick for us
+        :return:
+        """
+        ck_l, ck_r = PlayModes.CORNER_KICK_L, PlayModes.CORNER_KICK_R  #just aliases
+
+        return (self.play_mode == ck_l and self.side == self.SIDE_L) or \
+               (self.play_mode == ck_r and self.side == self.SIDE_R)
+
+    def is_free_kick(self):
+        """
+        Returns whether it is a free kick or not (for either us or adversary)
+        """
+        return self.play_mode in [PlayModes.FREE_KICK_L, PlayModes.FREE_KICK_R]
+
+    def is_free_kick_us(self):
+        """
+        Returns whether it is a free kick for us
+        """
+        fk_l, fk_r = PlayModes.FREE_KICK_L, PlayModes.FREE_KICK_R  #just aliases
+
+        return (self.play_mode == fk_l and self.side == self.SIDE_L) or \
+               (self.play_mode == fk_r and self.side == self.SIDE_R)
+
     def is_before_kick_off(self):
         """
         Tells us whether the game is in a pre-kickoff state.
@@ -169,17 +277,53 @@ class WorldModel:
 
     def is_kick_off_us(self):
         """
-        Tells us whether it's our turn to kick off.
+        Tells us whether it is a kick off for us
         """
 
         ko_left = PlayModes.KICK_OFF_L
         ko_right = PlayModes.KICK_OFF_R
 
-        print self.play_mode
+        first_cycle = self.sim_time is None or self.sim_time == 0
 
-        # return whether we're on the side that's kicking off
-        return (self.side == WorldModel.SIDE_L and self.play_mode == ko_left or
+        # return whether we're on the side that's kicking off or if we are on the left side when game begins
+        return (first_cycle and self.side == WorldModel.SIDE_L) or \
+            (self.side == WorldModel.SIDE_L and self.play_mode == ko_left or
                 self.side == WorldModel.SIDE_R and self.play_mode == ko_right)
+
+    def is_dead_ball_them(self):
+        """
+        Returns whether the ball is in the other team's possession and it's a
+        free kick, corner kick, or kick in.
+        """
+
+        # shorthand for verbose constants
+        kil = PlayModes.KICK_IN_L
+        kir = PlayModes.KICK_IN_R
+        fkl = PlayModes.FREE_KICK_L
+        fkr = PlayModes.FREE_KICK_R
+        ckl = PlayModes.CORNER_KICK_L
+        ckr = PlayModes.CORNER_KICK_R
+
+        # shorthand for whether left team or right team is free to act
+        pm = self.play_mode
+        free_left = (pm == kil or pm == fkl or pm == ckl)
+        free_right = (pm == kir or pm == fkr or pm == ckr)
+
+        # return whether the opposing side is in a dead ball situation
+        if self.side == WorldModel.SIDE_L:
+            return free_right
+        else:
+            return free_left
+
+    def is_ball_kickable(self):
+        """
+        Tells us whether the ball is in reach of the current player.
+        """
+
+        # ball must be visible, not behind us, and within the kickable margin
+        return (self.ball is not None and
+                self.ball.distance is not None and
+                self.ball.distance <= self.server_parameters.kickable_margin)
 
     def get_ball_speed_max(self):
         """
@@ -204,7 +348,7 @@ class WorldModel:
         # get the components of the vector to the object
         dx = obj.distance * math.cos(math.radians(obj.direction))
         dy = obj.distance * math.sin(math.radians(obj.direction))
-        print dx, dy
+        #print dx, dy
 
         # return the point the object is at relative to our current position
         return reference[0] + dx, reference[1] + dy
