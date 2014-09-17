@@ -1,8 +1,7 @@
 import math
-import random
 
 import game_object
-from smsoccer.util.geometric import euclidean_distance, angle_between_points
+from smsoccer.localization.filter.particlefilter import ParticleFilter
 from smsoccer.localization.localization import triangulate_position, triangulate_direction
 from smsoccer.util.geometric import cut_angle
 from smsoccer.world.parameters import ServerParameters
@@ -19,13 +18,16 @@ class WorldModel:
     SIDE_R = "r"
 
 
-    def __init__(self, action_handler):
+    def __init__(self, action_handler, filter_robot_loc=True):
         """
         Create the world model with default values and an ActionHandler class it
         can use to complete requested actions.
+        :param action_handler:
+        :param filter_robot_loc: filter robot localization
         """
 
         # we use the action handler to complete complex commands
+        self.filter_robot_loc = filter_robot_loc
         self.ah = action_handler
 
         # these variables store all objects for any particular game step
@@ -34,12 +36,12 @@ class WorldModel:
         self.goals = []
         self.players = []
 
-        #dict of dicts, first level indexed with 'friends'/'foes', 2nd level with uniform number
+        # dict of dicts, first level indexed with 'friends'/'foes', 2nd level with uniform number
         self.players_persistent = {
             #expands 10 None parameters with * [None]*10
             # range: [1,2,...,11] (shirt numbers)
-            'friends': {num: game_object.Player(* [None]*10) for num in range(1, 12)},
-            'foes': {num: game_object.Player(* [None]*10) for num in range(1, 12)}
+            'friends': {num: game_object.Player(*[None] * 10) for num in range(1, 12)},
+            'foes': {num: game_object.Player(*[None] * 10) for num in range(1, 12)}
         }
 
         self.lines = []
@@ -93,8 +95,8 @@ class WorldModel:
 
         # Simulation time
         self.sim_time = None
-        self.old_abs_coords = (0, 0)
-        self.old_direction = 0
+        # self.old_abs_coords = (0, 0)
+        # self.old_direction = 0
 
         # Speed
         self.vx, self.vy = 0, 0
@@ -103,13 +105,17 @@ class WorldModel:
 
         self.team_message_queue = []
 
+        if self.filter_robot_loc:
+            # Particle filter for robot localization
+            self.pf = ParticleFilter()
+
+
     def process_new_info(self, ball, flags, goals, players, lines, sim_time):
         """
         Update any internal variables based on the currently available
         information.  This also calculates information not available directly
         from server-reported messages, such as player coordinates.
         """
-
         # update basic information
         self.ball = ball
         self.flags = flags
@@ -117,10 +123,7 @@ class WorldModel:
         self.players = players
         self.lines = lines
 
-        x1, y1 = self.old_abs_coords[:]
-        #updates available info in currently seen players
-        team = None
-        number = None
+        # updates available info in currently seen players
         for player in self.players:
             team = 'friends' if player.side and player.side == self.side else 'foes'
 
@@ -135,36 +138,33 @@ class WorldModel:
             #print 'player updated!'
 
 
-        # TODO: make all triangulate_* calculations more accurate
-        x1, y1 = self.old_abs_coords[:]
-
         # ##################### Location #########
-        # TODO: make all triangulate_* calculations more accurate
-        # update the apparent coordinates of the player based on all flag pairs
-        flag_dict = game_object.Flag.FLAG_COORDS
-
-        self.old_abs_coords = self.abs_coords[:] if self.abs_coords is not None else self.old_abs_coord
-        
         # Take only good flags
         gflags = [f for f in flags if
                   f.distance is not None and f.direction is not None and f.flag_id is not None]
 
+        # organize the flags to take the nearest
+        gflags.sort(key=lambda f1: f1.distance)
+
+        if len(gflags) > 0 and self.filter_robot_loc:
+            # neck dir
+            self.pf.update_based_on_flags(gflags)
+
+        # Use 2 flags to localize.
         if len(gflags) < 2:
             # Error in triangulation
-            self.abs_coords = self.old_abs_coords
-            self.abs_neck_dir = self.old_direction
-            print "Not enough flags for localization"
+            self.abs_coords = None
+            self.abs_neck_dir = None
+            # print "Not enough flags for localization"
         else:
-            self.abs_coords = triangulate_position(gflags, flag_dict)
+            self.abs_coords = triangulate_position(gflags)
 
-            # If triangulation does not work, takes the last measure.
-            if self.abs_coords is None:
-                self.abs_coords = self.old_abs_coords
-                print "Cannot triangulate localization, taking the last one"
-
-            # set the neck and body absolute directions based on flag directions
-            self.abs_neck_dir = triangulate_direction(self.abs_coords, gflags, flag_dict)
-            self.abs_neck_dir = cut_angle(self.abs_neck_dir)
+            if self.abs_coords is not None:
+                # set the neck and body absolute directions based on flag directions
+                self.abs_neck_dir = triangulate_direction(self.abs_coords, gflags)
+                self.abs_neck_dir = cut_angle(self.abs_neck_dir)
+            else:
+                self.abs_neck_dir = None
 
         # set body dir only if we got a neck dir, else reset it
         if self.abs_neck_dir is not None and self.neck_direction is not None:
@@ -172,11 +172,11 @@ class WorldModel:
         else:
             self.abs_body_dir = None
 
-        # ##################### Speed #########333
-        if sim_time > self.sim_time > 0:
-            x2, y2 = self.abs_coords[:]
-            # Velocity in x and y
-            self.vx, self.vy = x2 - x1, y2 - y1
+        # TODO ##################### Speed #########333
+        # if sim_time > self.sim_time > 0:
+        # x2, y2 = self.abs_coords[:]
+        # # Velocity in x and y
+        # self.vx, self.vy = x2 - x1, y2 - y1
 
         self.sim_time = sim_time
 
@@ -185,7 +185,7 @@ class WorldModel:
         Returns whether the ball is on the defensive field
         :return: bool
         """
-        #conservative behavior: assumes ball in defense if i can't see it
+        # conservative behavior: assumes ball in defense if i can't see it
         if self.ball is None:
             return True
 
@@ -208,7 +208,7 @@ class WorldModel:
         Returns whether it is a kick-in for us
         :return:
         """
-        ki_l, ki_r = PlayModes.KICK_IN_L, PlayModes.KICK_IN_R  #just aliases
+        ki_l, ki_r = PlayModes.KICK_IN_L, PlayModes.KICK_IN_R  # just aliases
 
         return (self.play_mode == ki_l and self.side == self.SIDE_L) or \
                (self.play_mode == ki_r and self.side == self.SIDE_R)
@@ -225,7 +225,7 @@ class WorldModel:
         Returns whether it is a goal kick for us
         :return:
         """
-        gk_l, gk_r = PlayModes.GOAL_KICK_L, PlayModes.GOAL_KICK_R  #just aliases
+        gk_l, gk_r = PlayModes.GOAL_KICK_L, PlayModes.GOAL_KICK_R  # just aliases
 
         return (self.play_mode == gk_l and self.side == self.SIDE_L) or \
                (self.play_mode == gk_r and self.side == self.SIDE_R)
@@ -242,7 +242,7 @@ class WorldModel:
         Returns whether it is a corner kick for us
         :return:
         """
-        ck_l, ck_r = PlayModes.CORNER_KICK_L, PlayModes.CORNER_KICK_R  #just aliases
+        ck_l, ck_r = PlayModes.CORNER_KICK_L, PlayModes.CORNER_KICK_R  # just aliases
 
         return (self.play_mode == ck_l and self.side == self.SIDE_L) or \
                (self.play_mode == ck_r and self.side == self.SIDE_R)
@@ -257,7 +257,7 @@ class WorldModel:
         """
         Returns whether it is a free kick for us
         """
-        fk_l, fk_r = PlayModes.FREE_KICK_L, PlayModes.FREE_KICK_R  #just aliases
+        fk_l, fk_r = PlayModes.FREE_KICK_L, PlayModes.FREE_KICK_R  # just aliases
 
         return (self.play_mode == fk_l and self.side == self.SIDE_L) or \
                (self.play_mode == fk_r and self.side == self.SIDE_R)
@@ -266,17 +266,8 @@ class WorldModel:
         """
         Tells us whether the game is in a pre-kickoff state.
         """
+
         return self.play_mode == PlayModes.BEFORE_KICK_OFF
-
-    def is_kick_off(self):
-        """
-        Returns whether it is a kick-off situation (for either us or adversary)
-        Also returns true for before_kick_off
-        """
-
-        return self.play_mode == PlayModes.KICK_OFF_R or \
-               self.play_mode == PlayModes.KICK_OFF_L or \
-               self.is_before_kick_off()
 
     def is_kick_off_us(self):
         """
@@ -290,7 +281,7 @@ class WorldModel:
 
         # return whether we're on the side that's kicking off or if we are on the left side when game begins
         return (first_cycle and self.side == WorldModel.SIDE_L) or \
-            (self.side == WorldModel.SIDE_L and self.play_mode == ko_left or
+               (self.side == WorldModel.SIDE_L and self.play_mode == ko_left or
                 self.side == WorldModel.SIDE_R and self.play_mode == ko_right)
 
     def is_dead_ball_them(self):
@@ -335,108 +326,14 @@ class WorldModel:
 
         return self.server_parameters.ball_speed_max
 
-    #todo Actuator
-    def kick_to(self, point, extra_power=0.0):
-        """
-        Kick the ball to some point with some extra-power factor added on.
-        extra_power=0.0 means the ball should stop at the given point, anything
-        higher means it should have proportionately more speed.
-        """
-
-        # how far are we from the desired point?
-        point_dist = euclidean_distance(self.abs_coords, point)
-
-        # get absolute direction to the point
-        abs_point_dir = angle_between_points(self.abs_coords, point)
-
-        # get relative direction to point from body, since kicks are relative to
-        # body direction.
-        if self.abs_body_dir is not None:
-            rel_point_dir = self.abs_body_dir - abs_point_dir
-
-        # we do a simple linear interpolation to calculate final kick speed,
-        # assuming a kick of power 100 goes 45 units in the given direction.
-        # these numbers were obtained from section 4.5.3 of the documentation.
-        # TODO: this will fail if parameters change, needs to be more flexible
-        max_kick_dist = 45.0
-        dist_ratio = point_dist / max_kick_dist
-
-        # find the required power given ideal conditions, then add scale up by
-        # difference between actual achievable power and maximum power.
-        required_power = dist_ratio * self.server_parameters.maxpower
-        effective_power = self.get_effective_kick_power(self.ball,
-                                                        required_power)
-        required_power += 1 - (effective_power / required_power)
-
-        # add more power!
-        power_mod = 1.0 + extra_power
-        power = required_power * power_mod
-
-        # do the kick, finally
-        self.ah.kick(power, rel_point_dir)
-
-    def get_effective_kick_power(self, ball, power):
-        """
-        Returns the effective power of a kick given a ball object.  See formula
-        4.21 in the documentation for more details.
-        """
-
-        # we can't calculate if we don't have a distance to the ball
-        if ball.distance is None:
-            return
-
-        # first we get effective kick power:
-        # limit kick_power to be between minpower and maxpower
-        kick_power = max(min(power, self.server_parameters.maxpower),
-                         self.server_parameters.minpower)
-
-        # scale it by the kick_power rate
-        kick_power *= self.server_parameters.kick_power_rate
-
-        # now we calculate the real effective power...
-        a = 0.25 * (ball.direction / 180)
-        b = 0.25 * (ball.distance / self.server_parameters.kickable_margin)
-
-        # ...and then return it
-        return 1 - a - b
-
-    #todo Actuator
-    def turn_neck_to_object(self, obj):
-        """
-        Turns the player's neck to a given object.
-        """
-
-        self.ah.turn_neck(obj.direction)
-
-
-    def get_distance_to_point(self, point):
-        """
-        Returns the linear distance to some point on the field from the current
-        point.
-        """
-        return euclidean_distance(self.abs_coords, point)
-
-    #todo Actuator
-    def turn_body_to_point(self, point):
-        """
-        Turns the agent's body to face a given point on the field.
-        """
-
-        # calculate absolute direction to point
-        abs_point_dir = angle_between_points(self.abs_coords, point)
-
-        # subtract from absolute body direction to get relative angle
-        relative_dir = self.abs_body_dir - abs_point_dir
-
-        # turn to that angle
-        self.ah.turn(relative_dir)
-
-    def get_object_absolute_coords(self, obj):
+    def get_object_absolute_coords(self, obj, reference=None):
         """
         Determines the absolute coordinates of the given object based on the
         agent's current position.  Returns None if the coordinates can't be
         calculated.
         """
+        if reference is None:
+            reference = self.abs_coords
 
         # we can't calculate this without a distance to the object
         if obj.distance is None:
@@ -445,71 +342,16 @@ class WorldModel:
         # get the components of the vector to the object
         dx = obj.distance * math.cos(math.radians(obj.direction))
         dy = obj.distance * math.sin(math.radians(obj.direction))
-        #print dx, dy
+        # print dx, dy
 
         # return the point the object is at relative to our current position
-        return self.abs_coords[0] + dx, self.abs_coords[1] + dy
-
-    #todo Actuator
-    def teleport_to_point(self, point):
-        """
-        Teleport the player to a given (x, y) point using the 'move' command.
-        """
-
-        self.ah.move(point[0], point[1])
-
-    #todo Actuator
-    def align_neck_with_body(self):
-        """
-        Turns the player's neck to be in line with its body, making the angle
-        between the two 0 degrees.
-        """
-
-        # neck angle is relative to body, so we turn it back the inverse way
-        if self.neck_direction is not None:
-            self.ah.turn_neck(self.neck_direction * -1)
-
-    def get_nearest_teammate_to_point(self, point):
-        """
-        Returns the uniform number of the fastest teammate to some point.
-        """
-
-        # holds tuples of (player dist to point, player)
-        distances = []
-        for p in self.players:
-            # skip enemy and unknown players
-            if p.side != self.side:
-                continue
-
-            # find their absolute position
-            p_coords = self.get_object_absolute_coords(p)
-
-            distances.append((euclidean_distance(point, p_coords), p))
-
-        # return the nearest known teammate to the given point
-        nearest = min(distances)[1]
-        return nearest
-
-    def get_stamina(self):
-        """
-        Returns the agent's current stamina amount.
-        """
-
-        return self.stamina
+        return reference[0] + dx, reference[1] + dy
 
     def get_stamina_max(self):
         """
         Returns the maximum amount of stamina a player can have.
         """
-
-        return self.server_parameters.stamina_max
-
-    def turn_body_to_object(self, obj):
-        """
-        Turns the player's body to face a particular object.
-        """
-
-        self.ah.turn(obj.direction)
+        return self.sm.server_parameters.stamina_max
 
 
 class PlayModes:
