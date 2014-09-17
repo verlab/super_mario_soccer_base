@@ -1,4 +1,4 @@
-from smsoccer.abstractagent import AbstractAgent
+from smsoccer.players.demo.abstractagent import AbstractAgent
 from smsoccer.strategy.formation import player_position
 from smsoccer.util.geometric import angle_between_points
 from smsoccer.world.world_model import WorldModel, PlayModes

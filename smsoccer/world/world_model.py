@@ -123,6 +123,7 @@ class WorldModel:
         self.players = players
         self.lines = lines
 
+        # updates available info in currently seen players
         #updates available info in currently seen players
         team = None
         number = None
@@ -140,6 +141,7 @@ class WorldModel:
             #print 'player updated!'
 
 
+        # ##################### Location #########
         x1, y1 = self.old_abs_coords[:]
         #updates available info in currently seen players
         team = None
@@ -163,6 +165,15 @@ class WorldModel:
         # Take only good flags
         gflags = [f for f in flags if
                   f.distance is not None and f.direction is not None and f.flag_id is not None]
+
+        # organize the flags to take the nearest
+        gflags.sort(key=lambda f1: f1.distance)
+
+        if len(gflags) > 0 and self.filter_robot_loc:
+            # neck dir
+            self.pf.update_based_on_flags(gflags)
+
+        # Use 2 flags to localize.
         #gflags = sorted(gflags, key=lambda x: x.distance)
         if len(gflags) < 2:
             # Error in triangulation

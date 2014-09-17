@@ -53,7 +53,6 @@ def spawn_agent(team_name, goalie):
     Used to run an agent in a separate physical process.
     """
     try:
-
         a = DemoGoalie() if goalie else DemoPlayer()
         a.connect("localhost", PORT_PLAYERS, team_name)
         a.play()
