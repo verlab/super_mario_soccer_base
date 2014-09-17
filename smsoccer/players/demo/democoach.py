@@ -12,8 +12,9 @@ class DemoCoach(AbstractCoach):
         AbstractCoach.__init__(self)
 
     def think(self):
-        print self.wm.team_message_queue
-        pass
+        if self.wm.team_message_queue:
+            msg = self.wm.team_message_queue.pop()
+            print msg.from_who, msg.content
 
     def act_in_new_cycle(self):
         if self.wm.ball is not None:
@@ -30,9 +31,10 @@ class DemoCoach(AbstractCoach):
         opponents = [[p.distance, p.direction] for p in self.wm.players if p.team != self.wm.team_name]
         msg += "," + str(opponents)
         msg = msg.replace(' ', '')
-        print msg
+        # print msg
 
-        self.wm.ah.say(msg)
+        # self.wm.ah.say(msg)
+        self.wm.ah.say("sou coach")
 
 
 if __name__ == "__main__":

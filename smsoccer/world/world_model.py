@@ -36,12 +36,12 @@ class WorldModel:
         self.goals = []
         self.players = []
 
-        #dict of dicts, first level indexed with 'friends'/'foes', 2nd level with uniform number
+        # dict of dicts, first level indexed with 'friends'/'foes', 2nd level with uniform number
         self.players_persistent = {
             #expands 10 None parameters with * [None]*10
             # range: [1,2,...,11] (shirt numbers)
-            'friends': {num: game_object.Player(* [None]*10) for num in range(1, 12)},
-            'foes': {num: game_object.Player(* [None]*10) for num in range(1, 12)}
+            'friends': {num: game_object.Player(*[None] * 10) for num in range(1, 12)},
+            'foes': {num: game_object.Player(*[None] * 10) for num in range(1, 12)}
         }
 
         self.lines = []
@@ -116,17 +116,14 @@ class WorldModel:
         information.  This also calculates information not available directly
         from server-reported messages, such as player coordinates.
         """
-
         # update basic information
         self.ball = ball
         self.flags = flags
         self.goals = goals
         self.players = players
         self.lines = lines
-        
-        #updates available info in currently seen players
-        team = None
-        number = None
+
+        # updates available info in currently seen players
         for player in self.players:
             team = 'friends' if player.side and player.side == self.side else 'foes'
 
@@ -142,18 +139,15 @@ class WorldModel:
 
 
         # ##################### Location #########
-        # update the apparent coordinates of the player based on all flag pairs
-        
-        
         # Take only good flags
         gflags = [f for f in flags if
                   f.distance is not None and f.direction is not None and f.flag_id is not None]
 
         # organize the flags to take the nearest
-        gflags.sort(key=lambda f: f.distance)
+        gflags.sort(key=lambda f1: f1.distance)
 
         if len(gflags) > 0 and self.filter_robot_loc:
-            # TODO neck dir
+            # neck dir
             self.pf.update_based_on_flags(gflags)
 
         # Use 2 flags to localize.
@@ -191,7 +185,7 @@ class WorldModel:
         Returns whether the ball is on the defensive field
         :return: bool
         """
-        #conservative behavior: assumes ball in defense if i can't see it
+        # conservative behavior: assumes ball in defense if i can't see it
         if self.ball is None:
             return True
 
@@ -214,7 +208,7 @@ class WorldModel:
         Returns whether it is a kick-in for us
         :return:
         """
-        ki_l, ki_r = PlayModes.KICK_IN_L, PlayModes.KICK_IN_R  #just aliases
+        ki_l, ki_r = PlayModes.KICK_IN_L, PlayModes.KICK_IN_R  # just aliases
 
         return (self.play_mode == ki_l and self.side == self.SIDE_L) or \
                (self.play_mode == ki_r and self.side == self.SIDE_R)
@@ -231,7 +225,7 @@ class WorldModel:
         Returns whether it is a goal kick for us
         :return:
         """
-        gk_l, gk_r = PlayModes.GOAL_KICK_L, PlayModes.GOAL_KICK_R  #just aliases
+        gk_l, gk_r = PlayModes.GOAL_KICK_L, PlayModes.GOAL_KICK_R  # just aliases
 
         return (self.play_mode == gk_l and self.side == self.SIDE_L) or \
                (self.play_mode == gk_r and self.side == self.SIDE_R)
@@ -248,7 +242,7 @@ class WorldModel:
         Returns whether it is a corner kick for us
         :return:
         """
-        ck_l, ck_r = PlayModes.CORNER_KICK_L, PlayModes.CORNER_KICK_R  #just aliases
+        ck_l, ck_r = PlayModes.CORNER_KICK_L, PlayModes.CORNER_KICK_R  # just aliases
 
         return (self.play_mode == ck_l and self.side == self.SIDE_L) or \
                (self.play_mode == ck_r and self.side == self.SIDE_R)
@@ -263,7 +257,7 @@ class WorldModel:
         """
         Returns whether it is a free kick for us
         """
-        fk_l, fk_r = PlayModes.FREE_KICK_L, PlayModes.FREE_KICK_R  #just aliases
+        fk_l, fk_r = PlayModes.FREE_KICK_L, PlayModes.FREE_KICK_R  # just aliases
 
         return (self.play_mode == fk_l and self.side == self.SIDE_L) or \
                (self.play_mode == fk_r and self.side == self.SIDE_R)
@@ -287,7 +281,7 @@ class WorldModel:
 
         # return whether we're on the side that's kicking off or if we are on the left side when game begins
         return (first_cycle and self.side == WorldModel.SIDE_L) or \
-            (self.side == WorldModel.SIDE_L and self.play_mode == ko_left or
+               (self.side == WorldModel.SIDE_L and self.play_mode == ko_left or
                 self.side == WorldModel.SIDE_R and self.play_mode == ko_right)
 
     def is_dead_ball_them(self):
@@ -348,7 +342,7 @@ class WorldModel:
         # get the components of the vector to the object
         dx = obj.distance * math.cos(math.radians(obj.direction))
         dy = obj.distance * math.sin(math.radians(obj.direction))
-        #print dx, dy
+        # print dx, dy
 
         # return the point the object is at relative to our current position
         return reference[0] + dx, reference[1] + dy

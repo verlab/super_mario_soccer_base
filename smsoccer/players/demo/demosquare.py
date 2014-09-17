@@ -14,7 +14,7 @@ class DemoSquare(AbstractPlayer):
     """
 
 
-    def __init__(self, goalie=False, visualization=True):
+    def __init__(self, goalie=False, visualization=False):
 
         AbstractPlayer.__init__(self, goalie=goalie)
 
@@ -74,7 +74,8 @@ class DemoSquare(AbstractPlayer):
             return
 
         self.wm.ah.say("hi_hi")
-        print self.wm.team_message_queue
+        if self.wm.team_message_queue:
+            print self.wm.team_message_queue[0].from_who, self.wm.team_message_queue[0].content
 
     def act_in_new_cycle(self):
         # self.wm.abs_coords = self.wm.pf.abs_coords
@@ -87,7 +88,7 @@ class DemoSquare(AbstractPlayer):
                 if self.is_ball_kickable():
                     # kick with 100% extra effort at enemy goal
                     self.kick_to(self.goal_pos, 1.0)
-                    print self.goal_pos
+                    # print self.goal_pos
                 else:
                     # move towards ball
                     if self.wm.ball is not None:
